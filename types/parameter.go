@@ -8,6 +8,12 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
+type ParameterValue struct {
+	Name string `json:"name"`
+	// TODO: Should this be a cty.Value?
+	Value string `json:"value"`
+}
+
 type RichParameter struct {
 	Name         string                 `json:"name"`
 	Description  string                 `json:"description"`
