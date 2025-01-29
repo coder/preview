@@ -1,4 +1,4 @@
-package hclext
+package types
 
 import (
 	"fmt"

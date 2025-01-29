@@ -6,9 +6,12 @@ import (
 	"io/fs"
 	"path/filepath"
 
-	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraform/parser"
-	"github.com/coder/preview/types"
+	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/hcl/v2"
+	"github.com/spf13/afero"
+	"github.com/terraform-linters/tflint/terraform"
+
+	"github.com/coder/preview/types"
 )
 
 type Input struct {
@@ -16,27 +19,41 @@ type Input struct {
 }
 
 type Output struct {
-	Parameters []types.RichParameter
+	Parameters    []types.RichParameter
+	WorkspaceTags types.TagBlocks
 }
 
 func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnostics) {
-	varFiles, err := tfVarFiles("", dir)
-	if err != nil {
-		return nil, nil
+	adfs := afero.NewReadOnlyFs(afero.FromIOFS{FS: dir})
+
+	// terraform parsing
+	tp := terraform.NewParser(adfs)
+	mod, diags := tp.LoadConfigDir(".", ".")
+	if diags.HasErrors() {
+		return nil, diags
 	}
 
-	diags := make(hcl.Diagnostics, 0)
-	hook := ParameterContextsEvalHook(input, diags)
-	// moduleSource is "" for a local module
-	p := parser.New(dir, "",
-		parser.OptionWithDownloads(false),
-		parser.OptionWithTFVarsPaths(varFiles...),
-		parser.OptionWithEvalHook(hook),
+	config, diags := terraform.BuildConfig(mod, terraform.ModuleWalkerFunc(
+		func(req *terraform.ModuleRequest) (*terraform.Module, *version.Version, hcl.Diagnostics) {
+			// TODO: Load in coder registry modules?
+			return nil, nil, nil
+		}),
 	)
 
-	var _ = p
+	variableValues, diags := terraform.VariableValues(config)
+	if diags.HasErrors() {
+		return nil, diags
+	}
 
-	return nil, nil
+	evaluator := &terraform.Evaluator{
+		Meta:           &terraform.ContextMeta{},
+		ModulePath:     config.Path.UnkeyedInstanceShim(),
+		Config:         config,
+		VariableValues: variableValues,
+	}
+
+	output, diags := extract(evaluator, mod, input)
+	return &output, diags
 }
 
 func (i Input) RichParameterValue(key string) (types.ParameterValue, bool) {
