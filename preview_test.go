@@ -2,9 +2,8 @@ package preview_test
 
 import (
 	"context"
-	"embed"
 	"fmt"
-	"io/fs"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -16,16 +15,12 @@ import (
 	"github.com/coder/preview/types"
 )
 
-//go:embed testdata
-var testdata embed.FS
-
 func Test_Extract(t *testing.T) {
 	t.Parallel()
 
 	for _, tc := range []struct {
 		name        string
 		dir         string
-		showJSON    string
 		failPreview bool
 		input       preview.Input
 
@@ -122,21 +117,33 @@ func Test_Extract(t *testing.T) {
 			expUnknowns: []string{
 				"foo", "bar",
 			},
+
 			input:  preview.Input{},
 			params: map[string]func(t *testing.T, parameter types.Parameter){},
 		},
 		{
-			name:     "external docker resource with plan data",
-			dir:      "dockerdata",
-			showJSON: "show.json",
+			name: "external docker resource with plan data",
+			dir:  "dockerdata",
 			expTags: map[string]string{
 				"qux": "quux",
 				"foo": "ubuntu@sha256:80dd3c3b9c6cecb9f1667e9290b3bc61b78c2678c02cbdae5f0fea92cc6734ab",
 				"bar": "centos@sha256:a27fd8080b517143cbbbab9dfb7c8571c40d67d534bbdee55bd6c473f432b177",
 			},
 			expUnknowns: []string{},
-			input:       preview.Input{},
-			params:      map[string]func(t *testing.T, parameter types.Parameter){},
+			input: preview.Input{
+				PlanJSONPath: "plan.json",
+			},
+			params: map[string]func(t *testing.T, parameter types.Parameter){},
+		},
+		{
+			name:        "external module with external data",
+			dir:         "module",
+			expTags:     map[string]string{},
+			expUnknowns: []string{},
+			input: preview.Input{
+				PlanJSONPath: "before.json",
+			},
+			params: map[string]func(t *testing.T, parameter types.Parameter){},
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -148,8 +155,9 @@ func Test_Extract(t *testing.T) {
 				tc.expTags = map[string]string{}
 			}
 
-			dirFs, err := fs.Sub(testdata, filepath.Join("testdata", tc.dir))
-			require.NoError(t, err)
+			dirFs := os.DirFS(filepath.Join("testdata", tc.dir))
+			//a, b := fs.ReadDir(dirFs, ".")
+			//fmt.Println(a, b)
 
 			output, diags := preview.Preview(context.Background(), tc.input, dirFs)
 			if tc.failPreview {

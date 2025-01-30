@@ -50,10 +50,6 @@ func ParameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks 
 }
 
 func evaluateCoderParameterDefault(b *terraform.Block) (cty.Value, hcl.Diagnostics) {
-	//if b.Label() == "" {
-	//	return cty.NilVal,  errors.New("empty label - cannot resolve")
-	//}
-
 	attributes := b.Attributes()
 	var valType cty.Type
 	var defaults *typeexpr.Defaults

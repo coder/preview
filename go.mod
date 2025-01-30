@@ -4,7 +4,10 @@ go 1.23.5
 
 require (
 	github.com/aquasecurity/trivy v0.58.2
+	github.com/coder/serpent v0.10.0
 	github.com/hashicorp/hcl/v2 v2.23.0
+	github.com/hashicorp/terraform-json v0.24.0
+	github.com/jedib0t/go-pretty/v6 v6.6.5
 	github.com/stretchr/testify v1.10.0
 	github.com/zclconf/go-cty v1.16.2
 )
@@ -34,7 +37,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cncf/xds/go v0.0.0-20240905190251-b4127c9b8d78 // indirect
 	github.com/coder/pretty v0.0.0-20230908205945-e89ba86370e0 // indirect
-	github.com/coder/serpent v0.10.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/envoyproxy/go-control-plane v0.13.1 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.1.0 // indirect
@@ -54,9 +56,9 @@ require (
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/go-version v1.7.0 // indirect
-	github.com/jedib0t/go-pretty/v6 v6.6.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.1-0.20220621161143-b0104c826a24 // indirect
 	github.com/klauspost/compress v1.17.11 // indirect
+	github.com/liamg/memoryfs v1.6.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect

@@ -13,6 +13,7 @@ import (
 )
 
 type Input struct {
+	PlanJSONPath    string
 	ParameterValues map[string]types.ParameterValue
 }
 
@@ -28,12 +29,23 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 		return nil, nil
 	}
 
-	hook := ParameterContextsEvalHook(input)
+	planHook, err := PlanJSONHook(dir, input)
+	if err != nil {
+		return nil, hcl.Diagnostics{
+			{
+				Severity: hcl.DiagError,
+				Summary:  "Parsing plan JSON",
+				Detail:   err.Error(),
+			},
+		}
+	}
 	// moduleSource is "" for a local module
 	p := parser.New(dir, "",
 		parser.OptionWithDownloads(false),
 		parser.OptionWithTFVarsPaths(varFiles...),
-		parser.OptionWithEvalHook(hook),
+		parser.OptionWithEvalHook(planHook),
+		parser.OptionWithEvalHook(ParameterContextsEvalHook(input)),
+		parser.OptionWithSkipCachedModules(true),
 	)
 
 	err = p.ParseFS(ctx, ".")

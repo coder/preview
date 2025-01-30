@@ -16,17 +16,13 @@ data "coder_workspace_tags" "custom_workspace_tags" {
   tags = {
     // If a value is required, you can do something like:
     // try(docker_image.ubuntu.repo_digest, "default-value")
-    "foo" = docker_image.ubuntu.repo_digest
+    "foo" = data.docker_registry_image.ubuntu.sha256_digest
     "bar" = docker_image.centos.repo_digest
     "qux" = "quux"
   }
 }
 
 # Pulls the image
-resource "docker_image" "ubuntu" {
-  name = "ubuntu:latest"
-}
-
 resource "docker_image" "centos" {
   name = "centos:latest"
 }
