@@ -8,10 +8,14 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
+type Parameter struct {
+	Value ParameterValue
+	RichParameter
+}
+
 type ParameterValue struct {
-	Name string `json:"name"`
-	// TODO: Should this be a cty.Value?
-	Value string `json:"value"`
+	Name  string    `json:"name"`
+	Value cty.Value `json:"value"`
 }
 
 type RichParameter struct {
@@ -39,10 +43,10 @@ type ParameterValidation struct {
 }
 
 type RichParameterOption struct {
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
-	Value       string `json:"value,omitempty"`
-	Icon        string `json:"icon,omitempty"`
+	Name        string `json:"name" hcl:"name,attr"`
+	Description string `json:"description" hcl:"description,attr"`
+	Value       string `json:"value" hcl:"value,attr"`
+	Icon        string `json:"icon" hcl:"icon,attr"`
 }
 
 // Hash can be used to compare two RichParameter objects at a glance.

@@ -19,8 +19,10 @@ type Input struct {
 }
 
 type Output struct {
-	Parameters    []types.RichParameter
+	Parameters    []types.Parameter
 	WorkspaceTags types.TagBlocks
+
+	Files map[string]*hcl.File
 }
 
 func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnostics) {
@@ -30,6 +32,11 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 	tp := terraform.NewParser(adfs)
 	mod, diags := tp.LoadConfigDir(".", ".")
 	if diags.HasErrors() {
+		if mod != nil {
+			return &Output{
+				Files: mod.Files,
+			}, diags
+		}
 		return nil, diags
 	}
 
@@ -42,7 +49,9 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 
 	variableValues, diags := terraform.VariableValues(config)
 	if diags.HasErrors() {
-		return nil, diags
+		return &Output{
+			Files: mod.Files,
+		}, diags
 	}
 
 	evaluator := &terraform.Evaluator{

@@ -38,7 +38,7 @@ func TestPreview(t *testing.T) {
 	//schema, part := gohcl.ImpliedBodySchema(&TestThing{})
 	//fmt.Println(schema, part)
 
-	sub, err := fs.Sub(testdata, "testdata/dynamicblock")
+	sub, err := fs.Sub(testdata, "testdata/conditional")
 	require.NoError(t, err)
 
 	ctx := context.Background()

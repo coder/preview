@@ -1,108 +1,131 @@
 package preview
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/hclsyntax"
+	"github.com/terraform-linters/tflint-plugin-sdk/hclext"
 	"github.com/terraform-linters/tflint/terraform"
-	"github.com/zclconf/go-cty/cty"
 
 	"github.com/coder/preview/types"
 )
 
 func extract(eval *terraform.Evaluator, mod *terraform.Module, input Input) (Output, hcl.Diagnostics) {
 	//pcDiags := ParameterContexts(modules, input)
-	tags, tagDiags := WorkspaceTags(eval, mod)
-	//params, rpDiags := RichParameters(modules)
+	tags, tagDiags := workspaceTags(eval, mod)
+	params, rpDiags := richParameters(eval, mod)
 
 	return Output{
 		WorkspaceTags: tags,
-		//Parameters:    params,
-	}, tagDiags
+		Parameters:    params,
+		Files:         mod.Files,
+	}, tagDiags.Extend(rpDiags)
 }
 
-func WorkspaceTags(eval *terraform.Evaluator, mod *terraform.Module) (types.TagBlocks, hcl.Diagnostics) {
-	var tagBlocks []types.TagBlock
+func richParameters(eval *terraform.Evaluator, mod *terraform.Module) ([]types.Parameter, hcl.Diagnostics) {
 	var diags hcl.Diagnostics
 
+	richParameters2(eval, mod)
+
 	blocks, diags := DataBlocks(DataDef{
-		Type: "coder_workspace_tags",
+		Type: "coder_parameter",
 		Schema: &hcl.BodySchema{
+			Blocks: []hcl.BlockHeaderSchema{
+				{
+					Type: "option",
+				},
+			},
 			Attributes: []hcl.AttributeSchema{
 				{
-					Name:     "tags",
+					Name:     "name",
+					Required: true,
+				},
+				{
+					Name:     "type",
+					Required: false,
+				},
+				{
+					Name:     "description",
+					Required: false,
+				},
+				{
+					Name:     "default",
+					Required: false,
+				},
+			},
+		},
+	}, eval, mod)
+
+	rps := make([]types.Parameter, 0)
+	for _, block := range blocks {
+		p := newAttributeParser(block.Content, eval)
+		sch := &hclext.BodySchema{
+			Attributes: []hclext.AttributeSchema{
+				{
+					Name:     "name",
+					Required: true,
+				},
+				{
+					Name:     "value",
 					Required: true,
 				},
 			},
-			Blocks: nil,
-		},
-	}, eval, mod)
-	if diags.HasErrors() {
-		return nil, diags
-	}
-
-	for _, block := range blocks {
-		tagsAttr := block.Content.Attributes["tags"]
-		if tagsAttr == nil {
-			//r := block.Body.MissingItemRange()
-			diags = diags.Append(&hcl.Diagnostic{
-				Severity: hcl.DiagError,
-				Summary:  "Missing required argument",
-				Detail:   `"tags" attribute is required by coder_workspace_tags blocks`,
-				Subject:  &block.Content.MissingItemRange,
-			})
-			continue
+			Blocks: []hclext.BlockSchema{
+				{
+					Type:       "option",
+					LabelNames: nil,
+				},
+			},
 		}
+		bb, bbdiags := eval.ExpandBlock(block.Block.Body, sch)
+		var _ = bbdiags
 
-		tagObj, ok := tagsAttr.Expr.(*hclsyntax.ObjectConsExpr)
-		if !ok {
-			diags = diags.Append(&hcl.Diagnostic{
-				Severity:   hcl.DiagError,
-				Summary:    "Incorrect type for \"tags\" attribute",
-				Detail:     fmt.Sprintf(`"tags" attribute must be an 'ObjectConsExpr', but got %T`, tagsAttr.Expr),
-				Subject:    &tagsAttr.NameRange,
-				Context:    &tagsAttr.Range,
-				Expression: tagsAttr.Expr,
-			})
-			continue
-		}
-
-		var tags []types.Tag
-		for _, item := range tagObj.Items {
-			key, kdiags := eval.EvaluateExpr(item.KeyExpr, cty.String)
-			val, vdiags := eval.EvaluateExpr(item.ValueExpr, cty.String)
-
-			diags = diags.Extend(kdiags)
-			diags = diags.Extend(vdiags)
-
-			if kdiags.HasErrors() {
-				key = cty.UnknownVal(cty.String)
-			}
-
-			if vdiags.HasErrors() {
-				val = cty.UnknownVal(cty.NilType)
-			}
-
-			safe, err := Source(item.KeyExpr.Range(), mod)
-			if err != nil {
-				safe = []byte("???") // we could do more here
-			}
-
-			tags = append(tags, types.Tag{
-				Key:       key,
-				Value:     val,
-				SafeKeyID: string(safe),
-				KeyExpr:   item.KeyExpr,
-				ValueExpr: item.ValueExpr,
-			})
-		}
-		tagBlocks = append(tagBlocks, types.TagBlock{
-			Tags:    tags,
-			Block:   block.Block,
-			Content: block.Content,
+		options, diag := bb.Content(&hcl.BodySchema{
+			Attributes: []hcl.AttributeSchema{},
+			Blocks: []hcl.BlockHeaderSchema{
+				{
+					Type:       "option",
+					LabelNames: nil,
+				},
+			},
 		})
+		if diag.HasErrors() {
+			diags = diags.Extend(diag)
+			continue
+		}
+
+		var _ = options
+
+		rp := types.Parameter{
+			RichParameter: types.RichParameter{
+				Name:         p.Attr("name").required().string(),
+				Description:  p.Attr("description").required().string(),
+				Type:         p.Attr("type").required().string(),
+				Mutable:      false,
+				DefaultValue: p.Attr("description").required().string(),
+				Icon:         "",
+				Options:      []*types.RichParameterOption{},
+				Validation:   nil,
+				Required:     false,
+				DisplayName:  "",
+				Order:        0,
+				Ephemeral:    false,
+			},
+		}
+
+		if p.diags.HasErrors() {
+			diags = diags.Extend(p.diags)
+			continue
+		}
+
+		rps = append(rps, rp)
 	}
 
-	return tagBlocks, diags
+	return rps, diags
 }
+
+//func richParameterOptions(eval *terraform.Evaluator, bc *hcl.BodyContent) ([]types.RichParameterOption, hcl.Diagnostics) {
+//	rpos := make([]types.RichParameterOption, 0)
+//	for _, b := range bc.Blocks {
+//		p := newAttributeParser(b, eval)
+//		opt := types.RichParameterOption{}
+//	}
+//}
