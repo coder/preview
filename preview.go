@@ -7,16 +7,19 @@ import (
 	"path/filepath"
 
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraform/parser"
-	"github.com/coder/preview/types"
 	"github.com/hashicorp/hcl/v2"
+
+	"github.com/coder/preview/types"
 )
 
 type Input struct {
-	ParameterValues []types.ParameterValue
+	ParameterValues map[string]types.ParameterValue
 }
 
 type Output struct {
-	Parameters []types.RichParameter
+	Parameters    []types.Parameter
+	WorkspaceTags types.TagBlocks
+	Files         map[string]*hcl.File
 }
 
 func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnostics) {
@@ -33,19 +36,43 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 		parser.OptionWithTFVarsPaths(varFiles...),
 		parser.OptionWithEvalHook(hook),
 	)
+	if diags.HasErrors() {
+		return nil, diags
+	}
 
-	var _ = p
+	err = p.ParseFS(ctx, ".")
+	if err != nil {
+		return nil, hcl.Diagnostics{
+			{
+				Severity: hcl.DiagError,
+				Summary:  "Parse terraform files",
+				Detail:   err.Error(),
+			},
+		}
+	}
 
-	return nil, nil
+	modules, outputs, err := p.EvaluateAll(ctx)
+	if err != nil {
+		return nil, hcl.Diagnostics{
+			{
+				Severity: hcl.DiagError,
+				Summary:  "Evaluate terraform files",
+				Detail:   err.Error(),
+			},
+		}
+	}
+	var _ = outputs
+
+	rp, diags := RichParameters(modules)
+	return &Output{
+		Parameters: rp,
+		Files:      p.Files(),
+	}, diags
 }
 
 func (i Input) RichParameterValue(key string) (types.ParameterValue, bool) {
-	for _, p := range i.ParameterValues {
-		if p.Name == key {
-			return p, true
-		}
-	}
-	return types.ParameterValue{}, false
+	p, ok := i.ParameterValues[key]
+	return p, ok
 }
 
 // tfVarFiles extracts any .tfvars files from the given directory.

@@ -31,7 +31,7 @@ func ParameterContextsEvalHook(input Input, diags hcl.Diagnostics) func(ctx *tfc
 			pv, ok := input.RichParameterValue(name)
 			if ok {
 				// TODO: Handle non-string types
-				value = cty.StringVal(pv.Value)
+				value = pv.Value
 			} else {
 				// get the default value
 				value, defDiags = evaluateCoderParameterDefault(block)
