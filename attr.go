@@ -51,8 +51,10 @@ func (a *expectedAttribute) required() *expectedAttribute {
 			{
 				Severity: hcl.DiagError,
 				Summary:  fmt.Sprintf("Missing required attribute %q", a.Key),
-				Subject:  &r,
-				Extra:    nil,
+				// This is the error word for word from 'terraform apply'
+				Detail:  fmt.Sprintf("The argument %q is required, but no definition is found.", a.Key),
+				Subject: &r,
+				Extra:   nil,
 			},
 		})
 	}
@@ -79,7 +81,7 @@ func (a *expectedAttribute) expectedTypeError(attr *terraform.Attribute, expecte
 		{
 			Severity:   hcl.DiagError,
 			Summary:    "Invalid attribute type",
-			Detail:     fmt.Sprintf("The attribute %q must be of type %q, found type %q", attr.Name(), expectedType, attr.Type().FriendlyNameForConstraint()),
+			Detail:     fmt.Sprintf("The attribute %q must be of type %q, found type %q", attr.Name(), expectedType, attr.Type().FriendlyName()),
 			Subject:    &attr.HCLAttribute().Range,
 			Context:    &a.p.block.HCLBlock().DefRange,
 			Expression: attr.HCLAttribute().Expr,

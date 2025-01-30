@@ -31,8 +31,7 @@ func RichParameters(modules terraform.Modules) ([]types.Parameter, hcl.Diagnosti
 			}
 
 			// Find the value of the parameter from the context.
-			paramValue, paramValueDiags := richParameterValue(block)
-			var _ = paramValueDiags // TODO: handle diags for paramValues
+			paramValue := richParameterValue(block)
 
 			param := types.Parameter{
 				Value: types.ParameterValue{
@@ -45,7 +44,7 @@ func RichParameters(modules terraform.Modules) ([]types.Parameter, hcl.Diagnosti
 					Mutable:      false,
 					DefaultValue: p.attr("default").string(),
 					Icon:         p.attr("icon").string(),
-					Options:      nil,
+					Options:      paramOptions,
 					Validation:   nil,
 					Required:     false,
 					DisplayName:  "",
@@ -79,7 +78,7 @@ func paramOption(block *terraform.Block) (*types.RichParameterOption, hcl.Diagno
 	return opt, nil
 }
 
-func richParameterValue(block *terraform.Block) (cty.Value, hcl.Diagnostics) {
+func richParameterValue(block *terraform.Block) cty.Value {
 	// Find the value of the parameter from the context.
 	paramPath := append([]string{"data"}, block.Labels()...)
 	valueRef := hclext.ScopeTraversalExpr(append(paramPath, "value")...)
@@ -89,8 +88,10 @@ func richParameterValue(block *terraform.Block) (cty.Value, hcl.Diagnostics) {
 			b := block.HCLBlock().Body.MissingItemRange()
 			diag.Subject = &b
 		}
-		return cty.UnknownVal(cty.NilType), diags
+
+		// TODO: Figure out what to do with these diagnostics
+		return markWithDiagnostic(cty.UnknownVal(cty.NilType), diags)
 	}
 
-	return paramValue, hcl.Diagnostics{}
+	return paramValue
 }

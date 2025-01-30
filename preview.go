@@ -28,17 +28,13 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 		return nil, nil
 	}
 
-	diags := make(hcl.Diagnostics, 0)
-	hook := ParameterContextsEvalHook(input, diags)
+	hook := ParameterContextsEvalHook(input)
 	// moduleSource is "" for a local module
 	p := parser.New(dir, "",
 		parser.OptionWithDownloads(false),
 		parser.OptionWithTFVarsPaths(varFiles...),
 		parser.OptionWithEvalHook(hook),
 	)
-	if diags.HasErrors() {
-		return nil, diags
-	}
 
 	err = p.ParseFS(ctx, ".")
 	if err != nil {
@@ -63,11 +59,14 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 	}
 	var _ = outputs
 
-	rp, diags := RichParameters(modules)
+	diags := make(hcl.Diagnostics, 0)
+	rp, rpDiags := RichParameters(modules)
+	tags, tagDiags := WorkspaceTags(modules, p.Files())
 	return &Output{
-		Parameters: rp,
-		Files:      p.Files(),
-	}, diags
+		Parameters:    rp,
+		WorkspaceTags: tags,
+		Files:         p.Files(),
+	}, diags.Extend(rpDiags).Extend(tagDiags)
 }
 
 func (i Input) RichParameterValue(key string) (types.ParameterValue, bool) {

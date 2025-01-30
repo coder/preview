@@ -13,7 +13,7 @@ import (
 	"github.com/coder/preview/hclext"
 )
 
-func ParameterContextsEvalHook(input Input, diags hcl.Diagnostics) func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value) {
+func ParameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value) {
 	return func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value) {
 		data := blocks.OfType("data")
 		for _, block := range data {
@@ -26,7 +26,6 @@ func ParameterContextsEvalHook(input Input, diags hcl.Diagnostics) func(ctx *tfc
 			}
 
 			name := block.NameLabel()
-			var defDiags hcl.Diagnostics
 			var value cty.Value
 			pv, ok := input.RichParameterValue(name)
 			if ok {
@@ -34,8 +33,8 @@ func ParameterContextsEvalHook(input Input, diags hcl.Diagnostics) func(ctx *tfc
 				value = pv.Value
 			} else {
 				// get the default value
-				value, defDiags = evaluateCoderParameterDefault(block)
-				diags = diags.Extend(defDiags)
+				// TODO: Log any diags
+				value, _ = evaluateCoderParameterDefault(block)
 			}
 
 			// Set the default value as the 'value' attribute
@@ -56,28 +55,16 @@ func evaluateCoderParameterDefault(b *terraform.Block) (cty.Value, hcl.Diagnosti
 	//}
 
 	attributes := b.Attributes()
-	if attributes == nil {
-		r := b.HCLBlock().Body.MissingItemRange()
-		return cty.NilVal, hcl.Diagnostics{
-			{
-				Severity: hcl.DiagWarning,
-				Summary:  "'coder_parameter' block has no attributes",
-				Detail:   "No default value will be set for this paramete",
-				Subject:  &r,
-			},
-		}
-	}
-
 	var valType cty.Type
 	var defaults *typeexpr.Defaults
-	// TODO: `"string"` fails, it should be `string`
+
 	typeAttr, exists := attributes["type"]
 	if exists {
 		ty, def, err := hclext.DecodeVarType(typeAttr.HCLAttribute().Expr)
 		if err != nil {
 			return cty.NilVal, hcl.Diagnostics{
 				{
-					Severity:    hcl.DiagWarning,
+					Severity:    hcl.DiagError,
 					Summary:     fmt.Sprintf("Decoding parameter type for %q", b.FullName()),
 					Detail:      err.Error(),
 					Subject:     &typeAttr.HCLAttribute().Range,
@@ -112,7 +99,7 @@ func evaluateCoderParameterDefault(b *terraform.Block) (cty.Value, hcl.Diagnosti
 		if err != nil {
 			return cty.NilVal, hcl.Diagnostics{
 				{
-					Severity:    hcl.DiagWarning,
+					Severity:    hcl.DiagError,
 					Summary:     "Converting default parameter value type",
 					Detail:      err.Error(),
 					Subject:     &def.HCLAttribute().Range,

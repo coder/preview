@@ -23,15 +23,21 @@ func Test_Extract(t *testing.T) {
 	t.Parallel()
 
 	for _, tc := range []struct {
-		name     string
-		dir      string
-		showJSON string
-		input    preview.Input
+		name        string
+		dir         string
+		showJSON    string
+		failPreview bool
+		input       preview.Input
 
 		expTags     map[string]string
 		expUnknowns []string
 		params      map[string]func(t *testing.T, parameter types.Parameter)
 	}{
+		{
+			name:        "bad param values",
+			dir:         "badparam",
+			failPreview: true,
+		},
 		{
 			name: "simple static values",
 			dir:  "static",
@@ -120,7 +126,7 @@ func Test_Extract(t *testing.T) {
 			params: map[string]func(t *testing.T, parameter types.Parameter){},
 		},
 		{
-			name:     "external docker resource",
+			name:     "external docker resource with plan data",
 			dir:      "dockerdata",
 			showJSON: "show.json",
 			expTags: map[string]string{
@@ -146,14 +152,17 @@ func Test_Extract(t *testing.T) {
 			require.NoError(t, err)
 
 			output, diags := preview.Preview(context.Background(), tc.input, dirFs)
+			if tc.failPreview {
+				require.True(t, diags.HasErrors())
+				return
+			}
 			require.False(t, diags.HasErrors())
 
 			// Assert tags
-			//validTags, err := output.WorkspaceTags.ValidTags()
-			//require.NoError(t, err)
-			//
-			//assert.Equal(t, tc.expTags, validTags)
-			//assert.ElementsMatch(t, tc.expUnknowns, output.WorkspaceTags.Unknowns())
+			validTags := output.WorkspaceTags.ValidTags()
+
+			assert.Equal(t, tc.expTags, validTags)
+			assert.ElementsMatch(t, tc.expUnknowns, output.WorkspaceTags.InvalidTags().SafeNames())
 
 			// Assert params
 			require.Len(t, output.Parameters, len(tc.params), "wrong number of parameters expected")

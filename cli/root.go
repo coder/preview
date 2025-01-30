@@ -48,7 +48,7 @@ func (r *RootCmd) Root() *serpent.Command {
 		Handler: func(i *serpent.Invocation) error {
 			dfs := os.DirFS(dir)
 
-			var rvars map[string]types.ParameterValue
+			rvars := make(map[string]types.ParameterValue)
 			for _, val := range vars {
 				parts := strings.Split(val, "=")
 				if len(parts) != 2 {
