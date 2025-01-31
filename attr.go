@@ -77,11 +77,18 @@ func (a *expectedAttribute) string() string {
 }
 
 func (a *expectedAttribute) expectedTypeError(attr *terraform.Attribute, expectedType string) {
+	var fn string
+	if attr.IsNil() || attr.Type().Equals(cty.NilType) {
+		fn = "nil"
+	} else {
+		fn = attr.Type().FriendlyName()
+	}
+
 	a.error(hcl.Diagnostics{
 		{
 			Severity:   hcl.DiagError,
 			Summary:    "Invalid attribute type",
-			Detail:     fmt.Sprintf("The attribute %q must be of type %q, found type %q", attr.Name(), expectedType, attr.Type().FriendlyName()),
+			Detail:     fmt.Sprintf("The attribute %q must be of type %q, found type %q", attr.Name(), expectedType, fn),
 			Subject:    &attr.HCLAttribute().Range,
 			Context:    &a.p.block.HCLBlock().DefRange,
 			Expression: attr.HCLAttribute().Expr,

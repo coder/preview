@@ -31,6 +31,9 @@ type RichParameter struct {
 	DisplayName string `json:"display_name"`
 	Order       int32  `json:"order"`
 	Ephemeral   bool   `json:"ephemeral"`
+
+	// HCL props
+	BlockName string `json:"block_name"`
 }
 
 type ParameterValidation struct {

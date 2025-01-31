@@ -5,9 +5,11 @@ import (
 	"io"
 	"strings"
 
-	"github.com/coder/preview/types"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/zclconf/go-cty/cty"
+
+	"github.com/coder/preview/types"
 )
 
 func WorkspaceTags(writer io.Writer, tags types.TagBlocks) hcl.Diagnostics {
@@ -63,12 +65,14 @@ func Parameters(writer io.Writer, params []types.Parameter) {
 			strVal = "null"
 		} else if !p.Value.Value.IsKnown() {
 			strVal = "unknown"
-		} else {
+		} else if value.Type().Equals(cty.String) {
 			strVal = value.AsString()
+		} else {
+			strVal = value.GoString()
 		}
 
 		tableWriter.AppendRow(table.Row{
-			fmt.Sprintf("%s: %s\n%s", p.Name, p.Description, formatOptions(strVal, p.Options)),
+			fmt.Sprintf("%s (%s): %s\n%s", p.Name, p.BlockName, p.Description, formatOptions(strVal, p.Options)),
 		})
 		tableWriter.AppendSeparator()
 	}
@@ -79,6 +83,7 @@ func formatOptions(selected string, options []*types.RichParameterOption) string
 	var str strings.Builder
 	sep := ""
 	found := false
+
 	for _, opt := range options {
 		str.WriteString(sep)
 		prefix := "[ ]"

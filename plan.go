@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"reflect"
 	"strings"
 
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraformplan/tfjson/parser"
@@ -45,11 +46,11 @@ func PlanJSONHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks t
 				continue
 			}
 
-			if parts[0] == "data" && !strings.Contains(resource.Type, "coder") {
+			if parts[0] != "data" || strings.Contains(parts[1], "coder") {
 				continue
 			}
 
-			val, err := attributeCtyVal(resource.AttributeValues)
+			val, err := toCtyValue(resource.AttributeValues)
 			if err != nil {
 				// TODO: Remove log
 				log.Printf("unable to determine value of resource %q: %v", resource.Address, err)
@@ -62,21 +63,49 @@ func PlanJSONHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks t
 	}, nil
 }
 
-func attributeCtyVal(attr map[string]interface{}) (cty.Value, error) {
-	mv := make(map[string]cty.Value)
-	for k, v := range attr {
-		ty, err := gocty.ImpliedType(v)
-		if err != nil {
-			return cty.NilVal, fmt.Errorf("implied type for %q: %w", k, err)
-		}
-
-		mv[k], err = gocty.ToCtyValue(v, ty)
-		if err != nil {
-			return cty.NilVal, fmt.Errorf("implied value for %q: %w", k, err)
-		}
+func toCtyValue(a any) (cty.Value, error) {
+	if a == nil {
+		return cty.NilVal, nil
 	}
+	av := reflect.ValueOf(a)
+	switch av.Type().Kind() {
+	case reflect.Slice, reflect.Array:
+		sv := make([]cty.Value, 0, av.Len())
+		for i := 0; i < av.Len(); i++ {
+			v, err := toCtyValue(av.Index(i).Interface())
+			if err != nil {
+				return cty.NilVal, fmt.Errorf("slice value %d: %w", i, err)
+			}
+			sv = append(sv, v)
+		}
+		return cty.ListVal(sv), nil
+	case reflect.Map:
+		if av.Type().Key().Kind() != reflect.String {
+			return cty.NilVal, fmt.Errorf("map keys must be string, found %q", av.Type().Key().Kind())
+		}
 
-	return cty.ObjectVal(mv), nil
+		mv := make(map[string]cty.Value)
+		var err error
+		for _, k := range av.MapKeys() {
+			v := av.MapIndex(k)
+			mv[k.String()], err = toCtyValue(v.Interface())
+			if err != nil {
+				return cty.NilVal, fmt.Errorf("map value %q: %w", k.String(), err)
+			}
+		}
+		return cty.ObjectVal(mv), nil
+	default:
+		ty, err := gocty.ImpliedType(a)
+		if err != nil {
+			return cty.NilVal, fmt.Errorf("implied type: %w", err)
+		}
+
+		cv, err := gocty.ToCtyValue(a, ty)
+		if err != nil {
+			return cty.NilVal, fmt.Errorf("implied value: %w", err)
+		}
+		return cv, nil
+	}
 }
 
 // ParsePlanJSON can parse the JSON output of a Terraform plan.

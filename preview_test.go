@@ -10,10 +10,17 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/gocty"
 
 	"github.com/coder/preview"
 	"github.com/coder/preview/types"
 )
+
+func TestFoo(t *testing.T) {
+	ty, err := gocty.ImpliedType([]any{1, 2, 3})
+	require.NoError(t, err)
+	fmt.Println(ty.FriendlyName())
+}
 
 func Test_Extract(t *testing.T) {
 	t.Parallel()
@@ -144,6 +151,17 @@ func Test_Extract(t *testing.T) {
 				PlanJSONPath: "before.json",
 			},
 			params: map[string]func(t *testing.T, parameter types.Parameter){},
+		},
+		{
+			name:    "aws instance list",
+			dir:     "instancelist",
+			expTags: map[string]string{},
+			input: preview.Input{
+				PlanJSONPath:    "before.json",
+				ParameterValues: map[string]types.ParameterValue{},
+			},
+			expUnknowns: []string{},
+			params:      map[string]func(t *testing.T, parameter types.Parameter){},
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

@@ -32,17 +32,29 @@ func RichParameters(modules terraform.Modules) ([]types.Parameter, hcl.Diagnosti
 
 			// Find the value of the parameter from the context.
 			paramValue := richParameterValue(block)
+			var defVal string
+
+			// default can be nil if the references are not resolved.
+			def := block.GetAttribute("default").Value()
+			if def.Equals(cty.NilVal).True() {
+				defVal = "<nil>"
+			} else if !def.IsKnown() {
+				defVal = "<unknown>"
+			} else {
+				defVal = p.attr("default").string()
+			}
 
 			param := types.Parameter{
 				Value: types.ParameterValue{
 					Value: paramValue,
 				},
 				RichParameter: types.RichParameter{
+					BlockName:    block.Labels()[1],
 					Name:         p.attr("name").required().string(),
 					Description:  p.attr("description").string(),
 					Type:         "",
 					Mutable:      false,
-					DefaultValue: p.attr("default").string(),
+					DefaultValue: defVal,
 					Icon:         p.attr("icon").string(),
 					Options:      paramOptions,
 					Validation:   nil,
