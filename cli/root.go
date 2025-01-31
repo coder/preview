@@ -21,8 +21,9 @@ type RootCmd struct {
 
 func (r *RootCmd) Root() *serpent.Command {
 	var (
-		dir  string
-		vars []string
+		dir      string
+		vars     []string
+		planJSON string
 	)
 	cmd := &serpent.Command{
 		Use:   "codertf",
@@ -35,6 +36,14 @@ func (r *RootCmd) Root() *serpent.Command {
 				FlagShorthand: "d",
 				Default:       ".",
 				Value:         serpent.StringOf(&dir),
+			},
+			{
+				Name:          "plan",
+				Description:   "Terraform plan file as json.",
+				Flag:          "plan",
+				FlagShorthand: "p",
+				Default:       "",
+				Value:         serpent.StringOf(&planJSON),
 			},
 			{
 				Name:          "vars",
@@ -61,6 +70,7 @@ func (r *RootCmd) Root() *serpent.Command {
 
 			input := preview.Input{
 				ParameterValues: rvars,
+				PlanJSONPath:    planJSON,
 			}
 
 			ctx := i.Context()
