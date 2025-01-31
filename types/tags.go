@@ -84,6 +84,9 @@ func (t Tag) Valid() bool {
 	if !t.Key.Type().Equals(cty.String) || !t.Value.Type().Equals(cty.String) {
 		return false
 	}
+	if t.Key.IsNull() || t.Value.IsNull() {
+		return false
+	}
 	return true
 }
 

@@ -23,7 +23,7 @@ func WorkspaceTags(writer io.Writer, tags types.TagBlocks) hcl.Diagnostics {
 	tableWriter.AppendHeader(row)
 	for _, tb := range tags {
 		for _, tag := range tb.Tags {
-			if tag.IsKnown() {
+			if tag.Valid() {
 				k, v := tag.AsStrings()
 				tableWriter.AppendRow(table.Row{k, v, ""})
 				continue

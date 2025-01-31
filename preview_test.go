@@ -163,6 +163,16 @@ func Test_Extract(t *testing.T) {
 			expUnknowns: []string{},
 			params:      map[string]func(t *testing.T, parameter types.Parameter){},
 		},
+		{
+			name:    "null default",
+			dir:     "nulldefault",
+			expTags: map[string]string{},
+			input: preview.Input{
+				ParameterValues: map[string]types.ParameterValue{},
+			},
+			expUnknowns: []string{},
+			params:      map[string]func(t *testing.T, parameter types.Parameter){},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
