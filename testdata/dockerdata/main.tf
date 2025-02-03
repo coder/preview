@@ -12,6 +12,24 @@ terraform {
   }
 }
 
+data "coder_parameter" "example" {
+  name        = "Example"
+  description = "An example parameter that has no purpose."
+  type        = "string"
+
+  option {
+    name = "Ubuntu"
+    description = data.docker_registry_image.ubuntu.name
+    value = try(data.docker_registry_image.ubuntu.sha256_digest, "??")
+  }
+
+  option {
+    name = "Centos"
+    description = docker_image.centos.name
+    value = try(docker_image.centos.repo_digest, "??")
+  }
+}
+
 data "coder_workspace_tags" "custom_workspace_tags" {
   tags = {
     // If a value is required, you can do something like:
