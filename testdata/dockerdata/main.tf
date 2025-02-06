@@ -12,6 +12,16 @@ terraform {
   }
 }
 
+module "jetbrains_gateway" {
+  count          = 1
+  source         = "registry.coder.com/modules/jetbrains-gateway/coder"
+  version        = "1.0.28"
+  agent_id       = data.coder_parameter.example.id
+  folder         = "/home/coder/example"
+  jetbrains_ides = ["CL", "GO", "IU", "PY", "WS"]
+  default        = "GO"
+}
+
 data "coder_parameter" "example" {
   name        = "Example"
   description = "An example parameter that has no purpose."
