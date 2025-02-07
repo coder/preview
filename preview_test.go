@@ -147,8 +147,8 @@ func Test_Extract(t *testing.T) {
 			dir:         "module",
 			expTags:     map[string]string{},
 			expUnknowns: []string{},
-			input: preview.Input{
-				PlanJSONPath: "before.json",
+			input:       preview.Input{
+				//PlanJSONPath: "before.json",
 			},
 			params: map[string]func(t *testing.T, parameter types.Parameter){},
 		},

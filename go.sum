@@ -625,8 +625,8 @@ github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 h1:L/gRVlceqvL25
 github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161/go.mod h1:xomTg63KZ2rFqZQzSB4Vz2SUXa1BpHTVz9L5PTmPC4E=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/Emyrk/trivy v0.0.0-20250130184222-11c279ff4cd9 h1:v4RZ1ayXjps3spGYXDWub0U7XmgUEaCAgqX+wEnZ19Y=
-github.com/Emyrk/trivy v0.0.0-20250130184222-11c279ff4cd9/go.mod h1:dJIzxTfeSrUGtDBtbg2AiMbAnbVjo97lsLC9eyAawZI=
+github.com/Emyrk/trivy v0.0.0-20250207181623-1a73b04a2aec h1:zI5vfv/LOjPtlXlbMZTxfcDAobHXuAXVnxPKja//agM=
+github.com/Emyrk/trivy v0.0.0-20250207181623-1a73b04a2aec/go.mod h1:dJIzxTfeSrUGtDBtbg2AiMbAnbVjo97lsLC9eyAawZI=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.25.0 h1:3c8yed4lgqTt+oTQ+JNMDo+F4xprBf+O/il4ZC0nRLw=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.25.0/go.mod h1:obipzmGjfSjam60XLwGfqUkJsfiheAl+TUjG+4yzyPM=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.48.1 h1:UQ0AhxogsIRZDkElkblfnwjc3IaltCm2HUMvezQaL7s=
@@ -664,6 +664,8 @@ github.com/aquasecurity/iamgo v0.0.10 h1:t/HG/MI1eSephztDc+Rzh/YfgEa+NqgYRSfr6pH
 github.com/aquasecurity/iamgo v0.0.10/go.mod h1:GI9IQJL2a+C+V2+i3vcwnNKuIJXZ+HAfqxZytwy+cPk=
 github.com/aquasecurity/jfather v0.0.8 h1:tUjPoLGdlkJU0qE7dSzd1MHk2nQFNPR0ZfF+6shaExE=
 github.com/aquasecurity/jfather v0.0.8/go.mod h1:Ag+L/KuR/f8vn8okUi8Wc1d7u8yOpi2QTaGX10h71oY=
+github.com/awalterschulze/gographviz v2.0.3+incompatible h1:9sVEXJBJLwGX7EQVhLm2elIKCm7P2YHFC8v6096G09E=
+github.com/awalterschulze/gographviz v2.0.3+incompatible/go.mod h1:GEV5wmg4YquNw7v1kkyoX9etIk8yVmXj+AkDHuuETHs=
 github.com/aws/aws-sdk-go v1.44.122/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX4oIKwKHZo=
 github.com/aws/aws-sdk-go v1.55.6 h1:cSg4pvZ3m8dgYcgqB97MrcdjUmZ1BeMYKUxMMB89IPk=
 github.com/aws/aws-sdk-go v1.55.6/go.mod h1:eRwEWoyTWFMVYVQzKMNHWP5/RV4xIUGMQfXQHfHkpNU=
@@ -723,6 +725,8 @@ github.com/cpuguy83/dockercfg v0.3.2/go.mod h1:sugsbF4//dDlL/i+S+rtpIWp+5h0BHJHf
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/cyphar/filepath-securejoin v0.3.6 h1:4d9N5ykBnSp5Xn2JkhocYDkOpURL/18CYMpo6xB9uWM=
 github.com/cyphar/filepath-securejoin v0.3.6/go.mod h1:Sdj7gXlvMcPZsbhwhQ33GguGLDGQL7h7bg04C/+u9jI=
+github.com/d6o/GoTree v1.0.0 h1:wJFAGJyWjaT6teqVToPsMEUb6+gQoleyrVlYdNW8rIY=
+github.com/d6o/GoTree v1.0.0/go.mod h1:RUjAflD+IpMDMhF5sQeWauM1fTDj1guIjKaQBfTde+A=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=

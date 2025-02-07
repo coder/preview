@@ -9,6 +9,7 @@ import (
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraform/parser"
 	"github.com/hashicorp/hcl/v2"
 
+	"github.com/coder/preview/dumpmod"
 	"github.com/coder/preview/types"
 )
 
@@ -71,6 +72,8 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 	}
 	var _ = outputs
 
+	dumpmod.GraphvizDump(modules)
+	//dumpmod.Dump(p.Files(), modules)
 	diags := make(hcl.Diagnostics, 0)
 	rp, rpDiags := RichParameters(modules)
 	tags, tagDiags := WorkspaceTags(modules, p.Files())

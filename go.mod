@@ -4,7 +4,9 @@ go 1.23.5
 
 require (
 	github.com/aquasecurity/trivy v0.58.2
+	github.com/awalterschulze/gographviz v2.0.3+incompatible
 	github.com/coder/serpent v0.10.0
+	github.com/d6o/GoTree v1.0.0
 	github.com/hashicorp/hcl/v2 v2.23.0
 	github.com/hashicorp/terraform-json v0.24.0
 	github.com/jedib0t/go-pretty/v6 v6.6.5
@@ -108,4 +110,4 @@ require (
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
 )
 
-replace github.com/aquasecurity/trivy => github.com/Emyrk/trivy v0.0.0-20250130184222-11c279ff4cd9
+replace github.com/aquasecurity/trivy => github.com/Emyrk/trivy v0.0.0-20250207181623-1a73b04a2aec
