@@ -1,0 +1,18 @@
+terraform {
+  required_providers {
+    coder = {
+      source  = "coder/coder"
+    }
+  }
+}
+
+locals {
+  foo = "two"
+}
+
+data "coder_parameter" "twoquestion" {
+  name        = "Two Question"
+  description = "From module 2"
+  type        = "string"
+  default     = local.foo
+}
