@@ -35,6 +35,22 @@ func PlanJSONHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks t
 
 	var _ = plan
 	return func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value) {
+		for _, block := range blocks {
+			if block.InModule() {
+
+				x := block.ModuleKey()
+				y := block.ModuleBlock().FullName()
+				var _, _ = x, y
+				fmt.Println(block.ModuleKey())
+				continue
+			}
+
+			err = loadResourcesToContext(block.Context().Parent(), plan.PriorState.Values.RootModule.Resources)
+			if err != nil {
+				panic(fmt.Sprintf("unable to load resources to context: %v", err))
+			}
+		}
+
 		// 'data' blocks are loaded into prior state
 		//plan.PriorState.Values.RootModule.Resources
 		for _, resource := range plan.PriorState.Values.RootModule.Resources {
@@ -61,6 +77,42 @@ func PlanJSONHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks t
 		}
 
 	}, nil
+}
+
+func planResources(plan *tfjson.Plan, block *terraform.Block) error {
+	if !block.InModule() {
+		return loadResourcesToContext(block.Context().Parent(), plan.PriorState.Values.RootModule.Resources)
+	}
+
+	var path []string
+	mod := block.ModuleBlock()
+
+	for {
+		path = append([]string{mod.FullName()}, path...)
+		break
+	}
+	return nil
+}
+
+func loadResourcesToContext(ctx *tfcontext.Context, resources []*tfjson.StateResource) error {
+	for _, resource := range resources {
+		if resource.Mode != "data" {
+			continue
+		}
+
+		if strings.HasPrefix(resource.Type, "coder_") {
+			// Ignore coder blocks
+			continue
+		}
+
+		val, err := toCtyValue(resource.AttributeValues)
+		if err != nil {
+			return fmt.Errorf("unable to determine value of resource %q: %w", resource.Address, err)
+		}
+
+		ctx.Set(val, string(resource.Mode), resource.Type, resource.Name)
+	}
+	return nil
 }
 
 func toCtyValue(a any) (cty.Value, error) {

@@ -102,7 +102,8 @@ func richParameterValue(block *terraform.Block) cty.Value {
 		}
 
 		// TODO: Figure out what to do with these diagnostics
-		return markWithDiagnostic(cty.UnknownVal(cty.NilType), diags)
+		var _ = diags
+		return cty.UnknownVal(cty.NilType)
 	}
 
 	return paramValue

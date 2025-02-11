@@ -173,6 +173,17 @@ func Test_Extract(t *testing.T) {
 			expUnknowns: []string{},
 			params:      map[string]func(t *testing.T, parameter types.Parameter){},
 		},
+		{
+			name:    "many modules",
+			dir:     "manymodules",
+			expTags: map[string]string{},
+			input: preview.Input{
+				ParameterValues: map[string]types.ParameterValue{},
+				PlanJSONPath:    "before.json",
+			},
+			expUnknowns: []string{},
+			params:      map[string]func(t *testing.T, parameter types.Parameter){},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
