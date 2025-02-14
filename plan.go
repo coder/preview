@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"log"
 	"reflect"
+	"slices"
 	"strings"
 
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraformplan/tfjson/parser"
@@ -31,67 +31,53 @@ func PlanJSONHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks t
 		return nil, fmt.Errorf("unable to parse plan JSON: %w", err)
 	}
 
-	//plan.PriorState
-
 	var _ = plan
 	return func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value) {
+		// Do not recurse to child blocks.
+		// TODO: Only load into the single parent context for the module.
 		for _, block := range blocks {
-			if block.InModule() {
-
-				x := block.ModuleKey()
-				y := block.ModuleBlock().FullName()
-				var _, _ = x, y
-				fmt.Println(block.ModuleKey())
+			planMod := priorPlanModule(plan, block)
+			if planMod == nil {
 				continue
 			}
-
-			err = loadResourcesToContext(block.Context().Parent(), plan.PriorState.Values.RootModule.Resources)
+			err = loadResourcesToContext(block.Context().Parent(), planMod.Resources)
 			if err != nil {
+				// TODO: Somehow handle this error
 				panic(fmt.Sprintf("unable to load resources to context: %v", err))
 			}
 		}
-
-		// 'data' blocks are loaded into prior state
-		//plan.PriorState.Values.RootModule.Resources
-		for _, resource := range plan.PriorState.Values.RootModule.Resources {
-			// TODO: Do index references exist here too?
-			// TODO: Handle submodule nested resources
-
-			parts := strings.Split(resource.Address, ".")
-			if len(parts) < 2 {
-				continue
-			}
-
-			if parts[0] != "data" || strings.Contains(parts[1], "coder") {
-				continue
-			}
-
-			val, err := toCtyValue(resource.AttributeValues)
-			if err != nil {
-				// TODO: Remove log
-				log.Printf("unable to determine value of resource %q: %v", resource.Address, err)
-				continue
-			}
-
-			ctx.Set(val, parts...)
-		}
-
 	}, nil
 }
 
-func planResources(plan *tfjson.Plan, block *terraform.Block) error {
+func priorPlanModule(plan *tfjson.Plan, block *terraform.Block) *tfjson.StateModule {
 	if !block.InModule() {
-		return loadResourcesToContext(block.Context().Parent(), plan.PriorState.Values.RootModule.Resources)
+		return plan.PriorState.Values.RootModule
 	}
 
-	var path []string
+	var modPath []string
 	mod := block.ModuleBlock()
-
 	for {
-		path = append([]string{mod.FullName()}, path...)
-		break
+		modPath = append([]string{mod.LocalName()}, modPath...)
+		mod = mod.ModuleBlock()
+		if mod == nil {
+			break
+		}
 	}
-	return nil
+
+	current := plan.PriorState.Values.RootModule
+	for i := range modPath {
+		idx := slices.IndexFunc(current.ChildModules, func(m *tfjson.StateModule) bool {
+			return m.Address == strings.Join(modPath[:i+1], ".")
+		})
+		if idx == -1 {
+			// Maybe throw a diag here?
+			return nil
+		}
+
+		current = current.ChildModules[idx]
+	}
+
+	return current
 }
 
 func loadResourcesToContext(ctx *tfcontext.Context, resources []*tfjson.StateResource) error {

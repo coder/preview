@@ -81,7 +81,7 @@ func paramOption(block *terraform.Block) (*types.RichParameterOption, hcl.Diagno
 		Name:        p.attr("name").required().string(),
 		Description: p.attr("description").string(),
 		// Does it need to be a string?
-		Value: p.attr("value").required().string(),
+		Value: p.attr("value").required().tryString(),
 		Icon:  p.attr("icon").string(),
 	}
 	if p.diags.HasErrors() {

@@ -625,8 +625,8 @@ github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 h1:L/gRVlceqvL25
 github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161/go.mod h1:xomTg63KZ2rFqZQzSB4Vz2SUXa1BpHTVz9L5PTmPC4E=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
-github.com/Emyrk/trivy v0.0.0-20250211144405-6377059f7705 h1:+xVBMqeiopGTM+MbCydHG2K1IJm/Vf0LJYuIm8Rky18=
-github.com/Emyrk/trivy v0.0.0-20250211144405-6377059f7705/go.mod h1:h/k++UOEKWxKbATF5462j0OpzrnYwkqHI0HAcLB5uuY=
+github.com/Emyrk/trivy v0.0.0-20250214143920-a49c737d9481 h1:7M01eVPCnJfQN2pUJ/CqUYf809i9VicrI+17ypeu+ps=
+github.com/Emyrk/trivy v0.0.0-20250214143920-a49c737d9481/go.mod h1:h/k++UOEKWxKbATF5462j0OpzrnYwkqHI0HAcLB5uuY=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.25.0 h1:3c8yed4lgqTt+oTQ+JNMDo+F4xprBf+O/il4ZC0nRLw=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.25.0/go.mod h1:obipzmGjfSjam60XLwGfqUkJsfiheAl+TUjG+4yzyPM=
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.48.1 h1:UQ0AhxogsIRZDkElkblfnwjc3IaltCm2HUMvezQaL7s=

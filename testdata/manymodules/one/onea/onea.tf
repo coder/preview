@@ -25,6 +25,11 @@ data "coder_parameter" "one-a-question" {
     name  = "Terraform"
     value = jsondecode(data.http.packer.response_body).current_version
   }
+
+  option {
+    name  = "NullResource"
+    value = data.null_data_source.values.outputs["foo"]
+  }
 }
 
 output "export" {
@@ -41,5 +46,12 @@ data "http" "packer" {
   # Optional request headers
   request_headers = {
     Accept = "application/json"
+    Arbitrary = data.null_data_source.values.outputs["foo"]
+  }
+}
+
+data "null_data_source" "values" {
+  inputs = {
+    foo = "bar"
   }
 }

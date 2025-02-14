@@ -1,0 +1,849 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.11.0-dev",
+  "planned_values": {
+    "root_module": {}
+  },
+  "prior_state": {
+    "format_version": "1.0",
+    "terraform_version": "1.11.0",
+    "values": {
+      "root_module": {
+        "resources": [
+          {
+            "address": "data.coder_parameter.mainquestion",
+            "mode": "data",
+            "type": "coder_parameter",
+            "name": "mainquestion",
+            "provider_name": "registry.terraform.io/coder/coder",
+            "schema_version": 0,
+            "values": {
+              "default": "main",
+              "description": "From module 2",
+              "display_name": null,
+              "ephemeral": false,
+              "icon": null,
+              "id": "653a8346-a556-47f6-9d2a-9646652d3cb3",
+              "mutable": false,
+              "name": "Main Question",
+              "option": [
+                {
+                  "description": "",
+                  "icon": "",
+                  "name": "Default",
+                  "value": "main"
+                },
+                {
+                  "description": "",
+                  "icon": "",
+                  "name": "Primary",
+                  "value": "one"
+                },
+                {
+                  "description": "",
+                  "icon": "",
+                  "name": "Second",
+                  "value": "two"
+                },
+                {
+                  "description": "",
+                  "icon": "",
+                  "name": "Terraform",
+                  "value": "1.10.5"
+                },
+                {
+                  "description": "",
+                  "icon": "",
+                  "name": "Consul",
+                  "value": "1.15.15"
+                },
+                {
+                  "description": "",
+                  "icon": "",
+                  "name": "Packer",
+                  "value": "one-a"
+                }
+              ],
+              "optional": true,
+              "order": null,
+              "type": "string",
+              "validation": [],
+              "value": "main"
+            },
+            "sensitive_values": {
+              "option": [
+                {},
+                {},
+                {},
+                {},
+                {},
+                {}
+              ],
+              "validation": []
+            }
+          }
+        ],
+        "child_modules": [
+          {
+            "resources": [
+              {
+                "address": "module.one.data.coder_parameter.onequestion",
+                "mode": "data",
+                "type": "coder_parameter",
+                "name": "onequestion",
+                "provider_name": "registry.terraform.io/coder/coder",
+                "schema_version": 0,
+                "values": {
+                  "default": "one",
+                  "description": "From module 1",
+                  "display_name": null,
+                  "ephemeral": false,
+                  "icon": null,
+                  "id": "a695a7a8-a7a7-409a-aee1-5e96855333d1",
+                  "mutable": false,
+                  "name": "One Question",
+                  "option": [
+                    {
+                      "description": "",
+                      "icon": "",
+                      "name": "Default",
+                      "value": "one"
+                    },
+                    {
+                      "description": "",
+                      "icon": "",
+                      "name": "Primary Sub A",
+                      "value": "one-a"
+                    },
+                    {
+                      "description": "",
+                      "icon": "",
+                      "name": "Terraform",
+                      "value": "1.10.5"
+                    }
+                  ],
+                  "optional": true,
+                  "order": null,
+                  "type": "string",
+                  "validation": [],
+                  "value": "one"
+                },
+                "sensitive_values": {
+                  "option": [
+                    {},
+                    {},
+                    {}
+                  ],
+                  "validation": []
+                }
+              },
+              {
+                "address": "module.one.data.http.terraform",
+                "mode": "data",
+                "type": "http",
+                "name": "terraform",
+                "provider_name": "registry.terraform.io/hashicorp/http",
+                "schema_version": 0,
+                "values": {
+                  "body": "{\"product\":\"terraform\",\"current_version\":\"1.10.5\",\"current_release\":1737574371,\"current_download_url\":\"https://releases.hashicorp.com/terraform/1.10.5\",\"current_changelog_url\":\"https://github.com/hashicorp/terraform/blob/v1.10.5/CHANGELOG.md\",\"project_website\":\"https://www.terraform.io\",\"alerts\":[]}",
+                  "ca_cert_pem": null,
+                  "id": "https://checkpoint-api.hashicorp.com/v1/check/terraform",
+                  "insecure": null,
+                  "method": null,
+                  "request_body": null,
+                  "request_headers": {
+                    "Accept": "application/json"
+                  },
+                  "request_timeout_ms": null,
+                  "response_body": "{\"product\":\"terraform\",\"current_version\":\"1.10.5\",\"current_release\":1737574371,\"current_download_url\":\"https://releases.hashicorp.com/terraform/1.10.5\",\"current_changelog_url\":\"https://github.com/hashicorp/terraform/blob/v1.10.5/CHANGELOG.md\",\"project_website\":\"https://www.terraform.io\",\"alerts\":[]}",
+                  "response_body_base64": "eyJwcm9kdWN0IjoidGVycmFmb3JtIiwiY3VycmVudF92ZXJzaW9uIjoiMS4xMC41IiwiY3VycmVudF9yZWxlYXNlIjoxNzM3NTc0MzcxLCJjdXJyZW50X2Rvd25sb2FkX3VybCI6Imh0dHBzOi8vcmVsZWFzZXMuaGFzaGljb3JwLmNvbS90ZXJyYWZvcm0vMS4xMC41IiwiY3VycmVudF9jaGFuZ2Vsb2dfdXJsIjoiaHR0cHM6Ly9naXRodWIuY29tL2hhc2hpY29ycC90ZXJyYWZvcm0vYmxvYi92MS4xMC41L0NIQU5HRUxPRy5tZCIsInByb2plY3Rfd2Vic2l0ZSI6Imh0dHBzOi8vd3d3LnRlcnJhZm9ybS5pbyIsImFsZXJ0cyI6W119",
+                  "response_headers": {
+                    "Access-Control-Allow-Headers": "Accept, Cache-Control, X-Requested-With, Content-Type",
+                    "Access-Control-Allow-Methods": "GET, OPTIONS",
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Max-Age": "86400",
+                    "Connection": "keep-alive",
+                    "Content-Length": "300",
+                    "Content-Type": "application/json",
+                    "Date": "Fri, 14 Feb 2025 16:11:13 GMT",
+                    "Via": "1.1 ec7b06429be1c7c502aa30576c8d24c2.cloudfront.net (CloudFront)",
+                    "X-Amz-Cf-Id": "cPxHIWr8PivJ0r36GeVPYzjQHP7RBb2L1a833LDNEIfNNmU9O2r6KQ==",
+                    "X-Amz-Cf-Pop": "DFW57-P5",
+                    "X-Cache": "Miss from cloudfront"
+                  },
+                  "retry": null,
+                  "status_code": 200,
+                  "url": "https://checkpoint-api.hashicorp.com/v1/check/terraform"
+                },
+                "sensitive_values": {
+                  "request_headers": {},
+                  "response_headers": {}
+                }
+              }
+            ],
+            "address": "module.one",
+            "child_modules": [
+              {
+                "resources": [
+                  {
+                    "address": "module.one.module.onea.data.coder_parameter.one-a-question",
+                    "mode": "data",
+                    "type": "coder_parameter",
+                    "name": "one-a-question",
+                    "provider_name": "registry.terraform.io/coder/coder",
+                    "schema_version": 0,
+                    "values": {
+                      "default": "one-a",
+                      "description": "From module 1, sub A",
+                      "display_name": null,
+                      "ephemeral": false,
+                      "icon": null,
+                      "id": "bb461d25-32b1-4d27-8a3d-dab8b6a7ce01",
+                      "mutable": false,
+                      "name": "One A Question",
+                      "option": [
+                        {
+                          "description": "",
+                          "icon": "",
+                          "name": "Default",
+                          "value": "one-a"
+                        },
+                        {
+                          "description": "",
+                          "icon": "",
+                          "name": "Terraform",
+                          "value": "1.11.2"
+                        }
+                      ],
+                      "optional": true,
+                      "order": null,
+                      "type": "string",
+                      "validation": [],
+                      "value": "one-a"
+                    },
+                    "sensitive_values": {
+                      "option": [
+                        {},
+                        {}
+                      ],
+                      "validation": []
+                    }
+                  },
+                  {
+                    "address": "module.one.module.onea.data.http.packer",
+                    "mode": "data",
+                    "type": "http",
+                    "name": "packer",
+                    "provider_name": "registry.terraform.io/hashicorp/http",
+                    "schema_version": 0,
+                    "values": {
+                      "body": "{\"product\":\"packer\",\"current_version\":\"1.11.2\",\"current_release\":1722384562,\"current_download_url\":\"https://releases.hashicorp.com/packer/1.11.2\",\"current_changelog_url\":\"https://github.com/hashicorp/packer/blob/main/CHANGELOG.md#1112-july-30-2024\",\"project_website\":\"https://www.packer.io\",\"alerts\":[]}",
+                      "ca_cert_pem": null,
+                      "id": "https://checkpoint-api.hashicorp.com/v1/check/packer",
+                      "insecure": null,
+                      "method": null,
+                      "request_body": null,
+                      "request_headers": {
+                        "Accept": "application/json",
+                        "Arbitrary": "bar"
+                      },
+                      "request_timeout_ms": null,
+                      "response_body": "{\"product\":\"packer\",\"current_version\":\"1.11.2\",\"current_release\":1722384562,\"current_download_url\":\"https://releases.hashicorp.com/packer/1.11.2\",\"current_changelog_url\":\"https://github.com/hashicorp/packer/blob/main/CHANGELOG.md#1112-july-30-2024\",\"project_website\":\"https://www.packer.io\",\"alerts\":[]}",
+                      "response_body_base64": "eyJwcm9kdWN0IjoicGFja2VyIiwiY3VycmVudF92ZXJzaW9uIjoiMS4xMS4yIiwiY3VycmVudF9yZWxlYXNlIjoxNzIyMzg0NTYyLCJjdXJyZW50X2Rvd25sb2FkX3VybCI6Imh0dHBzOi8vcmVsZWFzZXMuaGFzaGljb3JwLmNvbS9wYWNrZXIvMS4xMS4yIiwiY3VycmVudF9jaGFuZ2Vsb2dfdXJsIjoiaHR0cHM6Ly9naXRodWIuY29tL2hhc2hpY29ycC9wYWNrZXIvYmxvYi9tYWluL0NIQU5HRUxPRy5tZCMxMTEyLWp1bHktMzAtMjAyNCIsInByb2plY3Rfd2Vic2l0ZSI6Imh0dHBzOi8vd3d3LnBhY2tlci5pbyIsImFsZXJ0cyI6W119",
+                      "response_headers": {
+                        "Access-Control-Allow-Headers": "Accept, Cache-Control, X-Requested-With, Content-Type",
+                        "Access-Control-Allow-Methods": "GET, OPTIONS",
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Max-Age": "86400",
+                        "Connection": "keep-alive",
+                        "Content-Length": "303",
+                        "Content-Type": "application/json",
+                        "Date": "Fri, 14 Feb 2025 16:11:13 GMT",
+                        "Via": "1.1 bf9e5565039f7e32c47e53e1895197ba.cloudfront.net (CloudFront)",
+                        "X-Amz-Cf-Id": "QeVQJ7TDBCdqA05XaJMB-jUdqEg2QCV0cEDu71tVRuNlJnlStiYo-g==",
+                        "X-Amz-Cf-Pop": "DFW57-P5",
+                        "X-Cache": "Miss from cloudfront"
+                      },
+                      "retry": null,
+                      "status_code": 200,
+                      "url": "https://checkpoint-api.hashicorp.com/v1/check/packer"
+                    },
+                    "sensitive_values": {
+                      "request_headers": {},
+                      "response_headers": {}
+                    }
+                  },
+                  {
+                    "address": "module.one.module.onea.data.null_data_source.values",
+                    "mode": "data",
+                    "type": "null_data_source",
+                    "name": "values",
+                    "provider_name": "registry.terraform.io/hashicorp/null",
+                    "schema_version": 0,
+                    "values": {
+                      "has_computed_default": "default",
+                      "id": "static",
+                      "inputs": {
+                        "foo": "bar"
+                      },
+                      "outputs": {
+                        "foo": "bar"
+                      },
+                      "random": "4176718139949707995"
+                    },
+                    "sensitive_values": {
+                      "inputs": {},
+                      "outputs": {}
+                    }
+                  }
+                ],
+                "address": "module.one.module.onea"
+              }
+            ]
+          },
+          {
+            "resources": [
+              {
+                "address": "module.two.data.coder_parameter.twoquestion",
+                "mode": "data",
+                "type": "coder_parameter",
+                "name": "twoquestion",
+                "provider_name": "registry.terraform.io/coder/coder",
+                "schema_version": 0,
+                "values": {
+                  "default": "two",
+                  "description": "From module 2",
+                  "display_name": null,
+                  "ephemeral": false,
+                  "icon": null,
+                  "id": "cdb4156d-e3b3-4975-a392-4d1f97084f3b",
+                  "mutable": false,
+                  "name": "Two Question",
+                  "option": [
+                    {
+                      "description": "",
+                      "icon": "",
+                      "name": "Default",
+                      "value": "two"
+                    },
+                    {
+                      "description": "",
+                      "icon": "",
+                      "name": "Consul",
+                      "value": "1.15.15"
+                    }
+                  ],
+                  "optional": true,
+                  "order": null,
+                  "type": "string",
+                  "validation": [],
+                  "value": "two"
+                },
+                "sensitive_values": {
+                  "option": [
+                    {},
+                    {}
+                  ],
+                  "validation": []
+                }
+              },
+              {
+                "address": "module.two.data.http.consul",
+                "mode": "data",
+                "type": "http",
+                "name": "consul",
+                "provider_name": "registry.terraform.io/hashicorp/http",
+                "schema_version": 0,
+                "values": {
+                  "body": "{\"product\":\"consul\",\"current_version\":\"1.15.15\",\"current_release\":1730384936,\"current_download_url\":\"https://releases.hashicorp.com/consul/1.15.15/\",\"current_changelog_url\":\"https://github.com/hashicorp/releases/tag/ent-changelog-1.15.15\",\"project_website\":\"https://www.consul.io\",\"alerts\":[]}",
+                  "ca_cert_pem": null,
+                  "id": "https://checkpoint-api.hashicorp.com/v1/check/consul",
+                  "insecure": null,
+                  "method": null,
+                  "request_body": null,
+                  "request_headers": {
+                    "Accept": "application/json"
+                  },
+                  "request_timeout_ms": null,
+                  "response_body": "{\"product\":\"consul\",\"current_version\":\"1.15.15\",\"current_release\":1730384936,\"current_download_url\":\"https://releases.hashicorp.com/consul/1.15.15/\",\"current_changelog_url\":\"https://github.com/hashicorp/releases/tag/ent-changelog-1.15.15\",\"project_website\":\"https://www.consul.io\",\"alerts\":[]}",
+                  "response_body_base64": "eyJwcm9kdWN0IjoiY29uc3VsIiwiY3VycmVudF92ZXJzaW9uIjoiMS4xNS4xNSIsImN1cnJlbnRfcmVsZWFzZSI6MTczMDM4NDkzNiwiY3VycmVudF9kb3dubG9hZF91cmwiOiJodHRwczovL3JlbGVhc2VzLmhhc2hpY29ycC5jb20vY29uc3VsLzEuMTUuMTUvIiwiY3VycmVudF9jaGFuZ2Vsb2dfdXJsIjoiaHR0cHM6Ly9naXRodWIuY29tL2hhc2hpY29ycC9yZWxlYXNlcy90YWcvZW50LWNoYW5nZWxvZy0xLjE1LjE1IiwicHJvamVjdF93ZWJzaXRlIjoiaHR0cHM6Ly93d3cuY29uc3VsLmlvIiwiYWxlcnRzIjpbXX0=",
+                  "response_headers": {
+                    "Access-Control-Allow-Headers": "Accept, Cache-Control, X-Requested-With, Content-Type",
+                    "Access-Control-Allow-Methods": "GET, OPTIONS",
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Max-Age": "86400",
+                    "Connection": "keep-alive",
+                    "Content-Length": "293",
+                    "Content-Type": "application/json",
+                    "Date": "Fri, 14 Feb 2025 16:11:13 GMT",
+                    "Via": "1.1 220f793ecf40dd176c72c476d8fd2296.cloudfront.net (CloudFront)",
+                    "X-Amz-Cf-Id": "THcfeOGzpfqzCCgXqVDYXvW4QrXNLh_NRrJX_bJ8gTcAyzy3SkozLw==",
+                    "X-Amz-Cf-Pop": "DFW57-P5",
+                    "X-Cache": "Miss from cloudfront"
+                  },
+                  "retry": null,
+                  "status_code": 200,
+                  "url": "https://checkpoint-api.hashicorp.com/v1/check/consul"
+                },
+                "sensitive_values": {
+                  "request_headers": {},
+                  "response_headers": {}
+                }
+              }
+            ],
+            "address": "module.two"
+          }
+        ]
+      }
+    }
+  },
+  "configuration": {
+    "provider_config": {
+      "coder": {
+        "name": "coder",
+        "full_name": "registry.terraform.io/coder/coder"
+      },
+      "module.one.module.onea:null": {
+        "name": "null",
+        "full_name": "registry.terraform.io/hashicorp/null",
+        "module_address": "module.one.module.onea"
+      },
+      "module.one:http": {
+        "name": "http",
+        "full_name": "registry.terraform.io/hashicorp/http",
+        "module_address": "module.one"
+      },
+      "module.two:http": {
+        "name": "http",
+        "full_name": "registry.terraform.io/hashicorp/http",
+        "module_address": "module.two"
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "data.coder_parameter.mainquestion",
+          "mode": "data",
+          "type": "coder_parameter",
+          "name": "mainquestion",
+          "provider_config_key": "coder",
+          "expressions": {
+            "default": {
+              "references": [
+                "local.foo"
+              ]
+            },
+            "description": {
+              "constant_value": "From module 2"
+            },
+            "name": {
+              "constant_value": "Main Question"
+            },
+            "option": [
+              {
+                "name": {
+                  "constant_value": "Default"
+                },
+                "value": {
+                  "references": [
+                    "local.foo"
+                  ]
+                }
+              },
+              {
+                "name": {
+                  "constant_value": "Primary"
+                },
+                "value": {
+                  "references": [
+                    "module.one.export",
+                    "module.one"
+                  ]
+                }
+              },
+              {
+                "name": {
+                  "constant_value": "Second"
+                },
+                "value": {
+                  "references": [
+                    "module.two.export",
+                    "module.two"
+                  ]
+                }
+              },
+              {
+                "name": {
+                  "constant_value": "Terraform"
+                },
+                "value": {
+                  "references": [
+                    "module.one.terraform",
+                    "module.one"
+                  ]
+                }
+              },
+              {
+                "name": {
+                  "constant_value": "Consul"
+                },
+                "value": {
+                  "references": [
+                    "module.two.consul",
+                    "module.two"
+                  ]
+                }
+              },
+              {
+                "name": {
+                  "constant_value": "Packer"
+                },
+                "value": {
+                  "references": [
+                    "module.one.export-a",
+                    "module.one"
+                  ]
+                }
+              }
+            ],
+            "type": {
+              "constant_value": "string"
+            }
+          },
+          "schema_version": 0
+        }
+      ],
+      "module_calls": {
+        "one": {
+          "source": "./one",
+          "module": {
+            "outputs": {
+              "export": {
+                "expression": {
+                  "references": [
+                    "local.foo"
+                  ]
+                }
+              },
+              "export-a": {
+                "expression": {
+                  "references": [
+                    "module.onea.export",
+                    "module.onea"
+                  ]
+                }
+              },
+              "terraform": {
+                "expression": {
+                  "references": [
+                    "data.http.terraform.response_body",
+                    "data.http.terraform"
+                  ]
+                }
+              }
+            },
+            "resources": [
+              {
+                "address": "data.coder_parameter.onequestion",
+                "mode": "data",
+                "type": "coder_parameter",
+                "name": "onequestion",
+                "provider_config_key": "coder",
+                "expressions": {
+                  "default": {
+                    "references": [
+                      "local.foo"
+                    ]
+                  },
+                  "description": {
+                    "constant_value": "From module 1"
+                  },
+                  "name": {
+                    "constant_value": "One Question"
+                  },
+                  "option": [
+                    {
+                      "name": {
+                        "constant_value": "Default"
+                      },
+                      "value": {
+                        "references": [
+                          "local.foo"
+                        ]
+                      }
+                    },
+                    {
+                      "name": {
+                        "constant_value": "Primary Sub A"
+                      },
+                      "value": {
+                        "references": [
+                          "module.onea.export",
+                          "module.onea"
+                        ]
+                      }
+                    },
+                    {
+                      "name": {
+                        "constant_value": "Terraform"
+                      },
+                      "value": {
+                        "references": [
+                          "data.http.terraform.response_body",
+                          "data.http.terraform"
+                        ]
+                      }
+                    }
+                  ],
+                  "type": {
+                    "constant_value": "string"
+                  }
+                },
+                "schema_version": 0
+              },
+              {
+                "address": "data.http.terraform",
+                "mode": "data",
+                "type": "http",
+                "name": "terraform",
+                "provider_config_key": "module.one:http",
+                "expressions": {
+                  "request_headers": {
+                    "constant_value": {
+                      "Accept": "application/json"
+                    }
+                  },
+                  "url": {
+                    "constant_value": "https://checkpoint-api.hashicorp.com/v1/check/terraform"
+                  }
+                },
+                "schema_version": 0
+              }
+            ],
+            "module_calls": {
+              "onea": {
+                "source": "./onea",
+                "module": {
+                  "outputs": {
+                    "export": {
+                      "expression": {
+                        "references": [
+                          "local.foo"
+                        ]
+                      }
+                    },
+                    "packer": {
+                      "expression": {
+                        "references": [
+                          "data.http.packer.response_body",
+                          "data.http.packer"
+                        ]
+                      }
+                    }
+                  },
+                  "resources": [
+                    {
+                      "address": "data.coder_parameter.one-a-question",
+                      "mode": "data",
+                      "type": "coder_parameter",
+                      "name": "one-a-question",
+                      "provider_config_key": "coder",
+                      "expressions": {
+                        "default": {
+                          "references": [
+                            "local.foo"
+                          ]
+                        },
+                        "description": {
+                          "constant_value": "From module 1, sub A"
+                        },
+                        "name": {
+                          "constant_value": "One A Question"
+                        },
+                        "option": [
+                          {
+                            "name": {
+                              "constant_value": "Default"
+                            },
+                            "value": {
+                              "references": [
+                                "local.foo"
+                              ]
+                            }
+                          },
+                          {
+                            "name": {
+                              "constant_value": "Terraform"
+                            },
+                            "value": {
+                              "references": [
+                                "data.http.packer.response_body",
+                                "data.http.packer"
+                              ]
+                            }
+                          }
+                        ],
+                        "type": {
+                          "constant_value": "string"
+                        }
+                      },
+                      "schema_version": 0
+                    },
+                    {
+                      "address": "data.http.packer",
+                      "mode": "data",
+                      "type": "http",
+                      "name": "packer",
+                      "provider_config_key": "module.one:http",
+                      "expressions": {
+                        "request_headers": {
+                          "references": [
+                            "data.null_data_source.values.outputs[\"foo\"]",
+                            "data.null_data_source.values.outputs",
+                            "data.null_data_source.values"
+                          ]
+                        },
+                        "url": {
+                          "constant_value": "https://checkpoint-api.hashicorp.com/v1/check/packer"
+                        }
+                      },
+                      "schema_version": 0
+                    },
+                    {
+                      "address": "data.null_data_source.values",
+                      "mode": "data",
+                      "type": "null_data_source",
+                      "name": "values",
+                      "provider_config_key": "module.one.module.onea:null",
+                      "expressions": {
+                        "inputs": {
+                          "constant_value": {
+                            "foo": "bar"
+                          }
+                        }
+                      },
+                      "schema_version": 0
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "two": {
+          "source": "./two",
+          "module": {
+            "outputs": {
+              "consul": {
+                "expression": {
+                  "references": [
+                    "data.http.consul.response_body",
+                    "data.http.consul"
+                  ]
+                }
+              },
+              "export": {
+                "expression": {
+                  "references": [
+                    "local.foo"
+                  ]
+                }
+              }
+            },
+            "resources": [
+              {
+                "address": "data.coder_parameter.twoquestion",
+                "mode": "data",
+                "type": "coder_parameter",
+                "name": "twoquestion",
+                "provider_config_key": "coder",
+                "expressions": {
+                  "default": {
+                    "references": [
+                      "local.foo"
+                    ]
+                  },
+                  "description": {
+                    "constant_value": "From module 2"
+                  },
+                  "name": {
+                    "constant_value": "Two Question"
+                  },
+                  "option": [
+                    {
+                      "name": {
+                        "constant_value": "Default"
+                      },
+                      "value": {
+                        "references": [
+                          "local.foo"
+                        ]
+                      }
+                    },
+                    {
+                      "name": {
+                        "constant_value": "Consul"
+                      },
+                      "value": {
+                        "references": [
+                          "data.http.consul.response_body",
+                          "data.http.consul"
+                        ]
+                      }
+                    }
+                  ],
+                  "type": {
+                    "constant_value": "string"
+                  }
+                },
+                "schema_version": 0
+              },
+              {
+                "address": "data.http.consul",
+                "mode": "data",
+                "type": "http",
+                "name": "consul",
+                "provider_config_key": "module.two:http",
+                "expressions": {
+                  "request_headers": {
+                    "constant_value": {
+                      "Accept": "application/json"
+                    }
+                  },
+                  "url": {
+                    "constant_value": "https://checkpoint-api.hashicorp.com/v1/check/consul"
+                  }
+                },
+                "schema_version": 0
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "relevant_attributes": [
+    {
+      "resource": "module.two.data.http.consul",
+      "attribute": [
+        "response_body"
+      ]
+    },
+    {
+      "resource": "module.one.data.http.terraform",
+      "attribute": [
+        "response_body"
+      ]
+    },
+    {
+      "resource": "module.one.module.onea.data.http.packer",
+      "attribute": [
+        "response_body"
+      ]
+    }
+  ],
+  "timestamp": "2025-02-14T16:11:12Z",
+  "applyable": false,
+  "complete": true,
+  "errored": false
+}

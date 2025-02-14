@@ -62,6 +62,19 @@ func (a *expectedAttribute) required() *expectedAttribute {
 	return a
 }
 
+func (a *expectedAttribute) tryString() string {
+	attr := a.p.block.GetAttribute(a.Key)
+	if attr.IsNil() {
+		return ""
+	}
+
+	if attr.Type() != cty.String {
+		return ""
+	}
+
+	return attr.Value().AsString()
+}
+
 func (a *expectedAttribute) string() string {
 	attr := a.p.block.GetAttribute(a.Key)
 	if attr.IsNil() {

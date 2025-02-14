@@ -179,7 +179,17 @@ func Test_Extract(t *testing.T) {
 			expTags: map[string]string{},
 			input: preview.Input{
 				ParameterValues: map[string]types.ParameterValue{},
-				PlanJSONPath:    "before.json",
+				PlanJSONPath:    "out.json",
+			},
+			expUnknowns: []string{},
+			params:      map[string]func(t *testing.T, parameter types.Parameter){},
+		},
+		{
+			name:    "test",
+			dir:     "test",
+			expTags: map[string]string{},
+			input: preview.Input{
+				ParameterValues: map[string]types.ParameterValue{},
 			},
 			expUnknowns: []string{},
 			params:      map[string]func(t *testing.T, parameter types.Parameter){},
@@ -202,6 +212,9 @@ func Test_Extract(t *testing.T) {
 			if tc.failPreview {
 				require.True(t, diags.HasErrors())
 				return
+			}
+			if diags.HasErrors() {
+				t.Logf("diags: %s", diags)
 			}
 			require.False(t, diags.HasErrors())
 
