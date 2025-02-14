@@ -3,6 +3,7 @@ package preview_test
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
@@ -13,8 +14,33 @@ import (
 	"github.com/zclconf/go-cty/cty/gocty"
 
 	"github.com/coder/preview"
+	"github.com/coder/preview/internal/verify"
 	"github.com/coder/preview/types"
 )
+
+// Test_VerifyPreview will fully evaluate with `terraform apply`
+// and verify the output of `preview` against the tfstate. This
+// is the e2e test for the preview package.
+func Test_VerifyPreview(t *testing.T) {
+	t.Parallel()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	versions := verify.TerraformTestVersions(ctx)
+	tfexecs := verify.InstallTerraforms(ctx, t, versions...)
+
+	dirFs := os.DirFS("testdata")
+	entries, err := fs.ReadDir(dirFs, ".")
+	require.NoError(t, err)
+
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			t.Logf("skipping non directory file %q", entry.Name())
+		}
+
+	}
+}
 
 func TestFoo(t *testing.T) {
 	ty, err := gocty.ImpliedType([]any{1, 2, 3})
