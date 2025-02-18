@@ -55,9 +55,6 @@ data "coder_parameter" "compute" {
   description = "How much compute do you need?"
   type        = "string"
   default     = data.coder_parameter.project.value == "massive" ? "huge" : "small"
-  validation {
-
-  }
 
   dynamic "option" {
     for_each = local.use_options

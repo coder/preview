@@ -4,11 +4,34 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"slices"
+	"strings"
 
 	"github.com/zclconf/go-cty/cty"
 )
 
+const (
+	BlockTypeParameter    = "coder_parameter"
+	BlockTypeWorkspaceTag = "coder_workspace_tag"
+)
+
+func SortParameters(lists []Parameter) {
+	slices.SortFunc(lists, func(a, b Parameter) int {
+		order := int(a.Order - b.Order)
+		if order != 0 {
+			return order
+		}
+
+		if a.BlockName != b.BlockName {
+			return strings.Compare(a.BlockName, b.BlockName)
+		}
+
+		return strings.Compare(a.Name, b.Name)
+	})
+}
+
 type Parameter struct {
+	// TODO: Might be value in a "Lazy" parameter
 	Value ParameterValue
 	RichParameter
 }
@@ -24,12 +47,12 @@ type RichParameter struct {
 	Mutable      bool                   `json:"mutable"`
 	DefaultValue string                 `json:"default_value"`
 	Icon         string                 `json:"icon"`
-	Options      []*RichParameterOption `json:"options"`
-	Validation   *ParameterValidation   `json:"validation"`
+	Options      []*ParameterOption     `json:"options"`
+	Validations  []*ParameterValidation `json:"validations"`
 	Required     bool                   `json:"required"`
 	// legacy_variable_name was removed (= 14)
 	DisplayName string `json:"display_name"`
-	Order       int32  `json:"order"`
+	Order       int64  `json:"order"`
 	Ephemeral   bool   `json:"ephemeral"`
 
 	// HCL props
@@ -39,12 +62,12 @@ type RichParameter struct {
 type ParameterValidation struct {
 	Regex     string `json:"validation_regex"`
 	Error     string `json:"validation_error"`
-	Min       *int32 `json:"validation_min"`
-	Max       *int32 `json:"validation_max"`
+	Min       *int64 `json:"validation_min"`
+	Max       *int64 `json:"validation_max"`
 	Monotonic string `json:"validation_monotonic"`
 }
 
-type RichParameterOption struct {
+type ParameterOption struct {
 	Name        string `json:"name" hcl:"name,attr"`
 	Description string `json:"description" hcl:"description,attr"`
 	Value       string `json:"value" hcl:"value,attr"`

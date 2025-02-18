@@ -5,6 +5,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 
+	"github.com/coder/preview/extract"
 	"github.com/coder/preview/hclext"
 	"github.com/coder/preview/types"
 )
@@ -14,70 +15,25 @@ func RichParameters(modules terraform.Modules) ([]types.Parameter, hcl.Diagnosti
 	params := make([]types.Parameter, 0)
 
 	for _, mod := range modules {
-		blocks := mod.GetDatasByType("coder_parameter")
+		blocks := mod.GetDatasByType(types.BlockTypeParameter)
 		for _, block := range blocks {
-			p := newAttributeParser(block)
-
-			var paramOptions []*types.RichParameterOption
-			optionBlocks := block.GetBlocks("option")
-			for _, optionBlock := range optionBlocks {
-				option, optDiags := paramOption(optionBlock)
-				if optDiags.HasErrors() {
-					// Add the error and continue
-					diags = diags.Extend(optDiags)
-					continue
-				}
-				paramOptions = append(paramOptions, option)
+			param, pDiags := extract.ParameterFromBlock(block)
+			if len(pDiags) > 0 {
+				diags = diags.Extend(pDiags)
 			}
 
-			// Find the value of the parameter from the context.
-			paramValue := richParameterValue(block)
-			var defVal string
-
-			// default can be nil if the references are not resolved.
-			def := block.GetAttribute("default").Value()
-			if def.Equals(cty.NilVal).True() {
-				defVal = "<nil>"
-			} else if !def.IsKnown() {
-				defVal = "<unknown>"
-			} else {
-				defVal = p.attr("default").string()
+			if !pDiags.HasErrors() {
+				params = append(params, param)
 			}
-
-			param := types.Parameter{
-				Value: types.ParameterValue{
-					Value: paramValue,
-				},
-				RichParameter: types.RichParameter{
-					BlockName:    block.Labels()[1],
-					Name:         p.attr("name").required().string(),
-					Description:  p.attr("description").string(),
-					Type:         "",
-					Mutable:      false,
-					DefaultValue: defVal,
-					Icon:         p.attr("icon").string(),
-					Options:      paramOptions,
-					Validation:   nil,
-					Required:     false,
-					DisplayName:  "",
-					Order:        0,
-					Ephemeral:    false,
-				},
-			}
-			diags = diags.Extend(p.diags)
-			if p.diags.HasErrors() {
-				continue
-			}
-			params = append(params, param)
 		}
 	}
 
 	return params, diags
 }
 
-func paramOption(block *terraform.Block) (*types.RichParameterOption, hcl.Diagnostics) {
+func paramOption(block *terraform.Block) (*types.ParameterOption, hcl.Diagnostics) {
 	p := newAttributeParser(block)
-	opt := &types.RichParameterOption{
+	opt := &types.ParameterOption{
 		Name:        p.attr("name").required().string(),
 		Description: p.attr("description").string(),
 		// Does it need to be a string?

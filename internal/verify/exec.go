@@ -1,11 +1,14 @@
 package verify
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"log"
+	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -14,6 +17,7 @@ import (
 	"github.com/hashicorp/hc-install/releases"
 	"github.com/hashicorp/hc-install/src"
 	"github.com/hashicorp/terraform-exec/tfexec"
+	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/stretchr/testify/require"
 )
 
@@ -44,9 +48,28 @@ func (e Executable) WorkingDir(dir string) (WorkingExecutable, error) {
 	}, nil
 }
 
-//func (e WorkingExecutable) Init(ctx context.Context) error {
-//	e.TF.Init(ctx, tfexec.Upgrade(true))
-//}
+func (e WorkingExecutable) Init(ctx context.Context) error {
+	return e.TF.Init(ctx, tfexec.Upgrade(true))
+}
+
+func (e WorkingExecutable) Plan(ctx context.Context, outPath string) (bool, error) {
+	changes, err := e.TF.Plan(ctx, tfexec.Out(outPath))
+	return changes, err
+}
+
+func (e WorkingExecutable) Apply(ctx context.Context) ([]byte, error) {
+	var out bytes.Buffer
+	err := e.TF.ApplyJSON(ctx, &out)
+	return out.Bytes(), err
+}
+
+func (e WorkingExecutable) ShowPlan(ctx context.Context, planPath string) (*tfjson.Plan, error) {
+	return e.TF.ShowPlanFile(ctx, planPath)
+}
+
+func (e WorkingExecutable) Show(ctx context.Context) (*tfjson.State, error) {
+	return e.TF.Show(ctx)
+}
 
 // TerraformTestVersions returns a list of Terraform versions to test.
 func TerraformTestVersions(ctx context.Context) []src.Installable {
@@ -59,6 +82,7 @@ func TerraformTestVersions(ctx context.Context) []src.Installable {
 func InstallTerraforms(ctx context.Context, t *testing.T, installables ...src.Installable) []Executable {
 	// All terraform versions are installed in the same root directory
 	root := t.TempDir()
+
 	execPaths := make([]Executable, 0, len(installables))
 
 	for _, installable := range installables {
@@ -142,32 +166,51 @@ func TerraformVersions(ctx context.Context, constraints version.Constraints) ([]
 	return include, nil
 }
 
-func Apply() {
-	installer := &releases.ExactVersion{
-		Product: product.Terraform,
-		Version: version.Must(version.NewVersion("1.0.6")),
-	}
+// CopyTFFS is copied from os.CopyFS and ignores tfstate and lockfiles.
+func CopyTFFS(dir string, fsys fs.FS) error {
+	return fs.WalkDir(fsys, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
 
-	execPath, err := installer.Install(context.Background())
-	if err != nil {
-		log.Fatalf("error installing Terraform: %s", err)
-	}
+		if strings.HasPrefix(d.Name(), ".terraform") {
+			return nil
+		}
 
-	workingDir := "/path/to/working/dir"
-	tf, err := tfexec.NewTerraform(workingDir, execPath)
-	if err != nil {
-		log.Fatalf("error running NewTerraform: %s", err)
-	}
+		fpath, err := filepath.Localize(path)
+		if err != nil {
+			return err
+		}
+		newPath := filepath.Join(dir, fpath)
+		if d.IsDir() {
+			return os.MkdirAll(newPath, 0777)
+		}
 
-	err = tf.Init(context.Background(), tfexec.Upgrade(true))
-	if err != nil {
-		log.Fatalf("error running Init: %s", err)
-	}
+		// TODO(panjf2000): handle symlinks with the help of fs.ReadLinkFS
+		// 		once https://go.dev/issue/49580 is done.
+		//		we also need filepathlite.IsLocal from https://go.dev/cl/564295.
+		if !d.Type().IsRegular() {
+			return &os.PathError{Op: "CopyFS", Path: path, Err: os.ErrInvalid}
+		}
 
-	state, err := tf.Show(context.Background())
-	if err != nil {
-		log.Fatalf("error running Show: %s", err)
-	}
+		r, err := fsys.Open(path)
+		if err != nil {
+			return err
+		}
+		defer r.Close()
+		info, err := r.Stat()
+		if err != nil {
+			return err
+		}
+		w, err := os.OpenFile(newPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0666|info.Mode()&0777)
+		if err != nil {
+			return err
+		}
 
-	fmt.Println(state.FormatVersion) // "0.1"
+		if _, err := io.Copy(w, r); err != nil {
+			w.Close()
+			return &os.PathError{Op: "Copy", Path: newPath, Err: err}
+		}
+		return w.Close()
+	})
 }

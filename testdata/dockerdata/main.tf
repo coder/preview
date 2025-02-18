@@ -26,32 +26,31 @@ data "coder_parameter" "example" {
   name        = "Example"
   description = "An example parameter that has no purpose."
   type        = "string"
+  default     = data.docker_registry_image.ubuntu.sha256_digest
 
   option {
     name = "Ubuntu"
     description = data.docker_registry_image.ubuntu.name
-    value = try(data.docker_registry_image.ubuntu.sha256_digest, "??")
+    value = data.docker_registry_image.ubuntu.sha256_digest
   }
 
   option {
     name = "Centos"
-    description = docker_image.centos.name
-    value = try(docker_image.centos.repo_digest, "??")
+    description = data.docker_registry_image.centos.name
+    value = data.docker_registry_image.centos.sha256_digest
   }
 }
 
 data "coder_workspace_tags" "custom_workspace_tags" {
   tags = {
-    // If a value is required, you can do something like:
-    // try(docker_image.ubuntu.repo_digest, "default-value")
     "foo" = data.docker_registry_image.ubuntu.sha256_digest
-    "bar" = docker_image.centos.repo_digest
+    "bar" = data.docker_registry_image.centos.sha256_digest
     "qux" = "quux"
   }
 }
 
 # Pulls the image
-resource "docker_image" "centos" {
+data "docker_registry_image" "centos" {
   name = "centos:latest"
 }
 
