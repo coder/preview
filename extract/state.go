@@ -65,10 +65,10 @@ func ParameterFromState(block *tfjson.StateResource) (types.Parameter, error) {
 			Icon:         st.optionalString("icon"),
 			Options:      options,
 			Validations:  validations,
-			Required:     st.optionalBool("mutable"),
+			Required:     st.optionalBool("required"),
 			DisplayName:  st.optionalString("display_name"),
 			Order:        st.optionalInteger("order"),
-			Ephemeral:    st.optionalBool("mutable"),
+			Ephemeral:    st.optionalBool("ephemeral"),
 			BlockName:    block.Name,
 		},
 	}

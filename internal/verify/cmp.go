@@ -23,7 +23,7 @@ func Compare(t *testing.T, pr *preview.Output, values *tfjson.StateModule) {
 	types.SortParameters(pr.Parameters)
 	for i, param := range stateParams {
 		// TODO: A better compare function would be easier to debug
-		require.Equal(t, param, pr.Parameters[i], "parameter %d", i)
+		assert.Equal(t, param, pr.Parameters[i], "parameter %q %d", param.BlockName, i)
 	}
 
 	if !passed {
