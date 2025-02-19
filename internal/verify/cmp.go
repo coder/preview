@@ -13,6 +13,18 @@ import (
 )
 
 func Compare(t *testing.T, pr *preview.Output, values *tfjson.StateModule) {
+	passed := CompareParameters(t, pr, values)
+
+	// TODO: Compare workspace tags
+
+	if !passed {
+		t.Fatalf("paramaters failed expectations")
+	}
+}
+
+func CompareParameters(t *testing.T, pr *preview.Output, values *tfjson.StateModule) bool {
+	t.Helper()
+
 	// Assert expected parameters
 	stateParams, err := extract.ParametersFromState(values)
 	require.NoError(t, err, "extract parameters from state")
@@ -26,7 +38,5 @@ func Compare(t *testing.T, pr *preview.Output, values *tfjson.StateModule) {
 		assert.Equal(t, param, pr.Parameters[i], "parameter %q %d", param.BlockName, i)
 	}
 
-	if !passed {
-		t.Fatalf("paramaters failed expectations")
-	}
+	return passed
 }
