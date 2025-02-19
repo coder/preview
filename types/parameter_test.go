@@ -38,7 +38,7 @@ func TestParameterEquality(t *testing.T) {
 
 func randomParameter(src *rand.ChaCha8) *types.RichParameter {
 	ty := randomElement(src, "string", "number", "bool", "list(string)")
-	opts := make([]*types.RichParameterOption, randomInt(src, 0, 5))
+	opts := make([]*types.ParameterOption, randomInt(src, 0, 5))
 	for i := range opts {
 		opts[i] = randomParameterOption(src, ty)
 	}
@@ -79,8 +79,8 @@ func randomValidation(src *rand.ChaCha8, ty string) *types.ParameterValidation {
 	}
 }
 
-func randomParameterOption(src *rand.ChaCha8, ty string) *types.RichParameterOption {
-	return &types.RichParameterOption{
+func randomParameterOption(src *rand.ChaCha8, ty string) *types.ParameterOption {
+	return &types.ParameterOption{
 		Name:        randomString(src, 10),
 		Description: randomString(src, 20),
 		Value:       randomValue(src, ty),

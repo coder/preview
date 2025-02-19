@@ -151,6 +151,7 @@ func toCtyValue(a any) (cty.Value, error) {
 // terraform show -json out.plan
 func ParsePlanJSON(reader io.Reader) (*tfjson.Plan, error) {
 	plan := new(tfjson.Plan)
+	plan.FormatVersion = tfjson.PlanFormatVersionConstraints
 	return plan, json.NewDecoder(reader).Decode(plan)
 }
 

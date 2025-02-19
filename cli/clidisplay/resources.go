@@ -79,7 +79,7 @@ func Parameters(writer io.Writer, params []types.Parameter) {
 	_, _ = fmt.Fprintln(writer, tableWriter.Render())
 }
 
-func formatOptions(selected string, options []*types.RichParameterOption) string {
+func formatOptions(selected string, options []*types.ParameterOption) string {
 	var str strings.Builder
 	sep := ""
 	found := false
