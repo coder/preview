@@ -40,6 +40,11 @@ func PlanJSONHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks t
 			if planMod == nil {
 				continue
 			}
+
+			// TODO: Nested blocks might have an issue here with the correct context.
+			// We want the "module context", which is the parent of the top level
+			// block. Maybe there is a way to discover what that is via some
+			// var set in the context.
 			err = loadResourcesToContext(block.Context().Parent(), planMod.Resources)
 			if err != nil {
 				// TODO: Somehow handle this error
