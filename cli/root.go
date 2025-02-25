@@ -96,6 +96,7 @@ func (r *RootCmd) Root() *serpent.Command {
 			return nil
 		},
 	}
+	cmd.AddSubcommands(r.TerraformPlan())
 	return cmd
 }
 

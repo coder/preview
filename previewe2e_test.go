@@ -20,6 +20,9 @@ import (
 // Test_VerifyE2E will fully evaluate with `terraform apply`
 // and verify the output of `preview` against the tfstate. This
 // is the e2e test for the preview package.
+// It uses the `terraform plan` output, meaning this mimics the
+// "Workspace Create" form of preview. Which is arguably the most
+// important part of the preview lifecycle.
 //
 //  1. Terraform versions listed from 'verify.TerraformTestVersions' are
 //     installed into a temp directory. If multiple versions exist, a e2e test
@@ -44,6 +47,7 @@ import (
 // The goal of the test is to compare `tfstate` with the output of `preview`.
 // If `preview`'s implementation of terraform is incorrect, the test will fail.
 // TODO: Adding varied parameter inputs would be a good idea.
+// TODO: Add workspace tag comparisions.
 func Test_VerifyE2E(t *testing.T) {
 	t.Parallel()
 

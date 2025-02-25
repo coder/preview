@@ -69,6 +69,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 			},
 		}
 	}
+
 	var _ = outputs
 
 	diags := make(hcl.Diagnostics, 0)

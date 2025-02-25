@@ -185,6 +185,16 @@ func Test_Extract(t *testing.T) {
 			params:      map[string]func(t *testing.T, parameter types.Parameter){},
 		},
 		{
+			name:    "dupemodparams",
+			dir:     "dupemodparams",
+			expTags: map[string]string{},
+			input: preview.Input{
+				ParameterValues: map[string]types.ParameterValue{},
+			},
+			expUnknowns: []string{},
+			params:      map[string]func(t *testing.T, parameter types.Parameter){},
+		},
+		{
 			name:    "test",
 			dir:     "test",
 			expTags: map[string]string{},
