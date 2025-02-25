@@ -26,7 +26,13 @@ type Output struct {
 func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnostics) {
 	varFiles, err := tfVarFiles("", dir)
 	if err != nil {
-		return nil, nil
+		return nil, hcl.Diagnostics{
+			{
+				Severity: hcl.DiagError,
+				Summary:  "Files not found",
+				Detail:   err.Error(),
+			},
+		}
 	}
 
 	planHook, err := PlanJSONHook(dir, input)
