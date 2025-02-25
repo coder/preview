@@ -2,8 +2,6 @@ package types
 
 import (
 	"github.com/aquasecurity/trivy/pkg/iac/terraform"
-	"github.com/hashicorp/hcl/v2"
-	"github.com/zclconf/go-cty/cty"
 
 	"github.com/coder/preview/hclext"
 )
@@ -48,11 +46,12 @@ func (b TagBlock) InvalidTags() Tags {
 func (b TagBlock) ValidTags() map[string]string {
 	tags := make(map[string]string)
 	for _, tag := range b.Tags {
-		if !tag.Valid() {
+		if !tag.Valid() || !tag.IsKnown() {
 			continue
 		}
 
-		tags[tag.Key.AsString()] = tag.Value.AsString()
+		k, v := tag.AsStrings()
+		tags[k] = v
 	}
 	return tags
 }
@@ -62,49 +61,32 @@ type Tags []Tag
 func (t Tags) SafeNames() []string {
 	names := make([]string, 0)
 	for _, tag := range t {
-		names = append(names, tag.SafeKeyString())
+		names = append(names, tag.KeyString())
 	}
 	return names
 }
 
 type Tag struct {
-	Key cty.Value
-	// SafeKeyID can be used if the Key val is unknown
-	SafeKeyID string
-	KeyExpr   hcl.Expression
-
-	Value     cty.Value
-	ValueExpr hcl.Expression
+	Key   HCLString
+	Value HCLString
 }
 
 func (t Tag) Valid() bool {
-	if !t.Key.IsWhollyKnown() || !t.Value.IsWhollyKnown() {
-		return false
-	}
-	if !t.Key.Type().Equals(cty.String) || !t.Value.Type().Equals(cty.String) {
-		return false
-	}
-	if t.Key.IsNull() || t.Value.IsNull() {
-		return false
-	}
-	return true
+	return t.Key.Valid() && t.Value.Valid()
 }
 
 func (t Tag) IsKnown() bool {
 	return t.Key.IsKnown() && t.Value.IsKnown()
 }
 
+func (t Tag) KeyString() string {
+	return t.Key.AsString()
+}
+
 func (t Tag) AsStrings() (string, string) {
-	return t.Key.AsString(), t.Value.AsString()
+	return t.KeyString(), t.Value.AsString()
 }
 
 func (t Tag) References() []string {
-	return append(hclext.ReferenceNames(t.KeyExpr), hclext.ReferenceNames(t.ValueExpr)...)
-}
-
-func (t Tag) SafeKeyString() string {
-	if t.Key.Type().Equals(cty.String) {
-		return t.Key.AsString()
-	}
-	return t.SafeKeyID
+	return append(hclext.ReferenceNames(t.Key.ValueExpr), hclext.ReferenceNames(t.Value.ValueExpr)...)
 }

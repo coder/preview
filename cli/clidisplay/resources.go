@@ -34,7 +34,7 @@ func WorkspaceTags(writer io.Writer, tags types.TagBlocks) hcl.Diagnostics {
 				//}
 			}
 
-			k := tag.SafeKeyString()
+			k := tag.KeyString()
 			refs := tag.References()
 			tableWriter.AppendRow(table.Row{k, "??", strings.Join(refs, "\n")})
 

@@ -50,43 +50,13 @@ func WorkspaceTags(modules terraform.Modules, files map[string]*hcl.File) (types
 
 			var tags []types.Tag
 			for _, item := range tagsObj.Items {
-				key, kdiags := item.KeyExpr.Value(evCtx)
-				val, vdiags := item.ValueExpr.Value(evCtx)
-
-				// TODO: what do do with the diags?
-				if kdiags.HasErrors() {
-					key = cty.UnknownVal(cty.String)
-				}
-				if vdiags.HasErrors() {
-					val = cty.UnknownVal(cty.String)
-				}
-
-				if key.IsKnown() && key.Type() != cty.String {
-					r := item.KeyExpr.Range()
-					diags = diags.Append(&hcl.Diagnostic{
-						Severity:    hcl.DiagError,
-						Summary:     "Invalid key type for tags",
-						Detail:      fmt.Sprintf("Key must be a string, but got %s", key.Type().FriendlyName()),
-						Subject:     &r,
-						Context:     &tagsObj.SrcRange,
-						Expression:  item.KeyExpr,
-						EvalContext: evCtx,
-					})
+				tag, tagDiag := NewTag(tagsObj, files, item, evCtx)
+				if tagDiag != nil {
+					diags = diags.Append(tagDiag)
 					continue
 				}
 
-				safe, err := source(item.KeyExpr.Range(), files)
-				if err != nil {
-					safe = []byte("???") // we could do more here
-				}
-
-				tags = append(tags, types.Tag{
-					Key:       key,
-					SafeKeyID: string(safe),
-					KeyExpr:   item.KeyExpr,
-					Value:     val,
-					ValueExpr: item.ValueExpr,
-				})
+				tags = append(tags, tag)
 			}
 			tagBlocks = append(tagBlocks, types.TagBlock{
 				Tags:  tags,
@@ -96,4 +66,72 @@ func WorkspaceTags(modules terraform.Modules, files map[string]*hcl.File) (types
 	}
 
 	return tagBlocks, diags
+}
+
+// NewTag creates a workspace tag from its hcl expression.
+func NewTag(block *hclsyntax.ObjectConsExpr, files map[string]*hcl.File, expr hclsyntax.ObjectConsItem, evCtx *hcl.EvalContext) (types.Tag, *hcl.Diagnostic) {
+	key, kdiags := expr.KeyExpr.Value(evCtx)
+	val, vdiags := expr.ValueExpr.Value(evCtx)
+
+	// TODO: ???
+
+	//if kdiags.HasErrors() {
+	//	key = cty.UnknownVal(cty.String)
+	//}
+	//if vdiags.HasErrors() {
+	//	val = cty.UnknownVal(cty.String)
+	//}
+
+	if key.IsKnown() && key.Type() != cty.String {
+		r := expr.KeyExpr.Range()
+		return types.Tag{}, &hcl.Diagnostic{
+			Severity:    hcl.DiagError,
+			Summary:     "Invalid key type for tags",
+			Detail:      fmt.Sprintf("Key must be a string, but got %s", key.Type().FriendlyName()),
+			Subject:     &r,
+			Context:     &block.SrcRange,
+			Expression:  expr.KeyExpr,
+			EvalContext: evCtx,
+		}
+	}
+
+	if val.IsKnown() && val.Type() != cty.String {
+		r := expr.ValueExpr.Range()
+		return types.Tag{}, &hcl.Diagnostic{
+			Severity:    hcl.DiagError,
+			Summary:     "Invalid value type for tag",
+			Detail:      fmt.Sprintf("Value must be a string, but got %s", val.Type().FriendlyName()),
+			Subject:     &r,
+			Context:     &block.SrcRange,
+			Expression:  expr.ValueExpr,
+			EvalContext: evCtx,
+		}
+	}
+
+	tag := types.Tag{
+		Key: types.HCLString{
+			Value:      key,
+			ValueDiags: kdiags,
+			ValueExpr:  expr.KeyExpr,
+		},
+		Value: types.HCLString{
+			Value:      val,
+			ValueDiags: vdiags,
+			ValueExpr:  expr.ValueExpr,
+		},
+	}
+
+	ks, err := source(expr.KeyExpr.Range(), files)
+	if err == nil {
+		src := string(ks)
+		tag.Key.Source = &src
+	}
+
+	vs, err := source(expr.ValueExpr.Range(), files)
+	if err == nil {
+		src := string(vs)
+		tag.Value.Source = &src
+	}
+
+	return tag, nil
 }
