@@ -21,7 +21,7 @@ type HCLString struct {
 	Source *string
 }
 
-func (s *HCLString) MarshalJSON() ([]byte, error) {
+func (s HCLString) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.AsString())
 }
 

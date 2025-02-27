@@ -1,6 +1,7 @@
 package verify
 
 import (
+	"encoding/json"
 	"testing"
 
 	tfjson "github.com/hashicorp/terraform-json"
@@ -34,8 +35,13 @@ func CompareParameters(t *testing.T, pr *preview.Output, values *tfjson.StateMod
 	types.SortParameters(stateParams)
 	types.SortParameters(pr.Parameters)
 	for i, param := range stateParams {
-		// TODO: A better compare function would be easier to debug
-		assert.Equal(t, param, pr.Parameters[i], "parameter %q %d", param.Name, i)
+		adata, err := json.Marshal(param)
+		require.NoError(t, err, "marshal parameter %q", param.Name)
+
+		bdata, err := json.Marshal(pr.Parameters[i])
+		require.NoError(t, err, "marshal parameter %q", pr.Parameters[i].Name)
+
+		require.JSONEq(t, string(adata), string(bdata), "parameter %q", param.Name)
 	}
 
 	return passed

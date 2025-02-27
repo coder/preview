@@ -28,13 +28,16 @@ export interface ParameterOption {
     readonly icon: string;
 }
 
+// From types/enum.go
+export type ParameterType = string;
+
 // From types/parameter.go
 export interface ParameterValidation {
-    readonly validation_regex: string;
+    readonly validation_regex: string | null;
     readonly validation_error: string;
     readonly validation_min: number | null;
     readonly validation_max: number | null;
-    readonly validation_monotonic: string;
+    readonly validation_monotonic: string | null;
 }
 
 // From web/session.go
@@ -54,7 +57,7 @@ export interface RichParameter {
     readonly name: string;
     readonly display_name: string;
     readonly description: string;
-    readonly type: string;
+    readonly type: ParameterType;
     readonly mutable: boolean;
     readonly default_value: string;
     readonly icon: string;

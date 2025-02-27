@@ -36,6 +36,14 @@ func (p *stateParse) nullableInteger(key string) *int64 {
 	return &v
 }
 
+func (p *stateParse) nullableString(key string) *string {
+	if p.values[key] == nil {
+		return nil
+	}
+	v := optional[string](p.values, key)
+	return &v
+}
+
 func (p *stateParse) string(key string) string {
 	v, err := expected[string](p.values, key)
 	if err != nil {

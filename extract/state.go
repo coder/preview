@@ -56,7 +56,7 @@ func ParameterFromState(block *tfjson.StateResource) (types.Parameter, error) {
 		RichParameter: types.RichParameter{
 			Name:         st.string("name"),
 			Description:  st.optionalString("description"),
-			Type:         st.string("type"),
+			Type:         types.ParameterType(st.optionalString("type")),
 			Mutable:      st.optionalBool("mutable"),
 			DefaultValue: st.optionalString("default"),
 			Icon:         st.optionalString("icon"),
@@ -107,11 +107,11 @@ func parameterValidation(vals map[string]any) (*types.ParameterValidation, error
 	st := newStateParse(vals)
 
 	opt := types.ParameterValidation{
-		Regex:     st.optionalString("regex"),
+		Regex:     st.nullableString("regex"),
 		Error:     st.optionalString("error"),
 		Min:       st.nullableInteger("min"),
 		Max:       st.nullableInteger("max"),
-		Monotonic: st.optionalString("monotonic"),
+		Monotonic: st.nullableString("monotonic"),
 	}
 
 	if len(st.errors) > 0 {

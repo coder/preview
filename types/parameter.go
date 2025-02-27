@@ -43,7 +43,7 @@ type RichParameter struct {
 	Name         string                 `json:"name"`
 	DisplayName  string                 `json:"display_name"`
 	Description  string                 `json:"description"`
-	Type         string                 `json:"type"`
+	Type         ParameterType          `json:"type"`
 	Mutable      bool                   `json:"mutable"`
 	DefaultValue string                 `json:"default_value"`
 	Icon         string                 `json:"icon"`
@@ -56,11 +56,11 @@ type RichParameter struct {
 }
 
 type ParameterValidation struct {
-	Regex     string `json:"validation_regex"`
-	Error     string `json:"validation_error"`
-	Min       *int64 `json:"validation_min"`
-	Max       *int64 `json:"validation_max"`
-	Monotonic string `json:"validation_monotonic"`
+	Regex     *string `json:"validation_regex"`
+	Error     string  `json:"validation_error"`
+	Min       *int64  `json:"validation_min"`
+	Max       *int64  `json:"validation_max"`
+	Monotonic *string `json:"validation_monotonic"`
 }
 
 type ParameterOption struct {

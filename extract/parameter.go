@@ -13,17 +13,19 @@ import (
 )
 
 func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnostics) {
-	diags := required(block, "name", "type")
+	diags := required(block, "name")
 	if diags.HasErrors() {
 		return nil, diags
 	}
 
-	pType, typDiag := requiredString("type", block)
+	pType, typDiag := optionalStringEnum[types.ParameterType](block, "type", types.ParameterTypeString, func(s types.ParameterType) error {
+		return s.Valid()
+	})
 	if typDiag != nil {
 		diags = diags.Append(typDiag)
 	}
 
-	pName, nameDiag := requiredString("name", block)
+	pName, nameDiag := requiredString(block, "name")
 	if nameDiag != nil {
 		diags = diags.Append(nameDiag)
 	}
@@ -87,7 +89,7 @@ func ParameterValidationFromBlock(block *terraform.Block) (types.ParameterValida
 		return types.ParameterValidation{}, diags
 	}
 
-	pErr, errDiag := requiredString("error", block)
+	pErr, errDiag := requiredString(block, "error")
 	if errDiag != nil {
 		diags = diags.Append(errDiag)
 	}
@@ -97,11 +99,11 @@ func ParameterValidationFromBlock(block *terraform.Block) (types.ParameterValida
 	}
 
 	p := types.ParameterValidation{
-		Regex:     optionalString(block, "regex"),
+		Regex:     nullableString(block, "regex"),
 		Error:     pErr,
 		Min:       nullableInteger(block, "min"),
 		Max:       nullableInteger(block, "max"),
-		Monotonic: optionalString(block, "monotonic"),
+		Monotonic: nullableString(block, "monotonic"),
 	}
 
 	return p, diags
@@ -113,12 +115,12 @@ func ParameterOptionFromBlock(block *terraform.Block) (types.ParameterOption, hc
 		return types.ParameterOption{}, diags
 	}
 
-	pName, nameDiag := requiredString("name", block)
+	pName, nameDiag := requiredString(block, "name")
 	if nameDiag != nil {
 		diags = diags.Append(nameDiag)
 	}
 
-	pVal, valDiag := requiredString("value", block)
+	pVal, valDiag := requiredString(block, "value")
 	if valDiag != nil {
 		diags = diags.Append(valDiag)
 	}
@@ -137,7 +139,29 @@ func ParameterOptionFromBlock(block *terraform.Block) (types.ParameterOption, hc
 	return p, diags
 }
 
-func requiredString(key string, block *terraform.Block) (string, *hcl.Diagnostic) {
+func optionalStringEnum[T ~string](block *terraform.Block, key string, def T, valid func(s T) error) (T, *hcl.Diagnostic) {
+	str := optionalString(block, key)
+	if str == "" {
+		return def, nil
+	}
+
+	if err := valid(T(str)); err != nil {
+		tyAttr := block.GetAttribute(key)
+		return "", &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("Invalid %q attribute", key),
+			Detail:   err.Error(),
+			Subject:  &(tyAttr.HCLAttribute().Range),
+			//Context:     &(block.HCLBlock().DefRange),
+			Expression:  tyAttr.HCLAttribute().Expr,
+			EvalContext: block.Context().Inner(),
+		}
+	}
+
+	return T(str), nil
+}
+
+func requiredString(block *terraform.Block, key string) (string, *hcl.Diagnostic) {
 	tyAttr := block.GetAttribute(key)
 	tyVal := tyAttr.Value()
 	if tyVal.Type() != cty.String {
@@ -208,6 +232,20 @@ func optionalInteger(block *terraform.Block, key string) int64 {
 	var _ = acc // acc should be 0
 
 	return i
+}
+
+func nullableString(block *terraform.Block, key string) *string {
+	attr := block.GetAttribute(key)
+	if attr == nil || attr.IsNil() {
+		return nil
+	}
+	val := attr.Value()
+	if val.Type() != cty.String {
+		return nil
+	}
+
+	str := val.AsString()
+	return &str
 }
 
 func optionalString(block *terraform.Block, key string) string {
