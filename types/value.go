@@ -8,6 +8,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
+// @typescript-ignore HCLString
 type HCLString struct {
 	Value cty.Value
 

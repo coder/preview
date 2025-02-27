@@ -22,6 +22,7 @@ type Response struct {
 	// TODO: Workspace tags
 }
 
+// @typescript-ignore Session
 type Session struct {
 	logger   slog.Logger
 	dir      fs.FS

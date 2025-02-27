@@ -6,6 +6,7 @@ import (
 	"github.com/coder/preview/hclext"
 )
 
+// @typescript-ignore TagBlocks
 type TagBlocks []TagBlock
 
 func (b TagBlocks) ValidTags() map[string]string {
@@ -26,6 +27,7 @@ func (b TagBlocks) InvalidTags() Tags {
 	return tags
 }
 
+// @typescript-ignore TagBlock
 type TagBlock struct {
 	Tags  Tags
 	Block *terraform.Block
@@ -56,6 +58,7 @@ func (b TagBlock) ValidTags() map[string]string {
 	return tags
 }
 
+// @typescript-ignore Tags
 type Tags []Tag
 
 func (t Tags) SafeNames() []string {
@@ -66,6 +69,7 @@ func (t Tags) SafeNames() []string {
 	return names
 }
 
+// @typescript-ignore Tag
 type Tag struct {
 	Key   HCLString
 	Value HCLString

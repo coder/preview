@@ -22,7 +22,8 @@ func main() {
 	}
 
 	generateDirectories := map[string]string{
-		"github.com/coder/preview/web": "",
+		"github.com/coder/preview/web":   "",
+		"github.com/coder/preview/types": "",
 	}
 	for dir, prefix := range generateDirectories {
 		err = gen.IncludeGenerateWithPrefix(dir, prefix)
@@ -31,9 +32,7 @@ func main() {
 		}
 	}
 
-	referencePackages := map[string]string{
-		"github.com/coder/preview/types": "",
-	}
+	referencePackages := map[string]string{}
 	for pkg, prefix := range referencePackages {
 		err = gen.IncludeReference(pkg, prefix)
 		if err != nil {

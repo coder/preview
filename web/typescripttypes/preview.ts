@@ -29,7 +29,9 @@ export interface ParameterOption {
 }
 
 // From types/enum.go
-export type ParameterType = string;
+export type ParameterType = "boolean" | "list(string)" | "number" | "string";
+
+export const ParameterTypes: ParameterType[] = ["boolean", "list(string)", "number", "string"];
 
 // From types/parameter.go
 export interface ParameterValidation {
@@ -66,9 +68,5 @@ export interface RichParameter {
     readonly required: boolean;
     readonly order: number;
     readonly ephemeral: boolean;
-}
-
-// From web/session.go
-export interface Session {
 }
 

@@ -11,6 +11,8 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
+// @typescript-ignore BlockTypeParameter
+// @typescript-ignore BlockTypeWorkspaceTag
 const (
 	BlockTypeParameter    = "coder_parameter"
 	BlockTypeWorkspaceTag = "coder_workspace_tag"
