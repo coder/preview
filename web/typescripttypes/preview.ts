@@ -59,6 +59,7 @@ export interface RichParameter {
     readonly name: string;
     readonly display_name: string;
     readonly description: string;
+    readonly form_control: string;
     readonly type: ParameterType;
     readonly mutable: boolean;
     readonly default_value: string;

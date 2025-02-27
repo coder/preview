@@ -45,6 +45,7 @@ type RichParameter struct {
 	Name         string                 `json:"name"`
 	DisplayName  string                 `json:"display_name"`
 	Description  string                 `json:"description"`
+	FormControl  string                 `json:"form_control"`
 	Type         ParameterType          `json:"type"`
 	Mutable      bool                   `json:"mutable"`
 	DefaultValue string                 `json:"default_value"`

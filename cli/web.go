@@ -42,7 +42,7 @@ func (r *RootCmd) WebsocketServer() *serpent.Command {
 		Hidden: true,
 		Handler: func(i *serpent.Invocation) error {
 			ctx := i.Context()
-			logger := slog.Make(sloghuman.Sink(i.Stderr))
+			logger := slog.Make(sloghuman.Sink(i.Stderr)).Leveled(slog.LevelDebug)
 
 			mux := chi.NewMux()
 			mux.HandleFunc("/ws/{dir}", websocketHandler(logger))

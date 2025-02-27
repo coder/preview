@@ -2,8 +2,6 @@ package web
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"cdr.dev/slog"
 	"github.com/coder/websocket"
@@ -24,9 +22,6 @@ func (s *Session) Listen(ctx context.Context, conn *websocket.Conn) {
 	// write responses back
 	go s.writeLoop(ctx, cancel, conn)
 
-	time.Sleep(time.Second)
-	fmt.Println("CLOSE")
-
 	// Always close the connection at the end of the Listen.
 	defer conn.Close(websocket.StatusNormalClosure, "closing connection")
 	<-ctx.Done()
@@ -44,6 +39,10 @@ func (s *Session) readLoop(ctx context.Context, cancel func(), conn *websocket.C
 			return
 		}
 
+		s.logger.Debug(ctx, "received request",
+			slog.F("id", req.ID),
+			slog.F("inputs", req.Inputs),
+		)
 		s.sendRequest(ctx, req)
 	}
 }

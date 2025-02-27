@@ -12,11 +12,12 @@ import (
 type Request struct {
 	// ID identifies the request. The response contains the same
 	// ID so that the client can match it to the request.
-	ID     int
-	Inputs map[string]string
+	ID     int               `json:"id"`
+	Inputs map[string]string `json:"inputs"`
 }
 
 type Response struct {
+	ID          int               `json:"id"`
 	Diagnostics Diagnostics       `json:"diagnostics"`
 	Parameters  []types.Parameter `json:"parameters"`
 	// TODO: Workspace tags
@@ -71,6 +72,7 @@ func (s *Session) preview(ctx context.Context, req *Request) Response {
 	}, s.dir)
 
 	r := Response{
+		ID:          req.ID,
 		Diagnostics: FromHCLDiagnostics(diags),
 	}
 	if output == nil {
