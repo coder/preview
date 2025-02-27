@@ -30,7 +30,7 @@ func ParameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks 
 			pv, ok := input.RichParameterValue(name)
 			if ok {
 				// TODO: Handle non-string types
-				value = cty.StringVal(pv.Value)
+				value = cty.StringVal(pv)
 			} else {
 				// get the default value
 				// TODO: Log any diags

@@ -52,9 +52,7 @@ func ParameterFromState(block *tfjson.StateResource) (types.Parameter, error) {
 	}
 
 	param := types.Parameter{
-		Value: types.ParameterValue{
-			Value: st.string("value"),
-		},
+		Value: types.StringLiteral(st.string("value")),
 		RichParameter: types.RichParameter{
 			Name:         st.string("name"),
 			Description:  st.optionalString("description"),
@@ -68,7 +66,6 @@ func ParameterFromState(block *tfjson.StateResource) (types.Parameter, error) {
 			DisplayName:  st.optionalString("display_name"),
 			Order:        st.optionalInteger("order"),
 			Ephemeral:    st.optionalBool("ephemeral"),
-			BlockName:    block.Name,
 		},
 	}
 

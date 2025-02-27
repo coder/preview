@@ -14,7 +14,7 @@ import (
 
 type Input struct {
 	PlanJSONPath    string
-	ParameterValues map[string]types.ParameterValue
+	ParameterValues map[string]string
 }
 
 type Output struct {
@@ -88,7 +88,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 	}, diags.Extend(rpDiags).Extend(tagDiags)
 }
 
-func (i Input) RichParameterValue(key string) (types.ParameterValue, bool) {
+func (i Input) RichParameterValue(key string) (string, bool) {
 	p, ok := i.ParameterValues[key]
 	return p, ok
 }

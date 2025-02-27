@@ -14,7 +14,6 @@ import (
 
 	"github.com/coder/preview"
 	"github.com/coder/preview/internal/verify"
-	"github.com/coder/preview/types"
 )
 
 // Test_VerifyE2E will fully evaluate with `terraform apply`
@@ -137,7 +136,7 @@ func Test_VerifyE2E(t *testing.T) {
 					output, diags := preview.Preview(context.Background(),
 						preview.Input{
 							PlanJSONPath:    "plan.json",
-							ParameterValues: map[string]types.ParameterValue{},
+							ParameterValues: map[string]string{},
 						},
 						os.DirFS(wp))
 					if diags.HasErrors() {

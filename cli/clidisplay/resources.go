@@ -57,7 +57,7 @@ func Parameters(writer io.Writer, params []types.Parameter) {
 	row := table.Row{"Parameter"}
 	tableWriter.AppendHeader(row)
 	for _, p := range params {
-		strVal := p.Value.Value
+		strVal := p.Value.AsString()
 		//value := p.Value.Value
 		//
 		//if value.IsNull() {
@@ -71,7 +71,7 @@ func Parameters(writer io.Writer, params []types.Parameter) {
 		//}
 
 		tableWriter.AppendRow(table.Row{
-			fmt.Sprintf("%s (%s): %s\n%s", p.Name, p.BlockName, p.Description, formatOptions(strVal, p.Options)),
+			fmt.Sprintf("%s: %s\n%s", p.Name, p.Description, formatOptions(strVal, p.Options)),
 		})
 		tableWriter.AppendSeparator()
 	}

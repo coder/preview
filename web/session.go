@@ -64,16 +64,9 @@ func (s *Session) sendRequest(ctx context.Context, req Request) {
 }
 
 func (s *Session) preview(ctx context.Context, req *Request) Response {
-	paramValues := make(map[string]types.ParameterValue)
-	for k, v := range req.Inputs {
-		paramValues[k] = types.ParameterValue{
-			Value: v,
-		}
-	}
-
 	output, diags := preview.Preview(ctx, preview.Input{
 		PlanJSONPath:    s.planPath,
-		ParameterValues: paramValues,
+		ParameterValues: req.Inputs,
 	}, s.dir)
 
 	r := Response{

@@ -12,10 +12,10 @@ import (
 	"github.com/coder/preview/types"
 )
 
-func ParameterFromBlock(block *terraform.Block) (types.Parameter, hcl.Diagnostics) {
+func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnostics) {
 	diags := required(block, "name", "type")
 	if diags.HasErrors() {
-		return types.Parameter{}, diags
+		return nil, diags
 	}
 
 	pType, typDiag := requiredString("type", block)
@@ -28,17 +28,13 @@ func ParameterFromBlock(block *terraform.Block) (types.Parameter, hcl.Diagnostic
 		diags = diags.Append(nameDiag)
 	}
 
-	pVal, valDiags := richParameterValue(block)
-	diags = diags.Extend(valDiags)
-
 	if diags.HasErrors() {
-		return types.Parameter{}, diags
+		return nil, diags
 	}
 
+	pVal := richParameterValue(block)
 	p := types.Parameter{
-		Value: types.ParameterValue{
-			Value: pVal,
-		},
+		Value: pVal,
 		RichParameter: types.RichParameter{
 			Name:        pName,
 			Description: optionalString(block, "description"),
@@ -54,7 +50,6 @@ func ParameterFromBlock(block *terraform.Block) (types.Parameter, hcl.Diagnostic
 			DisplayName:  optionalString(block, "display_name"),
 			Order:        optionalInteger(block, "order"),
 			Ephemeral:    optionalBoolean(block, "ephemeral"),
-			BlockName:    block.NameLabel(),
 		},
 	}
 
@@ -80,7 +75,10 @@ func ParameterFromBlock(block *terraform.Block) (types.Parameter, hcl.Diagnostic
 		p.Validations = append(p.Validations, &valid)
 	}
 
-	return p, diags
+	// Diagnostics are scoped to the parameter
+	p.Diagnostics = diags
+
+	return &p, nil
 }
 
 func ParameterValidationFromBlock(block *terraform.Block) (types.ParameterValidation, hcl.Diagnostics) {
@@ -243,25 +241,19 @@ func required(block *terraform.Block, keys ...string) hcl.Diagnostics {
 	return diags
 }
 
-func richParameterValue(block *terraform.Block) (string, hcl.Diagnostics) {
+func richParameterValue(block *terraform.Block) types.HCLString {
 	// Find the value of the parameter from the context.
 	paramPath := append([]string{"data"}, block.Labels()...)
+	path := strings.Join(paramPath, ".")
+
 	valueRef := hclext.ScopeTraversalExpr(append(paramPath, "value")...)
 	val, diags := valueRef.Value(block.Context().Inner())
-	if diags.HasErrors() {
-		return "", diags
+	return types.HCLString{
+		Value:      val,
+		ValueDiags: diags,
+		ValueExpr:  &valueRef,
+		Source:     &path,
 	}
-
-	if !val.Type().Equals(cty.String) {
-		return "", hcl.Diagnostics{
-			{
-				Severity: hcl.DiagError,
-				Summary:  "Invalid parameter value",
-				Detail:   fmt.Sprintf("Expected a string, got %q", val.Type().FriendlyName()),
-			},
-		}
-	}
-	return val.AsString(), nil
 }
 
 func ParameterCtyType(typ string) (cty.Type, error) {

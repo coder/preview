@@ -20,8 +20,8 @@ func RichParameters(modules terraform.Modules) ([]types.Parameter, hcl.Diagnosti
 				diags = diags.Extend(pDiags)
 			}
 
-			if !pDiags.HasErrors() {
-				params = append(params, param)
+			if param != nil {
+				params = append(params, *param)
 			}
 		}
 	}

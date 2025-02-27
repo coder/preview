@@ -10,7 +10,6 @@ import (
 
 	"github.com/coder/preview"
 	"github.com/coder/preview/cli/clidisplay"
-	"github.com/coder/preview/types"
 	"github.com/coder/serpent"
 )
 
@@ -56,15 +55,13 @@ func (r *RootCmd) Root() *serpent.Command {
 		Handler: func(i *serpent.Invocation) error {
 			dfs := os.DirFS(dir)
 
-			rvars := make(map[string]types.ParameterValue)
+			rvars := make(map[string]string)
 			for _, val := range vars {
 				parts := strings.Split(val, "=")
 				if len(parts) != 2 {
 					continue
 				}
-				rvars[parts[0]] = types.ParameterValue{
-					Value: parts[1],
-				}
+				rvars[parts[0]] = parts[1]
 			}
 
 			input := preview.Input{

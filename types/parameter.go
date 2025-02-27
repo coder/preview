@@ -7,6 +7,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -22,27 +23,25 @@ func SortParameters(lists []Parameter) {
 			return order
 		}
 
-		if a.BlockName != b.BlockName {
-			return strings.Compare(a.BlockName, b.BlockName)
-		}
-
 		return strings.Compare(a.Name, b.Name)
 	})
 }
 
 type Parameter struct {
-	// TODO: Might be value in a "Lazy" parameter
-	Value ParameterValue
 	RichParameter
-}
+	// Value is not immediately cast into a string.
+	// Value is not required at template import, so defer
+	// casting to a string until it is absolutely necessary.
+	Value HCLString `json:"value"`
 
-type ParameterValue struct {
-	// Value must be string due to the terraform type constraints
-	Value string `json:"value"`
+	// Diagnostics is used to store any errors that occur during parsing
+	// of the parameter.
+	Diagnostics hcl.Diagnostics `json:"-" hcl:"-"`
 }
 
 type RichParameter struct {
 	Name         string                 `json:"name"`
+	DisplayName  string                 `json:"display_name"`
 	Description  string                 `json:"description"`
 	Type         string                 `json:"type"`
 	Mutable      bool                   `json:"mutable"`
@@ -52,12 +51,8 @@ type RichParameter struct {
 	Validations  []*ParameterValidation `json:"validations"`
 	Required     bool                   `json:"required"`
 	// legacy_variable_name was removed (= 14)
-	DisplayName string `json:"display_name"`
-	Order       int64  `json:"order"`
-	Ephemeral   bool   `json:"ephemeral"`
-
-	// HCL props
-	BlockName string `json:"block_name"`
+	Order     int64 `json:"order"`
+	Ephemeral bool  `json:"ephemeral"`
 }
 
 type ParameterValidation struct {
@@ -69,10 +64,10 @@ type ParameterValidation struct {
 }
 
 type ParameterOption struct {
-	Name        string `json:"name" hcl:"name,attr"`
-	Description string `json:"description" hcl:"description,attr"`
-	Value       string `json:"value" hcl:"value,attr"`
-	Icon        string `json:"icon" hcl:"icon,attr"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Value       string `json:"value"`
+	Icon        string `json:"icon"`
 }
 
 // Hash can be used to compare two RichParameter objects at a glance.

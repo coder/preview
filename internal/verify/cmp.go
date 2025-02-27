@@ -35,7 +35,7 @@ func CompareParameters(t *testing.T, pr *preview.Output, values *tfjson.StateMod
 	types.SortParameters(pr.Parameters)
 	for i, param := range stateParams {
 		// TODO: A better compare function would be easier to debug
-		assert.Equal(t, param, pr.Parameters[i], "parameter %q %d", param.BlockName, i)
+		assert.Equal(t, param, pr.Parameters[i], "parameter %q %d", param.Name, i)
 	}
 
 	return passed

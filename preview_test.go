@@ -65,10 +65,8 @@ func Test_Extract(t *testing.T) {
 			name: "conditional",
 			dir:  "conditional",
 			input: preview.Input{
-				ParameterValues: map[string]types.ParameterValue{
-					"project": {
-						Value: "small",
-					},
+				ParameterValues: map[string]string{
+					"project": "small",
 				},
 			},
 			expTags:     map[string]string{},
@@ -85,10 +83,8 @@ func Test_Extract(t *testing.T) {
 				"zone": "eu",
 			},
 			input: preview.Input{
-				ParameterValues: map[string]types.ParameterValue{
-					"region": {
-						Value: "eu",
-					},
+				ParameterValues: map[string]string{
+					"region": "eu",
 				},
 			},
 			expUnknowns: []string{},
@@ -103,10 +99,8 @@ func Test_Extract(t *testing.T) {
 				"zone": "eu",
 			},
 			input: preview.Input{
-				ParameterValues: map[string]types.ParameterValue{
-					"region": {
-						Value: "eu",
-					},
+				ParameterValues: map[string]string{
+					"region": "eu",
 				},
 			},
 			expUnknowns: []string{},
@@ -158,7 +152,7 @@ func Test_Extract(t *testing.T) {
 			expTags: map[string]string{},
 			input: preview.Input{
 				PlanJSONPath:    "before.json",
-				ParameterValues: map[string]types.ParameterValue{},
+				ParameterValues: map[string]string{},
 			},
 			expUnknowns: []string{},
 			params:      map[string]func(t *testing.T, parameter types.Parameter){},
@@ -168,7 +162,7 @@ func Test_Extract(t *testing.T) {
 			dir:     "nulldefault",
 			expTags: map[string]string{},
 			input: preview.Input{
-				ParameterValues: map[string]types.ParameterValue{},
+				ParameterValues: map[string]string{},
 			},
 			expUnknowns: []string{},
 			params:      map[string]func(t *testing.T, parameter types.Parameter){},
@@ -178,7 +172,7 @@ func Test_Extract(t *testing.T) {
 			dir:     "manymodules",
 			expTags: map[string]string{},
 			input: preview.Input{
-				ParameterValues: map[string]types.ParameterValue{},
+				ParameterValues: map[string]string{},
 				PlanJSONPath:    "out.json",
 			},
 			expUnknowns: []string{},
@@ -189,7 +183,7 @@ func Test_Extract(t *testing.T) {
 			dir:     "dupemodparams",
 			expTags: map[string]string{},
 			input: preview.Input{
-				ParameterValues: map[string]types.ParameterValue{},
+				ParameterValues: map[string]string{},
 			},
 			expUnknowns: []string{},
 			params:      map[string]func(t *testing.T, parameter types.Parameter){},
