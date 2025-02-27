@@ -78,7 +78,7 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 	}
 
 	// Diagnostics are scoped to the parameter
-	p.Diagnostics = diags
+	p.Diagnostics = types.Diagnostics(diags)
 
 	return &p, nil
 }

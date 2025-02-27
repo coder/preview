@@ -18,7 +18,7 @@ type Request struct {
 
 type Response struct {
 	ID          int               `json:"id"`
-	Diagnostics Diagnostics       `json:"diagnostics"`
+	Diagnostics types.Diagnostics `json:"diagnostics"`
 	Parameters  []types.Parameter `json:"parameters"`
 	// TODO: Workspace tags
 }
@@ -73,7 +73,7 @@ func (s *Session) preview(ctx context.Context, req *Request) Response {
 
 	r := Response{
 		ID:          req.ID,
-		Diagnostics: FromHCLDiagnostics(diags),
+		Diagnostics: types.Diagnostics(diags),
 	}
 	if output == nil {
 		return r

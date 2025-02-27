@@ -9,6 +9,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/coder/guts"
+	"github.com/coder/guts/bindings"
 	"github.com/coder/guts/config"
 )
 
@@ -85,7 +86,15 @@ func TsMutations(ts *guts.Typescript) {
 func TypeMappings(gen *guts.GoParser) error {
 	gen.IncludeCustomDeclaration(config.StandardMappings())
 
-	gen.IncludeCustomDeclaration(map[string]guts.TypeOverride{})
+	gen.IncludeCustomDeclaration(map[string]guts.TypeOverride{
+		"github.com/hashicorp/hcl/v2.Diagnostic": func() bindings.ExpressionType {
+			return bindings.Reference(bindings.Identifier{
+				Name:    "FriendlyDiagnostic",
+				Package: nil,
+				Prefix:  "",
+			})
+		},
+	})
 
 	err := gen.IncludeCustom(map[string]string{
 		"github.com/coder/preview/types.HCLString": "string",

@@ -1,13 +1,10 @@
 package types
 
 import (
-	"crypto/sha256"
-	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
 
-	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -38,7 +35,7 @@ type Parameter struct {
 
 	// Diagnostics is used to store any errors that occur during parsing
 	// of the parameter.
-	Diagnostics hcl.Diagnostics `json:"-" hcl:"-"`
+	Diagnostics Diagnostics `json:"diagnostics"`
 }
 
 type RichParameter struct {
@@ -71,17 +68,6 @@ type ParameterOption struct {
 	Description string `json:"description"`
 	Value       string `json:"value"`
 	Icon        string `json:"icon"`
-}
-
-// Hash can be used to compare two RichParameter objects at a glance.
-func (r *RichParameter) Hash() ([32]byte, error) {
-	// Option order matters, so just json marshal the whole thing.
-	data, err := json.Marshal(r)
-	if err != nil {
-		return [32]byte{}, fmt.Errorf("marshal: %w", err)
-	}
-
-	return sha256.Sum256(data), nil
 }
 
 // CtyType returns the cty.Type for the RichParameter.
