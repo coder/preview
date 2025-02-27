@@ -18,7 +18,7 @@ type Request struct {
 
 type Response struct {
 	Diagnostics Diagnostics       `json:"diagnostics"`
-	Paramaters  []types.Parameter `json:"paramaters"`
+	Parameters  []types.Parameter `json:"parameters"`
 	// TODO: Workspace tags
 }
 
@@ -76,7 +76,7 @@ func (s *Session) preview(ctx context.Context, req *Request) Response {
 		return r
 	}
 
-	r.Paramaters = output.Parameters
+	r.Parameters = output.Parameters
 
 	return r
 }

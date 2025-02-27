@@ -49,7 +49,7 @@ export interface Request {
 // From web/session.go
 export interface Response {
     readonly diagnostics: Diagnostics;
-    readonly paramaters: readonly Parameter[];
+    readonly parameters: readonly Parameter[];
 }
 
 // From types/parameter.go

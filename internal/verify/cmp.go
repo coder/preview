@@ -19,7 +19,7 @@ func Compare(t *testing.T, pr *preview.Output, values *tfjson.StateModule) {
 	// TODO: Compare workspace tags
 
 	if !passed {
-		t.Fatalf("paramaters failed expectations")
+		t.Fatalf("parameters failed expectations")
 	}
 }
 
