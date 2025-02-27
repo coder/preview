@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/zclconf/go-cty/cty"
 
 	"github.com/coder/preview/types"
 )
@@ -58,18 +57,18 @@ func Parameters(writer io.Writer, params []types.Parameter) {
 	row := table.Row{"Parameter"}
 	tableWriter.AppendHeader(row)
 	for _, p := range params {
-		strVal := ""
-		value := p.Value.Value
-
-		if value.IsNull() {
-			strVal = "null"
-		} else if !p.Value.Value.IsKnown() {
-			strVal = "unknown"
-		} else if value.Type().Equals(cty.String) {
-			strVal = value.AsString()
-		} else {
-			strVal = value.GoString()
-		}
+		strVal := p.Value.Value
+		//value := p.Value.Value
+		//
+		//if value.IsNull() {
+		//	strVal = "null"
+		//} else if !p.Value.Value.IsKnown() {
+		//	strVal = "unknown"
+		//} else if value.Type().Equals(cty.String) {
+		//	strVal = value.AsString()
+		//} else {
+		//	strVal = value.GoString()
+		//}
 
 		tableWriter.AppendRow(table.Row{
 			fmt.Sprintf("%s (%s): %s\n%s", p.Name, p.BlockName, p.Description, formatOptions(strVal, p.Options)),

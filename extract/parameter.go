@@ -243,11 +243,25 @@ func required(block *terraform.Block, keys ...string) hcl.Diagnostics {
 	return diags
 }
 
-func richParameterValue(block *terraform.Block) (cty.Value, hcl.Diagnostics) {
+func richParameterValue(block *terraform.Block) (string, hcl.Diagnostics) {
 	// Find the value of the parameter from the context.
 	paramPath := append([]string{"data"}, block.Labels()...)
 	valueRef := hclext.ScopeTraversalExpr(append(paramPath, "value")...)
-	return valueRef.Value(block.Context().Inner())
+	val, diags := valueRef.Value(block.Context().Inner())
+	if diags.HasErrors() {
+		return "", diags
+	}
+
+	if !val.Type().Equals(cty.String) {
+		return "", hcl.Diagnostics{
+			{
+				Severity: hcl.DiagError,
+				Summary:  "Invalid parameter value",
+				Detail:   fmt.Sprintf("Expected a string, got %q", val.Type().FriendlyName()),
+			},
+		}
+	}
+	return val.AsString(), nil
 }
 
 func ParameterCtyType(typ string) (cty.Type, error) {

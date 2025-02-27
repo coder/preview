@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	tfjson "github.com/hashicorp/terraform-json"
-	"github.com/zclconf/go-cty/cty"
 
 	"github.com/coder/preview/types"
 )
@@ -54,7 +53,7 @@ func ParameterFromState(block *tfjson.StateResource) (types.Parameter, error) {
 
 	param := types.Parameter{
 		Value: types.ParameterValue{
-			Value: cty.StringVal(st.string("value")),
+			Value: st.string("value"),
 		},
 		RichParameter: types.RichParameter{
 			Name:         st.string("name"),

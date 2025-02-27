@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
-	"github.com/zclconf/go-cty/cty"
 
 	"github.com/coder/preview"
 	"github.com/coder/preview/cli/clidisplay"
@@ -64,7 +63,7 @@ func (r *RootCmd) Root() *serpent.Command {
 					continue
 				}
 				rvars[parts[0]] = types.ParameterValue{
-					Value: cty.StringVal(parts[1]),
+					Value: parts[1],
 				}
 			}
 
@@ -97,6 +96,7 @@ func (r *RootCmd) Root() *serpent.Command {
 		},
 	}
 	cmd.AddSubcommands(r.TerraformPlan())
+	cmd.AddSubcommands(r.WebsocketServer())
 	return cmd
 }
 

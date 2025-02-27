@@ -67,7 +67,7 @@ func Test_Extract(t *testing.T) {
 			input: preview.Input{
 				ParameterValues: map[string]types.ParameterValue{
 					"project": {
-						Value: cty.StringVal("small"),
+						Value: "small",
 					},
 				},
 			},
@@ -87,7 +87,7 @@ func Test_Extract(t *testing.T) {
 			input: preview.Input{
 				ParameterValues: map[string]types.ParameterValue{
 					"region": {
-						Value: cty.StringVal("eu"),
+						Value: "eu",
 					},
 				},
 			},
@@ -105,7 +105,7 @@ func Test_Extract(t *testing.T) {
 			input: preview.Input{
 				ParameterValues: map[string]types.ParameterValue{
 					"region": {
-						Value: cty.StringVal("eu"),
+						Value: "eu",
 					},
 				},
 			},

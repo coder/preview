@@ -37,7 +37,8 @@ type Parameter struct {
 }
 
 type ParameterValue struct {
-	Value cty.Value `json:"value"`
+	// Value must be string due to the terraform type constraints
+	Value string `json:"value"`
 }
 
 type RichParameter struct {

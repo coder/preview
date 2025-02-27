@@ -3,8 +3,11 @@ module github.com/coder/preview
 go 1.23.5
 
 require (
+	cdr.dev/slog v1.6.2-0.20240126064726-20367d4aede6
 	github.com/aquasecurity/trivy v0.58.2
 	github.com/coder/serpent v0.10.0
+	github.com/coder/websocket v1.8.12
+	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/hashicorp/go-version v1.7.0
 	github.com/hashicorp/hc-install v0.9.1
 	github.com/hashicorp/hcl/v2 v2.23.0
@@ -16,7 +19,6 @@ require (
 )
 
 require (
-	cdr.dev/slog v1.6.2-0.20240126064726-20367d4aede6 // indirect
 	cel.dev/expr v0.19.0 // indirect
 	cloud.google.com/go v0.116.0 // indirect
 	cloud.google.com/go/auth v0.13.0 // indirect
@@ -39,17 +41,24 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.8.1 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.4.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/charmbracelet/lipgloss v0.8.0 // indirect
 	github.com/cloudflare/circl v1.5.0 // indirect
 	github.com/cncf/xds/go v0.0.0-20240905190251-b4127c9b8d78 // indirect
+	github.com/coder/guts v1.0.1 // indirect
 	github.com/coder/pretty v0.0.0-20230908205945-e89ba86370e0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
+	github.com/dlclark/regexp2 v1.11.4 // indirect
+	github.com/dop251/goja v0.0.0-20241024094426-79f3a7efcdbd // indirect
 	github.com/envoyproxy/go-control-plane v0.13.1 // indirect
 	github.com/envoyproxy/protoc-gen-validate v1.1.0 // indirect
 	github.com/fatih/color v1.18.0 // indirect
+	github.com/fatih/structtag v1.2.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
+	github.com/google/pprof v0.0.0-20240227163752-401108e1b7e7 // indirect
 	github.com/google/s2a-go v0.1.8 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
@@ -71,6 +80,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
+	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.15.2 // indirect
 	github.com/pion/transport/v2 v2.0.0 // indirect
 	github.com/pion/udp v0.1.4 // indirect
@@ -102,7 +112,7 @@ require (
 	golang.org/x/text v0.22.0 // indirect
 	golang.org/x/time v0.9.0 // indirect
 	golang.org/x/tools v0.29.0 // indirect
-	golang.org/x/xerrors v0.0.0-20240716161551-93cc26a95ae9 // indirect
+	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/api v0.216.0 // indirect
 	google.golang.org/genproto v0.0.0-20241118233622-e639e219e697 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250115164207-1a7da9e5054f // indirect

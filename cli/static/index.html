@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket JSON Preview</title>
+    <script defer>
+        let socket;
+
+        function connectWebSocket() {
+            const dir = document.getElementById('directory').value;
+            const path = document.getElementById('path').value;
+            const input = document.getElementById('input').value;
+            const output = document.getElementById('output');
+
+            if (socket) {
+                socket.close();
+            }
+
+            const url = `ws://localhost:8100/ws/${encodeURIComponent(dir)}?plan=${encodeURIComponent(path)}`;
+            socket = new WebSocket(url);
+
+            socket.onopen = () => {
+                socket.send(input);
+            };
+
+            socket.onmessage = (event) => {
+                output.textContent = event.data;
+            };
+        }
+
+        function handleInputChange() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                const input = document.getElementById('input').value;
+                socket.send(input);
+            }
+        }
+    </script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        textarea { width: 100%; height: 150px; font-family: monospace; }
+        pre { background: #f4f4f4; padding: 10px; border: 1px solid #ccc; white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+<h2>WebSocket JSON Preview</h2>
+<label>Directory: <input type="text" id="directory"></label><br>
+<label>Path: <input type="text" id="path"></label><br>
+<label>Input JSON:</label><br>
+<textarea id="input" oninput="handleInputChange()">{}</textarea><br>
+<button onclick="connectWebSocket()">Connect</button>
+<h3>Output:</h3>
+<pre id="output"></pre>
+</body>
+</html>
