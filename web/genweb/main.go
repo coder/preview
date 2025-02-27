@@ -78,6 +78,7 @@ func TsMutations(ts *guts.Typescript) {
 		// Omitempty + null is just '?' in golang json marshal
 		// number?: number | null --> number?: number
 		config.SimplifyOmitEmpty,
+		config.NullUnionSlices,
 	)
 }
 
@@ -88,6 +89,7 @@ func TypeMappings(gen *guts.GoParser) error {
 	gen.IncludeCustomDeclaration(map[string]guts.TypeOverride{})
 
 	err := gen.IncludeCustom(map[string]string{
+		"github.com/coder/preview/types.HCLString": "string",
 		// Serpent fields should be converted to their primitive types
 		"github.com/coder/serpent.Regexp":         "string",
 		"github.com/coder/serpent.StringArray":    "string",

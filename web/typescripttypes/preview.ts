@@ -17,7 +17,7 @@ export type Diagnostics = readonly Diagnostic[];
 
 // From types/parameter.go
 export interface Parameter extends RichParameter {
-    readonly Value: ParameterValue;
+    readonly value: string;
 }
 
 // From types/parameter.go
@@ -37,11 +37,6 @@ export interface ParameterValidation {
     readonly validation_monotonic: string;
 }
 
-// From types/parameter.go
-export interface ParameterValue {
-    readonly value: string;
-}
-
 // From web/session.go
 export interface Request {
     readonly ID: number;
@@ -57,18 +52,17 @@ export interface Response {
 // From types/parameter.go
 export interface RichParameter {
     readonly name: string;
+    readonly display_name: string;
     readonly description: string;
     readonly type: string;
     readonly mutable: boolean;
     readonly default_value: string;
     readonly icon: string;
-    readonly options: readonly (ParameterOption | null)[];
-    readonly validations: readonly (ParameterValidation | null)[];
+    readonly options: readonly (ParameterOption)[];
+    readonly validations: readonly (ParameterValidation)[];
     readonly required: boolean;
-    readonly display_name: string;
     readonly order: number;
     readonly ephemeral: boolean;
-    readonly block_name: string;
 }
 
 // From web/session.go

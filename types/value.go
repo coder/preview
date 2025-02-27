@@ -1,6 +1,8 @@
 package types
 
 import (
+	"encoding/json"
+
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/zclconf/go-cty/cty"
@@ -17,6 +19,20 @@ type HCLString struct {
 	// Source is the literal hcl text that was parsed.
 	// This is a best effort, it may not be available.
 	Source *string
+}
+
+func (s *HCLString) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.AsString())
+}
+
+func (s *HCLString) UnmarshalJSON(data []byte) error {
+	var str string
+	if err := json.Unmarshal(data, &str); err != nil {
+		return err
+	}
+
+	*s = StringLiteral(str)
+	return nil
 }
 
 func StringLiteral(s string) HCLString {
