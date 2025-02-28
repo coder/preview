@@ -25,7 +25,13 @@ func ParameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks 
 				continue // Wow a value exists?!. This feels like a bug.
 			}
 
-			name := block.NameLabel()
+			nameAttr := block.GetAttribute("name")
+			nameVal := nameAttr.Value()
+			if !nameVal.Type().Equals(cty.String) {
+				continue // Ignore the errors at this point
+			}
+
+			name := nameVal.AsString()
 			var value cty.Value
 			pv, ok := input.RichParameterValue(name)
 			if ok {
