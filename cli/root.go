@@ -87,7 +87,7 @@ func (r *RootCmd) Root() *serpent.Command {
 				clidisplay.WriteDiagnostics(os.Stderr, output.Files, diags)
 			}
 
-			clidisplay.Parameters(os.Stdout, output.Parameters)
+			clidisplay.Parameters(os.Stdout, output.Parameters, output.Files)
 
 			return nil
 		},

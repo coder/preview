@@ -22,6 +22,11 @@ data "coder_parameter" "project" {
     value = "small"
     description = "The small project with minimal resource requirements to work on."
   }
+
+  validation {
+    regex = "^massive|small$"
+    error = "You must select either massive or small."
+  }
 }
 
 locals {

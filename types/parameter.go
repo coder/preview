@@ -2,10 +2,13 @@ package types
 
 import (
 	"fmt"
+	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/zclconf/go-cty/cty"
+	"golang.org/x/xerrors"
 )
 
 // @typescript-ignore BlockTypeParameter
@@ -63,6 +66,50 @@ type ParameterValidation struct {
 	Monotonic *string `json:"validation_monotonic"`
 }
 
+// TODO: Match implementation from https://github.com/coder/terraform-provider-coder/blob/main/provider/parameter.go#L404-L462
+// TODO: Does the value have to be an option from the set of options?
+func (v ParameterValidation) Valid(p string) error {
+	validErr := xerrors.New(v.errorRendered(p))
+	if v.Regex != nil {
+		exp, err := regexp.Compile(*v.Regex)
+		if err != nil {
+			return fmt.Errorf("invalid regex %q: %w", *v.Regex, err)
+		}
+
+		if !exp.MatchString(p) {
+			return validErr
+		}
+	}
+
+	if v.Min != nil || v.Max != nil {
+		vd, err := strconv.ParseInt(p, 10, 64)
+		if err != nil {
+			return fmt.Errorf("invalid number value %q: %w", p, err)
+		}
+
+		if v.Min != nil && vd < *v.Min {
+			return validErr
+		}
+
+		if v.Max != nil && vd > *v.Max {
+			return validErr
+		}
+	}
+
+	// Monotonic?
+
+	return nil
+}
+
+func (v ParameterValidation) errorRendered(value string) string {
+	r := strings.NewReplacer(
+		"{min}", fmt.Sprintf("%d", safeDeref(v.Min)),
+		"{max}", fmt.Sprintf("%d", safeDeref(v.Max)),
+		"{value}", value,
+	)
+	return r.Replace(v.Error)
+}
+
 type ParameterOption struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -83,6 +130,14 @@ func (r *RichParameter) CtyType() (cty.Type, error) {
 	case "list(string)":
 		return cty.List(cty.String), nil
 	default:
-		return cty.Type{}, fmt.Errorf("unsupported type: %q", r.Type)
+		return cty.NilType, fmt.Errorf("unsupported type: %q", r.Type)
 	}
+}
+
+func safeDeref[T any](v *T) T {
+	if v == nil {
+		var zero T
+		return zero
+	}
+	return *v
 }

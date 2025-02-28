@@ -77,6 +77,40 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 		p.Validations = append(p.Validations, &valid)
 	}
 
+	ctyType, err := p.CtyType()
+	if err != nil {
+		paramTypeDiag := &hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("Invalid parameter type %q", p.Type),
+			Detail:   err.Error(),
+			Context:  &block.HCLBlock().DefRange,
+		}
+
+		if attr := block.GetAttribute("type"); attr != nil && !attr.IsNil() {
+			paramTypeDiag.Subject = &attr.HCLAttribute().Range
+			paramTypeDiag.Expression = attr.HCLAttribute().Expr
+			paramTypeDiag.EvalContext = block.Context().Inner()
+		}
+		diags = diags.Append(paramTypeDiag)
+	}
+
+	if ctyType != cty.NilType && pVal.Value.Type().Equals(cty.String) {
+		// TODO: Wish we could support more types, but only string types are
+		// allowed.
+		valStr := pVal.Value.AsString()
+		// Apply validations to the parameter value
+		for _, v := range p.Validations {
+			if err := v.Valid(valStr); err != nil {
+				diags = diags.Append(&hcl.Diagnostic{
+					Severity:   hcl.DiagError,
+					Summary:    fmt.Sprintf("Paramater validation failed for value %q", valStr),
+					Detail:     err.Error(),
+					Expression: pVal.ValueExpr,
+				})
+			}
+		}
+	}
+
 	// Diagnostics are scoped to the parameter
 	p.Diagnostics = types.Diagnostics(diags)
 

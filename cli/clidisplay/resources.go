@@ -1,6 +1,7 @@
 package clidisplay
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strings"
@@ -49,7 +50,7 @@ func WorkspaceTags(writer io.Writer, tags types.TagBlocks) hcl.Diagnostics {
 	return diags
 }
 
-func Parameters(writer io.Writer, params []types.Parameter) {
+func Parameters(writer io.Writer, params []types.Parameter, files map[string]*hcl.File) {
 	tableWriter := table.NewWriter()
 	//tableWriter.SetTitle("Parameters")
 	tableWriter.SetStyle(table.StyleLight)
@@ -73,6 +74,14 @@ func Parameters(writer io.Writer, params []types.Parameter) {
 		tableWriter.AppendRow(table.Row{
 			fmt.Sprintf("%s: %s\n%s", p.Name, p.Description, formatOptions(strVal, p.Options)),
 		})
+
+		if hcl.Diagnostics(p.Diagnostics).HasErrors() {
+			var out bytes.Buffer
+			WriteDiagnostics(&out, files, hcl.Diagnostics(p.Diagnostics))
+			tableWriter.AppendRow(table.Row{out.String()})
+
+		}
+
 		tableWriter.AppendSeparator()
 	}
 	_, _ = fmt.Fprintln(writer, tableWriter.Render())
