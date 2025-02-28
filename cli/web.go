@@ -3,10 +3,13 @@ package cli
 import (
 	"context"
 	"embed"
+	"encoding/json"
 	"io/fs"
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
+	"slices"
 
 	"github.com/go-chi/chi"
 
@@ -45,6 +48,32 @@ func (r *RootCmd) WebsocketServer() *serpent.Command {
 			logger := slog.Make(sloghuman.Sink(i.Stderr)).Leveled(slog.LevelDebug)
 
 			mux := chi.NewMux()
+			mux.HandleFunc("/directories", func(rw http.ResponseWriter, r *http.Request) {
+				entries, err := os.ReadDir(".")
+				if err != nil {
+					http.Error(rw, "Could not read directory", http.StatusInternalServerError)
+					return
+				}
+
+				var dirs []string
+				for _, entry := range entries {
+					if entry.IsDir() {
+						subentries, err := os.ReadDir(entry.Name())
+						if err != nil {
+							continue
+						}
+						if !slices.ContainsFunc(subentries, func(entry fs.DirEntry) bool {
+							return filepath.Ext(entry.Name()) == ".tf"
+						}) {
+							continue
+						}
+						dirs = append(dirs, entry.Name())
+					}
+				}
+				rw.Header().Set("Content-Type", "application/json")
+				rw.WriteHeader(http.StatusOK)
+				_ = json.NewEncoder(rw).Encode(dirs)
+			})
 			mux.HandleFunc("/ws/{dir}", websocketHandler(logger))
 
 			staticDir, err := fs.Sub(static, "static")
