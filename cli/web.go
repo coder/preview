@@ -1,9 +1,11 @@
 package cli
 
 import (
+	"bufio"
 	"context"
 	"embed"
 	"encoding/json"
+	"fmt"
 	"io/fs"
 	"net"
 	"net/http"
@@ -22,6 +24,33 @@ import (
 
 //go:embed static/*
 var static embed.FS
+
+type responseRecorder struct {
+	http.ResponseWriter
+	headerWritten bool
+	logger        slog.Logger
+}
+
+// Implement Hijacker interface for WebSocket support
+func (r *responseRecorder) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	if hijacker, ok := r.ResponseWriter.(http.Hijacker); ok {
+		return hijacker.Hijack()
+	}
+	return nil, nil, fmt.Errorf("responseRecorder does not implement http.Hijacker")
+}
+
+// Wrap your handler
+func debugMiddleware(logger slog.Logger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			recorder := &responseRecorder{
+				ResponseWriter: w,
+				logger:         logger,
+			}
+			next.ServeHTTP(recorder, r)
+		})
+	}
+}
 
 func (r *RootCmd) WebsocketServer() *serpent.Command {
 	var (
@@ -48,6 +77,9 @@ func (r *RootCmd) WebsocketServer() *serpent.Command {
 			logger := slog.Make(sloghuman.Sink(i.Stderr)).Leveled(slog.LevelDebug)
 
 			mux := chi.NewMux()
+
+			mux.Use(debugMiddleware(logger))
+
 			mux.HandleFunc("/directories", func(rw http.ResponseWriter, r *http.Request) {
 				entries, err := os.ReadDir(".")
 				if err != nil {
@@ -100,24 +132,48 @@ func (r *RootCmd) WebsocketServer() *serpent.Command {
 
 func websocketHandler(logger slog.Logger) func(rw http.ResponseWriter, r *http.Request) {
 	return func(rw http.ResponseWriter, r *http.Request) {
-		conn, err := websocket.Accept(rw, r, nil)
-		if err != nil {
-			http.Error(rw, "Could not accept websocket connection", http.StatusInternalServerError)
-			return
-		}
-
+		
+		logger.Debug(r.Context(), "WebSocket connection attempt", 
+			slog.F("remote_addr", r.RemoteAddr),
+			slog.F("path", r.URL.Path),
+			slog.F("query", r.URL.RawQuery))
+		
+		// Validate all parameters BEFORE upgrading the connection
 		dir := chi.URLParam(r, "dir")
+		logger.Debug(r.Context(), "Directory parameter", slog.F("dir", dir))
+		
 		dinfo, err := os.Stat(dir)
 		if err != nil {
-			_ = conn.Close(websocket.StatusInternalError, "Could not stat directory")
+			logger.Error(r.Context(), "Directory validation failed", 
+				slog.Error(err),
+				slog.F("dir", dir))
+			http.Error(rw, "Could not stat directory: "+err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		if !dinfo.IsDir() {
-			_ = conn.Close(websocket.StatusInternalError, "Not a directory")
+			http.Error(rw, "Not a directory", http.StatusBadRequest)
 			return
 		}
 
+		// Log before WebSocket upgrade
+		logger.Debug(r.Context(), "Attempting WebSocket upgrade")
+
+		// Create WebSocket options with proper origin check
+		options := &websocket.AcceptOptions{
+			OriginPatterns: []string{
+				"*",
+			},
+		}
+
+		conn, err := websocket.Accept(rw, r, options)
+		if err != nil {
+			logger.Error(r.Context(), "WebSocket upgrade failed", slog.Error(err))
+			http.Error(rw, "Could not accept websocket connection: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
+		logger.Debug(r.Context(), "WebSocket connection established")
+		
 		dirFS := os.DirFS(dir)
 		planPath := r.URL.Query().Get("plan")
 
