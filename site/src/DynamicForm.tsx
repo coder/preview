@@ -7,7 +7,7 @@ import {
   Parameter,
   Request,
   Diagnostics
-    } from "./types/types";
+    } from "./types/preview";
 
 export function DynamicForm() {
   const serverAddress = "localhost:8100";
