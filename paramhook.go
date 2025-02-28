@@ -83,6 +83,10 @@ func evaluateCoderParameterDefault(b *terraform.Block) (cty.Value, hcl.Diagnosti
 		valType = cty.String
 	}
 
+	// TODO: We should support different tf types, but at present the tf
+	// schema is static. So only string is allowed
+	valType = cty.String
+
 	var val cty.Value
 
 	def, exists := attributes["default"]
@@ -115,5 +119,4 @@ func evaluateCoderParameterDefault(b *terraform.Block) (cty.Value, hcl.Diagnosti
 	}
 
 	return val, nil
-
 }

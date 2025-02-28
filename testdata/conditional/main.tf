@@ -76,8 +76,9 @@ data "coder_parameter" "favorite" {
   name        = "Favorite number"
   description = "What is your favorite number?"
   type        = "number"
-  default     = 0
+  default     = "5"
   order       = 3
+
   validation {
     min=0
     max=9
