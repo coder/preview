@@ -11,6 +11,7 @@ data "coder_parameter" "project" {
   description = "Which project are you working on?"
   type        = "string"
   default     = "massive"
+  order       = 1
 
   option {
     name  = "Massive Project"
@@ -60,6 +61,7 @@ data "coder_parameter" "compute" {
   description = "How much compute do you need?"
   type        = "string"
   default     = data.coder_parameter.project.value == "massive" ? "huge" : "small"
+  order       = 2
 
   dynamic "option" {
     for_each = local.use_options
@@ -67,5 +69,18 @@ data "coder_parameter" "compute" {
       name = option.value.name
       value = option.value.value
     }
+  }
+}
+
+data "coder_parameter" "favorite" {
+  name        = "Favorite number"
+  description = "What is your favorite number?"
+  type        = "number"
+  default     = 0
+  order       = 3
+  validation {
+    min=0
+    max=9
+    error="too high or low"
   }
 }
