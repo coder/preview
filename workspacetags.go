@@ -5,7 +5,6 @@ import (
 
 	"github.com/aquasecurity/trivy/pkg/iac/terraform"
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/coder/preview/types"
@@ -33,13 +32,13 @@ func WorkspaceTags(modules terraform.Modules, files map[string]*hcl.File) (types
 				continue
 			}
 
-			tagsObj, ok := tagsAttr.HCLAttribute().Expr.(*hclsyntax.ObjectConsExpr)
-			if !ok {
+			tagsValue := tagsAttr.Value()
+			if !tagsValue.Type().IsObjectType() {
 				diags = diags.Append(&hcl.Diagnostic{
 					Severity: hcl.DiagError,
 					Summary:  "Incorrect type for \"tags\" attribute",
 					// TODO: better error message for types
-					Detail:      fmt.Sprintf(`"tags" attribute must be an 'ObjectConsExpr', but got %T`, tagsAttr.HCLAttribute().Expr),
+					Detail:      fmt.Sprintf(`"tags" attribute must be an 'Object', but got %q`, tagsValue.Type().FriendlyName()),
 					Subject:     &tagsAttr.HCLAttribute().NameRange,
 					Context:     &tagsAttr.HCLAttribute().Range,
 					Expression:  tagsAttr.HCLAttribute().Expr,
@@ -48,16 +47,43 @@ func WorkspaceTags(modules terraform.Modules, files map[string]*hcl.File) (types
 				continue
 			}
 
+			//tagsObj, ok := tagsAttr.HCLAttribute().Expr.(*hclsyntax.ObjectConsExpr)
+			//if !ok {
+			//	diags = diags.Append(&hcl.Diagnostic{
+			//		Severity: hcl.DiagError,
+			//		Summary:  "Incorrect type for \"tags\" attribute",
+			//		// TODO: better error message for types
+			//		Detail:      fmt.Sprintf(`"tags" attribute must be an 'ObjectConsExpr', but got %T`, tagsAttr.HCLAttribute().Expr),
+			//		Subject:     &tagsAttr.HCLAttribute().NameRange,
+			//		Context:     &tagsAttr.HCLAttribute().Range,
+			//		Expression:  tagsAttr.HCLAttribute().Expr,
+			//		EvalContext: block.Context().Inner(),
+			//	})
+			//	continue
+			//}
+
 			var tags []types.Tag
-			for _, item := range tagsObj.Items {
-				tag, tagDiag := NewTag(tagsObj, files, item, evCtx)
+			tagsValue.ForEachElement(func(key cty.Value, val cty.Value) (stop bool) {
+				r := tagsAttr.HCLAttribute().Expr.Range()
+				tag, tagDiag := NewTag(&r, files, key, val)
 				if tagDiag != nil {
 					diags = diags.Append(tagDiag)
-					continue
+					return false
 				}
 
 				tags = append(tags, tag)
-			}
+
+				return false
+			})
+			//for _, item := range tagsObj.Items {
+			//	tag, tagDiag := NewTag(tagsObj, files, item, evCtx)
+			//	if tagDiag != nil {
+			//		diags = diags.Append(tagDiag)
+			//		continue
+			//	}
+			//
+			//	tags = append(tags, tag)
+			//}
 			tagBlocks = append(tagBlocks, types.TagBlock{
 				Tags:  tags,
 				Block: block,
@@ -69,9 +95,9 @@ func WorkspaceTags(modules terraform.Modules, files map[string]*hcl.File) (types
 }
 
 // NewTag creates a workspace tag from its hcl expression.
-func NewTag(block *hclsyntax.ObjectConsExpr, files map[string]*hcl.File, expr hclsyntax.ObjectConsItem, evCtx *hcl.EvalContext) (types.Tag, *hcl.Diagnostic) {
-	key, kdiags := expr.KeyExpr.Value(evCtx)
-	val, vdiags := expr.ValueExpr.Value(evCtx)
+func NewTag(srcRange *hcl.Range, files map[string]*hcl.File, key, val cty.Value) (types.Tag, *hcl.Diagnostic) {
+	//key, kdiags := expr.KeyExpr.Value(evCtx)
+	//val, vdiags := expr.ValueExpr.Value(evCtx)
 
 	// TODO: ???
 
@@ -83,55 +109,54 @@ func NewTag(block *hclsyntax.ObjectConsExpr, files map[string]*hcl.File, expr hc
 	//}
 
 	if key.IsKnown() && key.Type() != cty.String {
-		r := expr.KeyExpr.Range()
 		return types.Tag{}, &hcl.Diagnostic{
-			Severity:    hcl.DiagError,
-			Summary:     "Invalid key type for tags",
-			Detail:      fmt.Sprintf("Key must be a string, but got %s", key.Type().FriendlyName()),
-			Subject:     &r,
-			Context:     &block.SrcRange,
-			Expression:  expr.KeyExpr,
-			EvalContext: evCtx,
+			Severity: hcl.DiagError,
+			Summary:  "Invalid key type for tags",
+			Detail:   fmt.Sprintf("Key must be a string, but got %s", key.Type().FriendlyName()),
+			//Subject:  &r,
+			Context: srcRange,
+			//Expression:  expr.KeyExpr,
+			//EvalContext: evCtx,
 		}
 	}
 
 	if val.IsKnown() && val.Type() != cty.String {
-		r := expr.ValueExpr.Range()
+		//r := expr.ValueExpr.Range()
 		return types.Tag{}, &hcl.Diagnostic{
-			Severity:    hcl.DiagError,
-			Summary:     "Invalid value type for tag",
-			Detail:      fmt.Sprintf("Value must be a string, but got %s", val.Type().FriendlyName()),
-			Subject:     &r,
-			Context:     &block.SrcRange,
-			Expression:  expr.ValueExpr,
-			EvalContext: evCtx,
+			Severity: hcl.DiagError,
+			Summary:  "Invalid value type for tag",
+			Detail:   fmt.Sprintf("Value must be a string, but got %s", val.Type().FriendlyName()),
+			//Subject:     &r,
+			Context: srcRange,
+			//Expression:  expr.ValueExpr,
+			//EvalContext: evCtx,
 		}
 	}
 
 	tag := types.Tag{
 		Key: types.HCLString{
-			Value:      key,
-			ValueDiags: kdiags,
-			ValueExpr:  expr.KeyExpr,
+			Value: key,
+			//ValueDiags: kdiags,
+			//ValueExpr:  expr.KeyExpr,
 		},
 		Value: types.HCLString{
-			Value:      val,
-			ValueDiags: vdiags,
-			ValueExpr:  expr.ValueExpr,
+			Value: val,
+			//ValueDiags: vdiags,
+			//ValueExpr:  expr.ValueExpr,
 		},
 	}
 
-	ks, err := source(expr.KeyExpr.Range(), files)
-	if err == nil {
-		src := string(ks)
-		tag.Key.Source = &src
-	}
-
-	vs, err := source(expr.ValueExpr.Range(), files)
-	if err == nil {
-		src := string(vs)
-		tag.Value.Source = &src
-	}
+	//ks, err := source(expr.KeyExpr.Range(), files)
+	//if err == nil {
+	//	src := string(ks)
+	//	tag.Key.Source = &src
+	//}
+	//
+	//vs, err := source(expr.ValueExpr.Range(), files)
+	//if err == nil {
+	//	src := string(vs)
+	//	tag.Value.Source = &src
+	//}
 
 	return tag, nil
 }

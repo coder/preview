@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
+	"log/slog"
+	"os"
 	"path/filepath"
 
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraform/parser"
+	"github.com/aquasecurity/trivy/pkg/log"
 	"github.com/hashicorp/hcl/v2"
 
 	"github.com/coder/preview/types"
@@ -15,6 +18,7 @@ import (
 type Input struct {
 	PlanJSONPath    string
 	ParameterValues map[string]string
+	Owner           types.WorkspaceOwner
 }
 
 type Output struct {
@@ -24,6 +28,10 @@ type Output struct {
 }
 
 func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnostics) {
+	// TODO: FIX LOGGING
+	slog.SetLogLoggerLevel(slog.LevelDebug)
+	slog.SetDefault(slog.New(log.NewHandler(os.Stderr, nil)))
+
 	varFiles, err := tfVarFiles("", dir)
 	if err != nil {
 		return nil, hcl.Diagnostics{
@@ -45,12 +53,27 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 			},
 		}
 	}
+
+	ownerHook, err := WorkspaceOwnerHook(dir, input)
+	if err != nil {
+		return nil, hcl.Diagnostics{
+			{
+				Severity: hcl.DiagError,
+				Summary:  "Workspace owner hook",
+				Detail:   err.Error(),
+			},
+		}
+	}
+	var _ = ownerHook
+
 	// moduleSource is "" for a local module
 	p := parser.New(dir, "",
+		parser.OptionStopOnHCLError(true),
 		parser.OptionWithDownloads(false),
 		parser.OptionWithTFVarsPaths(varFiles...),
 		parser.OptionWithEvalHook(planHook),
 		parser.OptionWithEvalHook(ParameterContextsEvalHook(input)),
+		parser.OptionWithEvalHook(ownerHook),
 		parser.OptionWithSkipCachedModules(true),
 	)
 

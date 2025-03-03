@@ -10,6 +10,7 @@ import (
 
 	"github.com/coder/preview"
 	"github.com/coder/preview/cli/clidisplay"
+	"github.com/coder/preview/types"
 	"github.com/coder/serpent"
 )
 
@@ -21,6 +22,7 @@ func (r *RootCmd) Root() *serpent.Command {
 	var (
 		dir      string
 		vars     []string
+		groups   []string
 		planJSON string
 	)
 	cmd := &serpent.Command{
@@ -48,8 +50,16 @@ func (r *RootCmd) Root() *serpent.Command {
 				Description:   "Variables.",
 				Flag:          "vars",
 				FlagShorthand: "v",
-				Default:       ".",
+				Default:       "",
 				Value:         serpent.StringArrayOf(&vars),
+			},
+			{
+				Name:          "groups",
+				Description:   "Groups.",
+				Flag:          "groups",
+				FlagShorthand: "g",
+				Default:       "",
+				Value:         serpent.StringArrayOf(&groups),
 			},
 		},
 		Handler: func(i *serpent.Invocation) error {
@@ -65,8 +75,11 @@ func (r *RootCmd) Root() *serpent.Command {
 			}
 
 			input := preview.Input{
-				ParameterValues: rvars,
 				PlanJSONPath:    planJSON,
+				ParameterValues: rvars,
+				Owner: types.WorkspaceOwner{
+					Groups: groups,
+				},
 			}
 
 			ctx := i.Context()

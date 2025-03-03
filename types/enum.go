@@ -10,7 +10,7 @@ type ParameterType string
 const (
 	ParameterTypeString     ParameterType = "string"
 	ParameterTypeNumber     ParameterType = "number"
-	ParameterTypeBoolean    ParameterType = "boolean"
+	ParameterTypeBoolean    ParameterType = "bool"
 	ParameterTypeListString ParameterType = "list(string)"
 )
 

@@ -192,6 +192,45 @@ func Test_Extract(t *testing.T) {
 			name: "not-exists",
 			dir:  "not-existing-directory",
 		},
+		{
+			name:    "groups",
+			dir:     "groups",
+			expTags: map[string]string{},
+			input: preview.Input{
+				PlanJSONPath:    "",
+				ParameterValues: map[string]string{},
+				Owner: types.WorkspaceOwner{
+					Groups: []string{"developer", "manager", "admin"},
+				},
+			},
+			expUnknowns: []string{},
+			params: map[string]func(t *testing.T, parameter types.Parameter){
+				"Groups": ap[cty.Value]().
+					options("developer", "manager", "admin").
+					f(),
+			},
+		},
+		{
+			name:    "ambigious",
+			dir:     "ambigious",
+			expTags: map[string]string{},
+			input: preview.Input{
+				PlanJSONPath:    "",
+				ParameterValues: map[string]string{},
+				Owner: types.WorkspaceOwner{
+					Groups: []string{"developer", "manager", "admin"},
+				},
+			},
+			expUnknowns: []string{},
+			params: map[string]func(t *testing.T, parameter types.Parameter){
+				"IsAdmin": ap[cty.Value]().
+					value(cty.StringVal("true")).
+					f(),
+				"IsAdmin_Root": ap[cty.Value]().
+					value(cty.StringVal("true")).
+					f(),
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
