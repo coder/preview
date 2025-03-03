@@ -1,60 +1,23 @@
 // Demo terraform has a complex configuration.
+// CODER_WORKSPACE_OWNER_GROUPS='["admin","developer"]' terraform apply
+//
+// Some run options
+// preview -v Team=backend -g admin
+// preview -v Team=backend -g admin -g sa-saopaulo
 terraform {
   required_providers {
     coder = {
       source = "coder/coder"
     }
-  }
-}
-
-
-locals {
-  fe_codes = ["PS", "WS"]
-  be_codes = ["CL", "GO", "IU", "PY"]
-  teams = {
-    "frontend" = {
-        "display_name" = "Frontend",
-        "codes" = local.fe_codes,
-        "description" = "The team that works on the frontend.",
-        "icon" = "/icon/desktop.svg"
-    },
-    "backend" = {
-        "display_name" = "Backend",
-        "codes" = local.be_codes,
-        "description" = "The team that works on the backend.",
-        "icon" = "/emojis/2699.png",
-    },
-    "fullstack" = {
-        "display_name" = "Fullstack",
-        "codes" = concat(local.be_codes, local.fe_codes),
-        "description" = "The team that works on both the frontend and backend.",
-        "icon" = "/emojis/1f916.png",
+    docker = {
+      source  = "kreuzwerker/docker"
+      version = "3.0.2"
     }
   }
 }
 
-data "coder_parameter" "team" {
-    name        = "Team"
-    description = "Which team are you on?"
-    type        = "string"
-    default     = "fullstack"
-    order       = 1
 
-    dynamic "option" {
-        for_each = local.teams
-        content {
-            name  = option.value.display_name
-            value = option.key
-            description = option.value.description
-            icon = option.value.icon
-        }
-    }
-
-    validation {
-        regex = "^frontend|backend|fullstack$"
-        error = "You must select either frontend, backend, or fullstack."
-    }
-}
+data coder_workspace_owner "me" {}
 
 module "jetbrains_gateway" {
   count          = 1

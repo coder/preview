@@ -32,17 +32,3 @@ data "coder_parameter" "direct_ssh" {
     type        = "bool"
     default     = false
 }
-
-data "coder_parameter" "my_groups" {
-  # count       =  1
-  name        = "Groups"
-  type        = "string"
-
-  dynamic "option" {
-    for_each = data.coder_workspace_owner.me.groups
-    content {
-      name  = option.value
-      value = option.value
-    }
-  }
-}

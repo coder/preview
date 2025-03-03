@@ -44,3 +44,7 @@
 - How will the hooks work if they cannot be merged upstream? Alternative?
   - Load in plan state
   - Semantics for parameter coder blocks
+
+## Backward compatibility
+
+- Omitting `type` behavior, is there a default?

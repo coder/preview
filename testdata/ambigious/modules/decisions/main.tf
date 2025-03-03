@@ -8,10 +8,18 @@ terraform {
 
 data coder_workspace_owner "me" {}
 
+output "staticFalse" {
+  value = false
+}
+
 output "isAdmin" {
   value = contains(data.coder_workspace_owner.me.groups, "admin")
 }
 
 output "groups" {
   value = data.coder_workspace_owner.me.groups
+}
+
+output "zero" {
+  value = 0
 }

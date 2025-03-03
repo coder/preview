@@ -231,6 +231,20 @@ func Test_Extract(t *testing.T) {
 					f(),
 			},
 		},
+		{
+			name:    "ambigious",
+			dir:     "ambigious",
+			expTags: map[string]string{},
+			input: preview.Input{
+				PlanJSONPath:    "",
+				ParameterValues: map[string]string{},
+				Owner: types.WorkspaceOwner{
+					Groups: []string{},
+				},
+			},
+			expUnknowns: []string{},
+			params:      map[string]func(t *testing.T, parameter types.Parameter){},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()

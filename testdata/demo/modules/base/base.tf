@@ -42,11 +42,7 @@ data "coder_parameter" "security_level" {
     # }
 }
 
-// TODO: REMOVE THIS
-data "coder_parameter" "test" {
-  name       = "Test"
-  description = "Test"
-  type        = "string"
-  default = tostring(local.choose_security ? 1 : 0)
-}
 
+output "security_level" {
+  value = local.secutity_level
+}
