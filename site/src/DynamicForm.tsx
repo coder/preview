@@ -1,6 +1,5 @@
-// DynamicForm.tsx
 import React, { useEffect, useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Controller } from "react-hook-form";
 import { useWebSocket } from "./useWebSocket";
 import {
   Response,
@@ -8,7 +7,8 @@ import {
   Request,
   Diagnostics
     } from "./types/preview";
-
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "./components/Select/Select";
+import { Input } from "./components/Input/Input";
 export function DynamicForm() {
   const serverAddress = "localhost:8100";
   const directoryPath = "conditional";
@@ -62,10 +62,9 @@ export function DynamicForm() {
       
       if (hasChanged) {
         const request: Request = {
-          ID: 1,
-          Inputs: watchedValues
+          id: 1,
+          inputs: watchedValues
         };
-        // console.log("req", req);
         sendMessage(request);
         
         setPrevValues({...watchedValues});
@@ -74,45 +73,98 @@ export function DynamicForm() {
   }, [watchedValues, response, sendMessage, prevValues]);
 
   const renderParameter = (param: Parameter) => {
+    // if the param has a form_control property, use that to determine the type of component to render
+    const formControl = param.form_control;
+    if (formControl) {
+      switch (formControl) {
+        case "select":
+          return  (
+            <Controller
+            name={param.name}
+            control={methods.control}
+            render={({ field }) => (
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={param.value}
+              >
+                <SelectTrigger className="w-[300px]">
+                  <SelectValue placeholder={param.description} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {(param.options || []).map((option, idx) => {
+                      if (!option) return null;
+                      return (
+                        <SelectItem key={idx} value={option.value}>{option.name}</SelectItem>
+                      );
+                    })}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        )
+      }
+    }
+
     const label = param.display_name || param.name;
 
     if (param.options && param.options.some((opt) => opt !== null)) {
       return (
-        <div key={param.name} style={{ marginBottom: "1rem" }}>
+        <div key={param.name} className="flex flex-col gap-2 items-center">
           <label>
             {label}
             {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
           </label>
           {param.description && <div style={{ fontSize: "0.8rem" }}>{param.description}</div>}
-          <select
-            {...methods.register(param.name)}
-          >
-            {(param.options || []).map((opt, idx) => {
-              if (!opt) return null;
-              return (
-                <option key={idx} value={opt.value}>
-                  {opt.name}
-                </option>
-              );
-            })}
-          </select>
+          <Controller
+            name={param.name}
+            control={methods.control}
+            render={({ field }) => (
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={param.value}
+              >
+                <SelectTrigger className="w-[300px]">
+                  <SelectValue placeholder={param.description} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {(param.options || []).map((option, idx) => {
+                      if (!option) return null;
+                      return (
+                        <SelectItem key={idx} value={option.value}>{option.name}</SelectItem>
+                      );
+                    })}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            )}
+          />
           {renderDiagnostics(param.diagnostics)}
         </div>
       );
     }
 
     return (
-      <div key={param.name} style={{ marginBottom: "1rem" }}>
+      <div key={param.name} className="flex flex-col gap-2 items-center">
         <label>
           {label}
           {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
         </label>
         {param.description && <div style={{ fontSize: "0.8rem" }}>{param.description}</div>}
-        <input
-          {...methods.register(param.name)}
-          type={mapParamTypeToInputType(param.type)}
-        defaultValue={param.default_value}
-        />
+        <Controller
+            name={param.name}
+            control={methods.control}
+            render={({ field }) => (
+              <Input
+                onChange={field.onChange}
+                className="w-[300px]"
+                type={mapParamTypeToInputType(param.type)}
+                defaultValue={param.default_value}
+              />
+            )}
+          />
         {renderDiagnostics(param.diagnostics)}
       </div>
     );
@@ -148,10 +200,9 @@ export function DynamicForm() {
 
   return (
     <FormProvider {...methods}>
-      <form>
-        {/* {renderDiagnostics(response.diagnostics)} */}
+      <form className="flex flex-col gap-4">
+        {response.diagnostics && renderDiagnostics(response.diagnostics)}
 
-        {/* Render each parameter as a form field */}
         {sortedParams && sortedParams.map((param) => renderParameter(param))}
       </form>
     </FormProvider>

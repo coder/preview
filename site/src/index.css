@@ -1,68 +1,116 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/*
+	To enable opacity in colors, please use the new HSL format.
+	Related issue: https://github.com/shadcn-ui/ui/issues/805#issuecomment-1616021820
+*/
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@import 'tailwindcss';
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@config "../tailwind.config.js";
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+}
+
+@layer base {
+	:root {
+		--content-primary: 240 10% 4%;
+		--content-secondary: 240 5% 34%;
+		--content-link: 221 83% 53%;
+		--content-invert: 0 0% 98%;
+		--content-disabled: 240 5% 65%;
+		--content-success: 142 72% 29%;
+		--content-warning: 27 96% 61%;
+		--content-destructive: 0 84% 60%;
+		--surface-primary: 0 0% 98%;
+		--surface-secondary: 240 5% 96%;
+		--surface-tertiary: 240 6% 90%;
+		--surface-quaternary: 240 5% 84%;
+		--surface-invert-primary: 240 4% 16%;
+		--surface-invert-secondary: 240 5% 26%;
+		--surface-destructive: 0 93% 94%;
+		--surface-green: 141 79% 85%;
+		--surface-grey: 240 5% 96%;
+		--surface-orange: 34 100% 92%;
+		--surface-sky: 201 94% 86%;
+		--border-default: 240 6% 90%;
+		--border-success: 142 76% 36%;
+		--border-destructive: 0 84% 60%;
+		--overlay-default: 240 5% 84% / 80%;
+		--radius: 0.5rem;
+		--highlight-purple: 262 83% 58%;
+		--highlight-green: 143 64% 24%;
+		--highlight-grey: 240 5% 65%;
+		--highlight-sky: 201 90% 27%;
+		--border: 240 5.9% 90%;
+		--input: 240 5.9% 90%;
+		--ring: 240 10% 3.9%;
+		--avatar-lg: 2.5rem;
+		--avatar-default: 1.5rem;
+		--avatar-sm: 1.125rem;
+	}
+	.dark {
+		--content-primary: 0 0% 98%;
+		--content-secondary: 240 5% 65%;
+		--content-link: 213 94% 68%;
+		--content-invert: 240 10% 4%;
+		--content-disabled: 240 5% 26%;
+		--content-success: 142 76% 36%;
+		--content-warning: 31 97% 72%;
+		--content-destructive: 0 91% 71%;
+		--surface-primary: 240 10% 4%;
+		--surface-secondary: 240 6% 10%;
+		--surface-tertiary: 240 4% 16%;
+		--surface-quaternary: 240 5% 26%;
+		--surface-invert-primary: 240 6% 90%;
+		--surface-invert-secondary: 240 5% 65%;
+		--surface-destructive: 0 75% 15%;
+		--surface-green: 145 80% 10%;
+		--surface-grey: 240 6% 10%;
+		--surface-orange: 13 81% 15%;
+		--surface-sky: 204 80% 16%;
+		--border-default: 240 4% 16%;
+		--border-success: 142 76% 36%;
+		--border-destructive: 0 91% 71%;
+		--overlay-default: 240 10% 4% / 80%;
+		--highlight-purple: 252 95% 85%;
+		--highlight-green: 141 79% 85%;
+		--highlight-grey: 240 4% 46%;
+		--highlight-sky: 198 93% 60%;
+		--border: 240 3.7% 15.9%;
+		--input: 240 3.7% 15.9%;
+		--ring: 240 4.9% 83.9%;
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+
+	/*
+	By default, Radix adds a margin to the `body` element when a dropdown is displayed,
+	causing some shifting when the dropdown has a full-width size, as is the case with the mobile menu.
+	To prevent this, we need to apply the styles below.
+
+	There’s a related issue on GitHub: Radix UI Primitives Issue #3251
+	https://github.com/radix-ui/primitives/issues/3251
+	 */
+	html body[data-scroll-locked] {
+		--removed-body-scroll-bar-size: 0 !important;
+		margin-right: 0 !important;
+	}
 }
