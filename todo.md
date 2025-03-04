@@ -48,3 +48,8 @@
 ## Backward compatibility
 
 - Omitting `type` behavior, is there a default?
+
+## Bugs
+
+- Submodule references ignored in `count` meta arguments (and dynamic blocks)?
+ - https://github.com/aquasecurity/trivy/pull/8479 
