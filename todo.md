@@ -3,6 +3,7 @@
 ## Errors
 
 - Dynamic parameter names? Changing names?
+- `terraform init` not run before a `preview` fails to load a module. Should this prevent a preview?
 
 ## Security
 
