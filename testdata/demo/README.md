@@ -10,7 +10,7 @@ Regions exists. Users are defaulted to their region based on their groups.
  - `eu-helsinki`
  - `ap-sydney`
  - `sa-saopaulo`
- - `za-jnb`.
+ - `za-jnb`
 
 Select your IDE from jetbrains based on your team.
 - Frontend

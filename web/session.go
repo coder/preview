@@ -25,21 +25,26 @@ type Response struct {
 
 // @typescript-ignore Session
 type Session struct {
-	logger   slog.Logger
-	dir      fs.FS
-	planPath string
+	logger       slog.Logger
+	dir          fs.FS
+	staticInputs SessionInputs
 
 	requests  chan *Request
 	responses chan *Response
 }
 
-func NewSession(logger slog.Logger, dir fs.FS, planPath string) *Session {
+type SessionInputs struct {
+	PlanPath string
+	User     types.WorkspaceOwner
+}
+
+func NewSession(logger slog.Logger, dir fs.FS, staticInputs SessionInputs) *Session {
 	return &Session{
-		logger:    logger,
-		dir:       dir,
-		planPath:  planPath,
-		requests:  make(chan *Request, 2),
-		responses: make(chan *Response, 2),
+		logger:       logger,
+		dir:          dir,
+		staticInputs: staticInputs,
+		requests:     make(chan *Request, 2),
+		responses:    make(chan *Response, 2),
 	}
 }
 
@@ -67,8 +72,9 @@ func (s *Session) sendRequest(ctx context.Context, req Request) {
 
 func (s *Session) preview(ctx context.Context, req *Request) Response {
 	output, diags := preview.Preview(ctx, preview.Input{
-		PlanJSONPath:    s.planPath,
+		PlanJSONPath:    s.staticInputs.PlanPath,
 		ParameterValues: req.Inputs,
+		Owner:           s.staticInputs.User,
 	}, s.dir)
 
 	r := Response{

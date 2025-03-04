@@ -17,6 +17,7 @@ import (
 
 	"cdr.dev/slog"
 	"cdr.dev/slog/sloggers/sloghuman"
+	"github.com/coder/preview/types"
 	"github.com/coder/preview/web"
 	"github.com/coder/serpent"
 	"github.com/coder/websocket"
@@ -80,6 +81,15 @@ func (r *RootCmd) WebsocketServer() *serpent.Command {
 
 			mux.Use(debugMiddleware(logger))
 
+			mux.HandleFunc("/users/{dir}", func(rw http.ResponseWriter, r *http.Request) {
+				dirFS := os.DirFS(chi.URLParam(r, "dir"))
+				availableUsers, err := availableUsers(dirFS)
+				if err != nil {
+					http.Error(rw, err.Error(), http.StatusInternalServerError)
+					return
+				}
+				_ = json.NewEncoder(rw).Encode(availableUsers)
+			})
 			mux.HandleFunc("/directories", func(rw http.ResponseWriter, r *http.Request) {
 				entries, err := os.ReadDir(".")
 				if err != nil {
@@ -132,19 +142,19 @@ func (r *RootCmd) WebsocketServer() *serpent.Command {
 
 func websocketHandler(logger slog.Logger) func(rw http.ResponseWriter, r *http.Request) {
 	return func(rw http.ResponseWriter, r *http.Request) {
-		
-		logger.Debug(r.Context(), "WebSocket connection attempt", 
+
+		logger.Debug(r.Context(), "WebSocket connection attempt",
 			slog.F("remote_addr", r.RemoteAddr),
 			slog.F("path", r.URL.Path),
 			slog.F("query", r.URL.RawQuery))
-		
+
 		// Validate all parameters BEFORE upgrading the connection
 		dir := chi.URLParam(r, "dir")
 		logger.Debug(r.Context(), "Directory parameter", slog.F("dir", dir))
-		
+
 		dinfo, err := os.Stat(dir)
 		if err != nil {
-			logger.Error(r.Context(), "Directory validation failed", 
+			logger.Error(r.Context(), "Directory validation failed",
 				slog.Error(err),
 				slog.F("dir", dir))
 			http.Error(rw, "Could not stat directory: "+err.Error(), http.StatusBadRequest)
@@ -173,11 +183,57 @@ func websocketHandler(logger slog.Logger) func(rw http.ResponseWriter, r *http.R
 			return
 		}
 		logger.Debug(r.Context(), "WebSocket connection established")
-		
+
+		var owner types.WorkspaceOwner
 		dirFS := os.DirFS(dir)
 		planPath := r.URL.Query().Get("plan")
+		user := r.URL.Query().Get("user")
+		if user != "" {
+			available, err := availableUsers(dirFS)
+			if err != nil {
+				_ = conn.Close(websocket.StatusInternalError, err.Error())
+				return
+			}
 
-		session := web.NewSession(logger, dirFS, planPath)
+			var ok bool
+			owner, ok = available[user]
+			if !ok {
+				_ = conn.Close(websocket.StatusInternalError, err.Error())
+				return
+			}
+		}
+
+		session := web.NewSession(logger, dirFS, web.SessionInputs{
+			PlanPath: planPath,
+			User:     owner,
+		})
 		session.Listen(r.Context(), conn)
 	}
+}
+
+func availableUsers(dirFS fs.FS) (map[string]types.WorkspaceOwner, error) {
+	entries, err := fs.ReadDir(dirFS, ".")
+	if err != nil {
+		return nil, fmt.Errorf("could not read directory: %w", err)
+	}
+
+	idx := slices.IndexFunc(entries, func(entry fs.DirEntry) bool {
+		return entry.Name() == "users.json"
+	})
+	if idx == -1 {
+		return map[string]types.WorkspaceOwner{}, nil
+	}
+
+	file, err := dirFS.Open(entries[idx].Name())
+	if err != nil {
+		return nil, fmt.Errorf("could not open users file: %w", err)
+	}
+	defer file.Close()
+
+	var users map[string]types.WorkspaceOwner
+	if err := json.NewDecoder(file).Decode(&users); err != nil {
+		return nil, fmt.Errorf("could not decode users file: %w", err)
+	}
+
+	return users, nil
 }

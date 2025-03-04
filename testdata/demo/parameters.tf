@@ -25,7 +25,7 @@ data "coder_parameter" "cpu" {
   name         = "cpu"
   display_name = "CPU"
   description  = "The number of CPU cores"
-  type         ="number"
+  type         = "number"
   default      = "2"
   icon         = "/icon/memory.svg"
   mutable      = true
@@ -34,7 +34,8 @@ data "coder_parameter" "cpu" {
     min = 1
     // Confidential instances are more expensive, or some justification like
     // that
-    max = module.base.security_level == "high" ? 4: 8
+    // TODO: This breaks when the user is an admin
+    max = module.base.security_level == "high" ? 4 : 8
     error = "CPU range must be between {min} and {max}."
   }
 }

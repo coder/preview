@@ -1,5 +1,5 @@
 package types
 
 type WorkspaceOwner struct {
-	Groups []string
+	Groups []string `json:"groups"`
 }
