@@ -68,12 +68,12 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 
 	// moduleSource is "" for a local module
 	p := parser.New(dir, "",
-		parser.OptionStopOnHCLError(true),
+		parser.OptionStopOnHCLError(false),
 		parser.OptionWithDownloads(false),
 		parser.OptionWithTFVarsPaths(varFiles...),
 		parser.OptionWithEvalHook(planHook),
-		parser.OptionWithEvalHook(ParameterContextsEvalHook(input)),
 		parser.OptionWithEvalHook(ownerHook),
+		parser.OptionWithEvalHook(ParameterContextsEvalHook(input)),
 		parser.OptionWithSkipCachedModules(true),
 	)
 

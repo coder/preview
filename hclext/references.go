@@ -5,28 +5,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/hclsyntax"
 )
-
-func ScopeTraversalExpr(parts ...string) hclsyntax.ScopeTraversalExpr {
-	if len(parts) == 0 {
-		return hclsyntax.ScopeTraversalExpr{}
-	}
-
-	v := hclsyntax.ScopeTraversalExpr{
-		Traversal: []hcl.Traverser{
-			hcl.TraverseRoot{
-				Name: parts[0],
-			},
-		},
-	}
-	for _, part := range parts[1:] {
-		v.Traversal = append(v.Traversal, hcl.TraverseAttr{
-			Name: part,
-		})
-	}
-	return v
-}
 
 func ReferenceNames(exp hcl.Expression) []string {
 	allVars := exp.Variables()

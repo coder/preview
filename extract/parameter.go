@@ -6,6 +6,7 @@ import (
 
 	"github.com/aquasecurity/trivy/pkg/iac/terraform"
 	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/coder/preview/hclext"
@@ -315,16 +316,41 @@ func required(block *terraform.Block, keys ...string) hcl.Diagnostics {
 
 func richParameterValue(block *terraform.Block) types.HCLString {
 	// Find the value of the parameter from the context.
-	paramPath := append([]string{"data"}, block.Labels()...)
-	path := strings.Join(paramPath, ".")
+	ref := block.Reference()
+	travs := []hcl.Traverser{
+		hcl.TraverseRoot{
+			Name: "data",
+		},
+		hcl.TraverseAttr{
+			Name: ref.TypeLabel(),
+		},
+		hcl.TraverseAttr{
+			Name: ref.NameLabel(),
+		},
+	}
 
-	valueRef := hclext.ScopeTraversalExpr(append(paramPath, "value")...)
-	val, diags := valueRef.Value(block.Context().Inner())
+	raw := ref.RawKey()
+	if !raw.IsNull() {
+		travs = append(travs, hcl.TraverseIndex{
+			Key:      raw,
+			SrcRange: hcl.Range{},
+		})
+	}
+
+	travs = append(travs, hcl.TraverseAttr{
+		Name: "value",
+	})
+
+	valRef := hclsyntax.ScopeTraversalExpr{
+		Traversal: travs,
+	}
+	val, diags := valRef.Value(block.Context().Inner())
+	source := ref.String()
 	return types.HCLString{
 		Value:      val,
 		ValueDiags: diags,
-		ValueExpr:  &valueRef,
-		Source:     &path,
+		ValueExpr:  &valRef,
+		Source:     &source,
 	}
 }
 

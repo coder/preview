@@ -245,6 +245,37 @@ func Test_Extract(t *testing.T) {
 			expUnknowns: []string{},
 			params:      map[string]func(t *testing.T, parameter types.Parameter){},
 		},
+		{
+			name: "demo",
+			dir:  "demo",
+			expTags: map[string]string{
+				"cluster": "confidential",
+			},
+			input: preview.Input{
+				PlanJSONPath:    "",
+				ParameterValues: map[string]string{},
+				Owner: types.WorkspaceOwner{
+					Groups: []string{"admin"},
+				},
+			},
+			expUnknowns: []string{},
+			params:      map[string]func(t *testing.T, parameter types.Parameter){},
+		},
+		{
+			name:    "defexpression",
+			dir:     "defexpression",
+			expTags: map[string]string{},
+			input: preview.Input{
+				PlanJSONPath:    "plan.json",
+				ParameterValues: map[string]string{},
+				Owner:           types.WorkspaceOwner{},
+			},
+			expUnknowns: []string{},
+			params:      map[string]func(t *testing.T, parameter types.Parameter){
+				//"hash": ap[cty.Value]().value(cty.StringVal("hash")).
+				//	f(),
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()

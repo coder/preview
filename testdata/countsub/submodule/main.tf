@@ -1,0 +1,3 @@
+output "static" {
+  value = "static"
+}

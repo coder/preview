@@ -1,0 +1,165 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.11.0-dev",
+  "planned_values": {
+    "root_module": {}
+  },
+  "prior_state": {
+    "format_version": "1.0",
+    "terraform_version": "1.11.0",
+    "values": {
+      "root_module": {
+        "resources": [
+          {
+            "address": "data.coder_parameter.region",
+            "mode": "data",
+            "type": "coder_parameter",
+            "name": "region",
+            "provider_name": "registry.terraform.io/coder/coder",
+            "schema_version": 0,
+            "values": {
+              "default": "STATIC",
+              "description": "Which region would you like to deploy to?",
+              "display_name": null,
+              "ephemeral": false,
+              "icon": null,
+              "id": "ba3edc1c-0c58-4be6-9d19-b12ff883fa2a",
+              "mutable": false,
+              "name": "Region",
+              "option": null,
+              "optional": true,
+              "order": null,
+              "type": "string",
+              "validation": [],
+              "value": "STATIC"
+            },
+            "sensitive_values": {
+              "validation": []
+            }
+          },
+          {
+            "address": "data.coder_workspace_tags.test",
+            "mode": "data",
+            "type": "coder_workspace_tags",
+            "name": "test",
+            "provider_name": "registry.terraform.io/coder/coder",
+            "schema_version": 0,
+            "values": {
+              "id": "56f64bcd-dee3-4db3-b254-97a44b0fb8e5",
+              "tags": {
+                "test": "true"
+              }
+            },
+            "sensitive_values": {
+              "tags": {}
+            }
+          },
+          {
+            "address": "data.docker_registry_image.coder",
+            "mode": "data",
+            "type": "docker_registry_image",
+            "name": "coder",
+            "provider_name": "registry.terraform.io/kreuzwerker/docker",
+            "schema_version": 0,
+            "values": {
+              "id": "sha256:141d112217ea44f85a0319822be6499e03f37aa9f8ea2f04b21e6a2dcb5b859b",
+              "insecure_skip_verify": false,
+              "name": "ghcr.io/coder/coder:latest",
+              "sha256_digest": "sha256:141d112217ea44f85a0319822be6499e03f37aa9f8ea2f04b21e6a2dcb5b859b"
+            },
+            "sensitive_values": {}
+          }
+        ]
+      }
+    }
+  },
+  "configuration": {
+    "provider_config": {
+      "coder": {
+        "name": "coder",
+        "full_name": "registry.terraform.io/coder/coder"
+      },
+      "docker": {
+        "name": "docker",
+        "full_name": "registry.terraform.io/kreuzwerker/docker",
+        "version_constraint": "3.0.2"
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "data.coder_parameter.region",
+          "mode": "data",
+          "type": "coder_parameter",
+          "name": "region",
+          "provider_config_key": "coder",
+          "expressions": {
+            "default": {
+              "references": [
+                "module.sub.static",
+                "module.sub"
+              ]
+            },
+            "description": {
+              "constant_value": "Which region would you like to deploy to?"
+            },
+            "name": {
+              "constant_value": "Region"
+            },
+            "type": {
+              "constant_value": "string"
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "data.coder_workspace_tags.test",
+          "mode": "data",
+          "type": "coder_workspace_tags",
+          "name": "test",
+          "provider_config_key": "coder",
+          "expressions": {
+            "tags": {
+              "references": [
+                "module.sub.static",
+                "module.sub"
+              ]
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "data.docker_registry_image.coder",
+          "mode": "data",
+          "type": "docker_registry_image",
+          "name": "coder",
+          "provider_config_key": "docker",
+          "expressions": {
+            "name": {
+              "constant_value": "ghcr.io/coder/coder:latest"
+            }
+          },
+          "schema_version": 0
+        }
+      ],
+      "module_calls": {
+        "sub": {
+          "source": "./submodule",
+          "module": {
+            "outputs": {
+              "static": {
+                "expression": {
+                  "constant_value": "static"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "timestamp": "2025-03-04T17:01:06Z",
+  "applyable": false,
+  "complete": true,
+  "errored": false
+}
