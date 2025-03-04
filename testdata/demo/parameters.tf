@@ -3,7 +3,7 @@ data "coder_parameter" "team" {
   description = "Which team are you on?"
   type        = "string"
   default     = "fullstack"
-  order       = 1
+  order       = 10
 
   dynamic "option" {
     for_each = local.teams
@@ -21,6 +21,44 @@ data "coder_parameter" "team" {
   }
 }
 
+data "coder_parameter" "browser" {
+  name        = "browser"
+  description = "Which browser do you prefer?"
+  type        = "string"
+  default     = "chromium"
+  order       = 12
+  count       = (
+    data.coder_parameter.team.value == "frontend" ||
+    data.coder_parameter.team.value == "fullstack"? 1 : 0
+  )
+
+  option {
+    name  = "Chrome"
+    value = "chrome"
+  }
+
+  option {
+    name  = "Firefox"
+    value = "firefox"
+  }
+
+  option {
+    name  = "Safari"
+    value = "safari"
+  }
+
+  option {
+    name  = "Edge"
+    value = "edge"
+  }
+
+  option {
+    name  = "Chromium"
+    value = "chromium"
+  }
+}
+
+
 data "coder_parameter" "cpu" {
   name         = "cpu"
   display_name = "CPU"
@@ -29,6 +67,7 @@ data "coder_parameter" "cpu" {
   default      = "2"
   icon         = "/icon/memory.svg"
   mutable      = true
+  order        = 20
 
   validation {
     min = 1
@@ -48,6 +87,8 @@ data "coder_parameter" "image_hash" {
   // Value can get stale
   default     = trimprefix(data.docker_registry_image.coder.sha256_digest, "sha256:")
 
+  order       = 100
+
   validation {
     regex = "^[a-f0-9A-F]{64}$"
     error = "The image hash must be a 64-character hexadecimal string."
@@ -65,6 +106,7 @@ data "coder_parameter" "region" {
   default      = local.default_region
   icon         = "/icon/memory.svg"
   mutable      = false
+  order        = 1
 
   dynamic "option" {
     for_each = local.regions

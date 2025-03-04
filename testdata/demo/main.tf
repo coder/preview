@@ -27,6 +27,7 @@ module "jetbrains_gateway" {
   folder         = "/home/coder/example"
   jetbrains_ides = local.teams[data.coder_parameter.team.value].codes
   default        = local.teams[data.coder_parameter.team.value].codes[0]
+  coder_parameter_order = 11
 }
 
 module "base" {

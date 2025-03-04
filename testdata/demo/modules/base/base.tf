@@ -19,12 +19,13 @@ module "deploys" {
 }
 
 data "coder_parameter" "security_level" {
-    count       = local.choose_security ? 1 : 0
-    name        = "Security Level"
-    description = "What security level do you need?"
-    type        = "string"
-    default     = "high"
-    order       = 1
+    count        = local.choose_security ? 1 : 0
+    name         = "security_level"
+    display_name = "Security Level"
+    description  = "What security level do you need?"
+    type         = "string"
+    default      = "high"
+    order        = 50
 
 
     dynamic "option" {

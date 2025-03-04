@@ -54,3 +54,7 @@
 
 - Submodule references ignored in `count` meta arguments (and dynamic blocks)?
  - https://github.com/aquasecurity/trivy/pull/8479 
+
+## Websocket demo
+
+- Cleanup errors and directory handling code. DRY
