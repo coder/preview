@@ -2,6 +2,7 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -51,7 +52,9 @@ func (r *RootCmd) TerraformPlan() *serpent.Command {
 				return fmt.Errorf("terraform show not successful: %w", cmd.ProcessState)
 			}
 
-			_ = os.WriteFile("plan.json", buf.Bytes(), 0644)
+			var indented bytes.Buffer
+			_ = json.Indent(&indented, buf.Bytes(), "", "  ")
+			_ = os.WriteFile("plan.json", indented.Bytes(), 0644)
 			return nil
 		},
 	}
