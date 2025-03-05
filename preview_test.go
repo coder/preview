@@ -156,25 +156,23 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
-			name:    "external module",
-			dir:     "module",
-			expTags: map[string]string{},
-			unknownTags: []string{
-				"foo",
-			},
-			input: preview.Input{},
+			name:        "external module",
+			dir:         "module",
+			expTags:     map[string]string{},
+			unknownTags: []string{},
+			input:       preview.Input{},
 			params: map[string]assertParam{
 				"jetbrains_ide": ap().
 					optVals("CL", "GO", "IU", "PY", "WS").
 					value("GO"),
 			},
 		},
-		{
+		{ // Continue fixing from here
 			name:    "aws instance list",
 			dir:     "instancelist",
 			expTags: map[string]string{},
 			input: preview.Input{
-				PlanJSONPath:    "before.json",
+				PlanJSONPath:    "plan.json",
 				ParameterValues: map[string]string{},
 			},
 			unknownTags: []string{},

@@ -70,11 +70,11 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 	p := parser.New(dir, "",
 		parser.OptionStopOnHCLError(false),
 		parser.OptionWithDownloads(false),
+		parser.OptionWithSkipCachedModules(true),
 		parser.OptionWithTFVarsPaths(varFiles...),
 		parser.OptionWithEvalHook(planHook),
 		parser.OptionWithEvalHook(ownerHook),
 		parser.OptionWithEvalHook(ParameterContextsEvalHook(input)),
-		parser.OptionWithSkipCachedModules(true),
 	)
 
 	err = p.ParseFS(ctx, ".")
