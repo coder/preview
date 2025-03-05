@@ -71,19 +71,3 @@ data "coder_parameter" "compute" {
     }
   }
 }
-
-data "coder_parameter" "favorite" {
-  name        = "Favorite number"
-  description = "What is your favorite number?"
-  type        = "number"
-  default     = "5"
-  order       = 3
-
-  validation {
-    min=0
-    max=9
-    error="too high or low"
-  }
-}
-
-

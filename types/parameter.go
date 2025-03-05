@@ -47,12 +47,13 @@ type Parameter struct {
 }
 
 type RichParameter struct {
-	Name         string                 `json:"name"`
-	DisplayName  string                 `json:"display_name"`
-	Description  string                 `json:"description"`
-	FormControl  string                 `json:"form_control"`
-	Type         ParameterType          `json:"type"`
-	Mutable      bool                   `json:"mutable"`
+	Name        string        `json:"name"`
+	DisplayName string        `json:"display_name"`
+	Description string        `json:"description"`
+	FormControl string        `json:"form_control"`
+	Type        ParameterType `json:"type"`
+	Mutable     bool          `json:"mutable"`
+	// TODO: Default value might want to be a HCLString
 	DefaultValue string                 `json:"default_value"`
 	Icon         string                 `json:"icon"`
 	Options      []*ParameterOption     `json:"options"`

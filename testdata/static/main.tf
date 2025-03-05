@@ -1,3 +1,4 @@
+// Base case for workspace tags + parameters.
 terraform {
   required_providers {
     coder = {

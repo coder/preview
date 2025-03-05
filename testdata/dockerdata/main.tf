@@ -12,21 +12,11 @@ terraform {
   }
 }
 
-module "jetbrains_gateway" {
-  count          = 1
-  source         = "registry.coder.com/modules/jetbrains-gateway/coder"
-  version        = "1.0.28"
-  agent_id       = data.coder_parameter.example.id
-  folder         = "/home/coder/example"
-  jetbrains_ides = ["CL", "GO", "IU", "PY", "WS"]
-  default        = "GO"
-}
-
 data "coder_parameter" "example" {
   name        = "Example"
   description = "An example parameter that has no purpose."
   type        = "string"
-  default     = data.docker_registry_image.ubuntu.sha256_digest
+  default     = trimprefix(data.docker_registry_image.ubuntu.sha256_digest, "sha256:")
 
   option {
     name = "Ubuntu"
@@ -51,11 +41,11 @@ data "coder_workspace_tags" "custom_workspace_tags" {
 
 # Pulls the image
 data "docker_registry_image" "centos" {
-  name = "centos:latest"
+  name = "centos:centos7.9.2009"
 }
 
 data "docker_registry_image" "ubuntu" {
-  name = "ubuntu:precise"
+  name = "ubuntu:24.04"
   // sha256_digest
 }
 

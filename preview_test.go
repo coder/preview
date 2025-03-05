@@ -9,7 +9,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/gocty"
 
 	"github.com/coder/preview"
@@ -32,8 +31,8 @@ func Test_Extract(t *testing.T) {
 		input       preview.Input
 
 		expTags     map[string]string
-		expUnknowns []string
-		params      map[string]func(t *testing.T, parameter types.Parameter)
+		unknownTags []string
+		params      map[string]assertParam
 	}{
 		{
 			name:        "bad param values",
@@ -46,34 +45,47 @@ func Test_Extract(t *testing.T) {
 			expTags: map[string]string{
 				"zone": "developers",
 			},
-			expUnknowns: []string{},
-			params: map[string]func(t *testing.T, parameter types.Parameter){
-				"Region": ap[cty.Value]().value(cty.StringVal("us")).f(),
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"Region": ap().value("us").
+					def("us").
+					optVals("us", "eu"),
 			},
 		},
 		{
-			name:        "conditional",
+			name:        "conditional-no-inputs",
 			dir:         "conditional",
 			expTags:     map[string]string{},
-			expUnknowns: []string{},
-			params: map[string]func(t *testing.T, parameter types.Parameter){
-				"Compute": ap[cty.Value]().value(cty.StringVal("huge")).f(),
-				"Project": ap[cty.Value]().value(cty.StringVal("massive")).f(),
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"Project": ap().
+					optVals("small", "massive").
+					value("massive"),
+				"Compute": ap().
+					optVals("micro", "small", "medium", "huge").
+					value("huge"),
 			},
 		},
 		{
-			name: "conditional",
-			dir:  "conditional",
+			name:        "conditional-inputs",
+			dir:         "conditional",
+			expTags:     map[string]string{},
+			unknownTags: []string{},
 			input: preview.Input{
 				ParameterValues: map[string]string{
-					"project": "small",
+					"Project": "small",
+					"Compute": "micro",
 				},
 			},
-			expTags:     map[string]string{},
-			expUnknowns: []string{},
-			params: map[string]func(t *testing.T, parameter types.Parameter){
-				"Compute": ap[cty.Value]().value(cty.StringVal("small")).f(),
-				"Project": ap[cty.Value]().value(cty.StringVal("small")).f(),
+			params: map[string]assertParam{
+				"Project": ap().
+					optVals("small", "massive").
+					def("massive").
+					value("small"),
+				"Compute": ap().
+					optVals("micro", "small").
+					def("small").
+					value("micro"),
 			},
 		},
 		{
@@ -84,12 +96,12 @@ func Test_Extract(t *testing.T) {
 			},
 			input: preview.Input{
 				ParameterValues: map[string]string{
-					"region": "eu",
+					"Region": "eu",
 				},
 			},
-			expUnknowns: []string{},
-			params: map[string]func(t *testing.T, parameter types.Parameter){
-				"Region": ap[cty.Value]().value(cty.StringVal("eu")).f(),
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"Region": ap().value("eu"),
 			},
 		},
 		{
@@ -100,51 +112,62 @@ func Test_Extract(t *testing.T) {
 			},
 			input: preview.Input{
 				ParameterValues: map[string]string{
-					"region": "eu",
+					"Region": "eu",
 				},
 			},
-			expUnknowns: []string{},
-			params: map[string]func(t *testing.T, parameter types.Parameter){
-				"Region": ap[cty.Value]().
-					value(cty.StringVal("eu")).
-					options("us", "eu", "au").
-					f(),
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"Region": ap().
+					value("eu").
+					optVals("us", "eu", "au"),
 			},
 		},
 		{
 			name:    "external docker resource",
 			dir:     "dockerdata",
 			expTags: map[string]string{"qux": "quux"},
-			expUnknowns: []string{
+			unknownTags: []string{
 				"foo", "bar",
 			},
 
-			input:  preview.Input{},
-			params: map[string]func(t *testing.T, parameter types.Parameter){},
+			input: preview.Input{},
+			params: map[string]assertParam{
+				"Example": ap().
+					unknown().
+					// Value is unknown, but this is the safe string
+					value("data.coder_parameter.example.value"),
+			},
 		},
 		{
 			name: "external docker resource with plan data",
 			dir:  "dockerdata",
 			expTags: map[string]string{
 				"qux": "quux",
-				"foo": "ubuntu@sha256:80dd3c3b9c6cecb9f1667e9290b3bc61b78c2678c02cbdae5f0fea92cc6734ab",
-				"bar": "centos@sha256:a27fd8080b517143cbbbab9dfb7c8571c40d67d534bbdee55bd6c473f432b177",
+				"foo": "sha256:18305429afa14ea462f810146ba44d4363ae76e4c8dfc38288cf73aa07485005",
+				"bar": "sha256:a27fd8080b517143cbbbab9dfb7c8571c40d67d534bbdee55bd6c473f432b177",
 			},
-			expUnknowns: []string{},
+			unknownTags: []string{},
 			input: preview.Input{
 				PlanJSONPath: "plan.json",
 			},
-			params: map[string]func(t *testing.T, parameter types.Parameter){},
+			params: map[string]assertParam{
+				"Example": ap().
+					value("18305429afa14ea462f810146ba44d4363ae76e4c8dfc38288cf73aa07485005"),
+			},
 		},
 		{
-			name:        "external module with external data",
-			dir:         "module",
-			expTags:     map[string]string{},
-			expUnknowns: []string{},
-			input: preview.Input{
-				PlanJSONPath: "before.json",
+			name:    "external module",
+			dir:     "module",
+			expTags: map[string]string{},
+			unknownTags: []string{
+				"foo",
 			},
-			params: map[string]func(t *testing.T, parameter types.Parameter){},
+			input: preview.Input{},
+			params: map[string]assertParam{
+				"jetbrains_ide": ap().
+					optVals("CL", "GO", "IU", "PY", "WS").
+					value("GO"),
+			},
 		},
 		{
 			name:    "aws instance list",
@@ -154,8 +177,8 @@ func Test_Extract(t *testing.T) {
 				PlanJSONPath:    "before.json",
 				ParameterValues: map[string]string{},
 			},
-			expUnknowns: []string{},
-			params:      map[string]func(t *testing.T, parameter types.Parameter){},
+			unknownTags: []string{},
+			params:      map[string]assertParam{},
 		},
 		{
 			name:    "null default",
@@ -164,8 +187,8 @@ func Test_Extract(t *testing.T) {
 			input: preview.Input{
 				ParameterValues: map[string]string{},
 			},
-			expUnknowns: []string{},
-			params:      map[string]func(t *testing.T, parameter types.Parameter){},
+			unknownTags: []string{},
+			params:      map[string]assertParam{},
 		},
 		{
 			name:    "many modules",
@@ -175,8 +198,8 @@ func Test_Extract(t *testing.T) {
 				ParameterValues: map[string]string{},
 				PlanJSONPath:    "out.json",
 			},
-			expUnknowns: []string{},
-			params:      map[string]func(t *testing.T, parameter types.Parameter){},
+			unknownTags: []string{},
+			params:      map[string]assertParam{},
 		},
 		{
 			name:    "dupemodparams",
@@ -185,8 +208,8 @@ func Test_Extract(t *testing.T) {
 			input: preview.Input{
 				ParameterValues: map[string]string{},
 			},
-			expUnknowns: []string{},
-			params:      map[string]func(t *testing.T, parameter types.Parameter){},
+			unknownTags: []string{},
+			params:      map[string]assertParam{},
 		},
 		{
 			name: "not-exists",
@@ -203,11 +226,10 @@ func Test_Extract(t *testing.T) {
 					Groups: []string{"developer", "manager", "admin"},
 				},
 			},
-			expUnknowns: []string{},
-			params: map[string]func(t *testing.T, parameter types.Parameter){
-				"Groups": ap[cty.Value]().
-					options("developer", "manager", "admin").
-					f(),
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"Groups": ap().
+					optVals("developer", "manager", "admin"),
 			},
 		},
 		{
@@ -221,14 +243,12 @@ func Test_Extract(t *testing.T) {
 					Groups: []string{"developer", "manager", "admin"},
 				},
 			},
-			expUnknowns: []string{},
-			params: map[string]func(t *testing.T, parameter types.Parameter){
-				"IsAdmin": ap[cty.Value]().
-					value(cty.StringVal("true")).
-					f(),
-				"IsAdmin_Root": ap[cty.Value]().
-					value(cty.StringVal("true")).
-					f(),
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"IsAdmin": ap().
+					value("true"),
+				"IsAdmin_Root": ap().
+					value("true"),
 			},
 		},
 		{
@@ -242,8 +262,8 @@ func Test_Extract(t *testing.T) {
 					Groups: []string{},
 				},
 			},
-			expUnknowns: []string{},
-			params:      map[string]func(t *testing.T, parameter types.Parameter){},
+			unknownTags: []string{},
+			params:      map[string]assertParam{},
 		},
 		{
 			name: "demo",
@@ -258,8 +278,8 @@ func Test_Extract(t *testing.T) {
 					Groups: []string{"admin"},
 				},
 			},
-			expUnknowns: []string{},
-			params:      map[string]func(t *testing.T, parameter types.Parameter){},
+			unknownTags: []string{},
+			params:      map[string]assertParam{},
 		},
 		{
 			name:    "defexpression",
@@ -270,8 +290,8 @@ func Test_Extract(t *testing.T) {
 				ParameterValues: map[string]string{},
 				Owner:           types.WorkspaceOwner{},
 			},
-			expUnknowns: []string{},
-			params:      map[string]func(t *testing.T, parameter types.Parameter){
+			unknownTags: []string{},
+			params:      map[string]assertParam{
 				//"hash": ap[cty.Value]().value(cty.StringVal("hash")).
 				//	f(),
 			},
@@ -279,8 +299,8 @@ func Test_Extract(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			if tc.expUnknowns == nil {
-				tc.expUnknowns = []string{}
+			if tc.unknownTags == nil {
+				tc.unknownTags = []string{}
 			}
 			if tc.expTags == nil {
 				tc.expTags = map[string]string{}
@@ -301,10 +321,10 @@ func Test_Extract(t *testing.T) {
 			require.False(t, diags.HasErrors())
 
 			// Assert tags
-			validTags := output.WorkspaceTags.ValidTags()
+			validTags := output.WorkspaceTags.Tags()
 
 			assert.Equal(t, tc.expTags, validTags)
-			assert.ElementsMatch(t, tc.expUnknowns, output.WorkspaceTags.InvalidTags().SafeNames())
+			assert.ElementsMatch(t, tc.unknownTags, output.WorkspaceTags.UnusableTags().SafeNames())
 
 			// Assert params
 			require.Len(t, output.Parameters, len(tc.params), "wrong number of parameters expected")
@@ -317,35 +337,53 @@ func Test_Extract(t *testing.T) {
 	}
 }
 
-type assertParam[T any] func(t *testing.T, parameter types.Parameter)
+type assertParam func(t *testing.T, parameter types.Parameter)
 
-func ap[T any]() *assertParam[T] {
-	x := assertParam[T](func(t *testing.T, parameter types.Parameter) {})
-	return &x
+func ap() assertParam {
+	return func(t *testing.T, parameter types.Parameter) {}
 }
 
-func (a *assertParam[T]) f() func(t *testing.T, parameter types.Parameter) {
-	return *a
+func (a assertParam) unknown() assertParam {
+	return a.extend(func(t *testing.T, parameter types.Parameter) {
+		assert.False(t, parameter.Value.IsKnown(), "parameter unknown check")
+	})
 }
 
-func (a *assertParam[T]) options(opts ...string) *assertParam[T] {
-	cpy := *a
-	x := assertParam[T](func(t *testing.T, parameter types.Parameter) {
-		allOpts := make([]string, 0)
+func (a assertParam) value(str string) assertParam {
+	return a.extend(func(t *testing.T, parameter types.Parameter) {
+		assert.Equal(t, str, parameter.Value.AsString(), "parameter value equality check")
+	})
+}
+
+func (a assertParam) def(str string) assertParam {
+	return a.extend(func(t *testing.T, parameter types.Parameter) {
+		assert.Equal(t, str, parameter.DefaultValue, "parameter default equality check")
+	})
+}
+
+func (a assertParam) optVals(opts ...string) assertParam {
+	return a.extend(func(t *testing.T, parameter types.Parameter) {
+		var values []string
 		for _, opt := range parameter.Options {
-			allOpts = append(allOpts, opt.Value)
+			values = append(values, opt.Value)
 		}
-		assert.ElementsMatch(t, opts, allOpts)
-		cpy(t, parameter)
+		assert.ElementsMatch(t, opts, values, "parameter option values equality check")
 	})
-	return &x
 }
 
-func (a *assertParam[T]) value(v T) *assertParam[T] {
-	cpy := *a
-	x := assertParam[T](func(t *testing.T, parameter types.Parameter) {
-		assert.Equal(t, v, parameter.Value.Value, fmt.Sprintf("param %q", parameter.Name))
-		cpy(t, parameter)
+func (a assertParam) opts(opts ...types.ParameterOption) assertParam {
+	return a.extend(func(t *testing.T, parameter types.Parameter) {
+		assert.ElementsMatch(t, opts, parameter.Options, "parameter options equality check")
 	})
-	return &x
+}
+
+func (a assertParam) extend(f assertParam) assertParam {
+	if a == nil {
+		a = func(t *testing.T, parameter types.Parameter) {}
+	}
+
+	return func(t *testing.T, parameter types.Parameter) {
+		(a)(t, parameter)
+		f(t, parameter)
+	}
 }

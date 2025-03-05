@@ -4,6 +4,8 @@
 
 - Dynamic parameter names? A parameter's name can change. Should we throw a warning if it is not static?
 - [18](https://github.com/coder/preview/issues/18) `terraform init` not run before a `preview` fails to load a module. Should this prevent a preview?
+- Providing input values for parameters that does not exist should return a warning.
+- Unresolved modules should throw an error/warning that the preview is incomplete.
 
 ## Security
 
@@ -14,6 +16,7 @@
 
 - Plan hook replaces the same context for every block in a module. This work is duplicated and could be trimmed down.
 - [21](https://github.com/coder/preview/issues/21) Ensure no panics can occur during a preview.
+- websocket should use shared cache. 2 template websockets using the same files should not load the files into memory twice. 
 
 ## Features
 

@@ -9,7 +9,7 @@ import (
 // @typescript-ignore TagBlocks
 type TagBlocks []TagBlock
 
-func (b TagBlocks) ValidTags() map[string]string {
+func (b TagBlocks) Tags() map[string]string {
 	tags := make(map[string]string)
 	for _, block := range b {
 		for key, value := range block.ValidTags() {
@@ -19,10 +19,10 @@ func (b TagBlocks) ValidTags() map[string]string {
 	return tags
 }
 
-func (b TagBlocks) InvalidTags() Tags {
+func (b TagBlocks) UnusableTags() Tags {
 	tags := make(Tags, 0)
 	for _, block := range b {
-		tags = append(tags, block.InvalidTags()...)
+		tags = append(tags, block.UnusableTags()...)
 	}
 	return tags
 }
@@ -33,10 +33,10 @@ type TagBlock struct {
 	Block *terraform.Block
 }
 
-func (b TagBlock) InvalidTags() Tags {
+func (b TagBlock) UnusableTags() Tags {
 	invalid := make(Tags, 0)
 	for _, tag := range b.Tags {
-		if tag.Valid() {
+		if tag.Valid() && tag.IsKnown() {
 			continue
 		}
 

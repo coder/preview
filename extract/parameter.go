@@ -344,8 +344,9 @@ func richParameterValue(block *terraform.Block) types.HCLString {
 	valRef := hclsyntax.ScopeTraversalExpr{
 		Traversal: travs,
 	}
+
 	val, diags := valRef.Value(block.Context().Inner())
-	source := ref.String()
+	source := hclext.CreateDotReferenceFromTraversal(valRef.Traversal)
 	return types.HCLString{
 		Value:      val,
 		ValueDiags: diags,
