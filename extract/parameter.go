@@ -101,7 +101,7 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 		valStr := pVal.Value.AsString()
 		// Apply validations to the parameter value
 		for _, v := range p.Validations {
-			if err := v.Valid(valStr); err != nil {
+			if err := v.Valid(string(pType), valStr); err != nil {
 				diags = diags.Append(&hcl.Diagnostic{
 					Severity:   hcl.DiagError,
 					Summary:    fmt.Sprintf("Paramater validation failed for value %q", valStr),
