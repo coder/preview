@@ -63,7 +63,6 @@ export function useWebSocket<T>(url: string, reconnectDelay = 3000) {
     }
   }, [reconnectDelay]); // Only depends on reconnectDelay, not url
 
-  // Set up the WebSocket connection
   useEffect(() => {
     // Close any existing connection when the URL changes
     if (wsRef.current) {
@@ -85,7 +84,6 @@ export function useWebSocket<T>(url: string, reconnectDelay = 3000) {
   const sendMessage = (data: unknown) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       wsRef.current.send(JSON.stringify(data));
-
     } else {
       console.warn("Cannot send message: WebSocket is not connected");
     }

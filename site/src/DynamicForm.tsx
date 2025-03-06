@@ -9,28 +9,55 @@ import {
     } from "./types/preview";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "./components/Select/Select";
 import { Input } from "./components/Input/Input";
+
 export function DynamicForm() {
+  const [testdata, setTestdata] = useState<string>("conditional");
+  const [directories, setDirectories] = useState<string[]>([]);
+  
   const serverAddress = "localhost:8100";
-  const directoryPath = "conditional";
+  
+  // Fetch directories when component mounts
+  useEffect(() => {
+    fetch(`http://${serverAddress}/directories`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch directories: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        setDirectories(data);
+        // If testdata is not in the list of directories, set it to the first directory
+        if (data.length > 0 && !data.includes(testdata)) {
+          setTestdata(data[0]);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching directories:', error);
+        // Fallback to some default directories if fetch fails
+        setDirectories(["conditional"]);
+      });
+  }, []);
+  
   const planPath = "";
-  const wsUrl = `ws://${serverAddress}/ws/${encodeURIComponent(directoryPath)}${planPath ? `?plan=${encodeURIComponent(planPath)}` : ''}`;
+  const wsUrl = `ws://${serverAddress}/ws/${encodeURIComponent(testdata)}${planPath ? `?plan=${encodeURIComponent(planPath)}` : ''}`;
 
   const { message: serverResponse, sendMessage, connectionStatus } = useWebSocket<Response>(wsUrl);
 
   const [response, setResponse] = useState<Response | null>(null);
-
+  const [currentId, setCurrentId] = useState<number>(0);
+  
   // Initialize React Hook Form
   const methods = useForm<Record<string, string>>({
     defaultValues: {}
   });
   const { watch, reset } = methods;
 
-  // Whenever we get a new server response, update local state
   useEffect(() => {
-    if (serverResponse) {
+    if (serverResponse && serverResponse.id >= currentId) {
       setResponse(serverResponse);
     }
-  }, [serverResponse]);
+  }, [serverResponse, currentId]);
 
   // Reset form state whenever "response" changes
   useEffect(() => {
@@ -44,31 +71,41 @@ export function DynamicForm() {
 
       // Use RHF's `reset` to update the entire form
       reset(defaultValues);
+      
+      // Also update prevValues to match the initial form state
+      // This prevents the initial values from being detected as changes
+      setPrevValues(defaultValues);
     }
   }, [response, reset]);
 
   // Watch all fields and send changes to the server
   const watchedValues = watch();
-  console.log("serverResponse", serverResponse);
-
+  
   // Track previous values to detect changes
   const [prevValues, setPrevValues] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (response) {
-      const hasChanged = Object.keys(watchedValues).some(
-        key => watchedValues[key] !== prevValues[key]
-      );
-      
-      if (hasChanged) {
+    if (!response) return;
+    
+    // Skip if this is the first render or if prevValues is empty
+    if (Object.keys(prevValues).length === 0) return;
+
+    const hasChanged = Object.keys(watchedValues).some(
+      key => watchedValues[key] !== prevValues[key]
+    );
+    if (hasChanged) {
+      setCurrentId(prevId => {
+        const newId = prevId + 1;
         const request: Request = {
-          id: 1,
+          id: newId,
           inputs: watchedValues
         };
-        sendMessage(request);
         
-        setPrevValues({...watchedValues});
-      }
+        sendMessage(request);
+        return newId;
+      });
+      
+      setPrevValues({...watchedValues});
     }
   }, [watchedValues, response, sendMessage, prevValues]);
 
@@ -170,7 +207,6 @@ export function DynamicForm() {
     );
   };
 
-  // 8) Optionally display diagnostics from the server
   const renderDiagnostics = (diagnostics: Diagnostics) => {
     return (
       <div>
@@ -199,13 +235,40 @@ export function DynamicForm() {
   const sortedParams = [...response.parameters].sort((a, b) => a.order - b.order);
 
   return (
-    <FormProvider {...methods}>
-      <form className="flex flex-col gap-4">
-        {response.diagnostics && renderDiagnostics(response.diagnostics)}
+    <>
+      <div>
+          <Select
+            onValueChange={(value) => {
+              setTestdata(value);
+              // Reset response when changing testdata to avoid showing stale data
+              setResponse(null);
+            }}
+            value={testdata}
+            defaultValue={testdata}
+          >
+            <SelectTrigger className="w-fit">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {directories.map((name, idx) => {
+                  return (
+                    <SelectItem key={idx} value={name}>{name}</SelectItem>
+                  );
+                })}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+      </div>
 
-        {sortedParams && sortedParams.map((param) => renderParameter(param))}
-      </form>
-    </FormProvider>
+      <FormProvider {...methods}>
+        <form className="flex flex-col gap-4">
+          {response.diagnostics && renderDiagnostics(response.diagnostics)}
+
+          {sortedParams && sortedParams.map((param) => renderParameter(param))}
+        </form>
+      </FormProvider>
+    </>
   );
 }
 
