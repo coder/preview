@@ -85,7 +85,7 @@ export function DynamicForm() {
   }, [testdata]);
   
   const planPath = "";
-  const wsUrl = `ws://${serverAddress}/ws/${encodeURIComponent(testdata)}${planPath ? `?plan=${encodeURIComponent(planPath)}` : ''}${user ? `&user=${encodeURIComponent(user)}` : ''}`;
+  const wsUrl = `ws://${serverAddress}/ws/${encodeURIComponent(testdata)}${`?plan=${encodeURIComponent(planPath)}`}${user ? `&user=${encodeURIComponent(user)}` : ''}`;
 
   const { message: serverResponse, sendMessage, connectionStatus } = useWebSocket<Response>(wsUrl);
 
