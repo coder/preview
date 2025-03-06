@@ -9,12 +9,14 @@ import {
     } from "./types/preview";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "./components/Select/Select";
 import { Input } from "./components/Input/Input";
+import { Switch } from "./components/Switch/Switch";
 
 export function DynamicForm() {
   const [testdata, setTestdata] = useState<string>("conditional");
   const [directories, setDirectories] = useState<string[]>([]);
   const [users, setUsers] = useState<Record<string, { groups: string[] }>>({});
   const [user, setUser] = useState<string>("");
+  const [usePlan, setUsePlan] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   
@@ -84,8 +86,8 @@ export function DynamicForm() {
       });
   }, [testdata]);
   
-  const planPath = "";
-  const wsUrl = `ws://${serverAddress}/ws/${encodeURIComponent(testdata)}${`?plan=${encodeURIComponent(planPath)}`}${user ? `&user=${encodeURIComponent(user)}` : ''}`;
+  const planPath = "plan.json";
+  const wsUrl = `ws://${serverAddress}/ws/${encodeURIComponent(testdata)}?${usePlan ? `plan=${encodeURIComponent(planPath)}&` : ''}${user ? `user=${encodeURIComponent(user)}` : ''}`;
 
   const { message: serverResponse, sendMessage, connectionStatus } = useWebSocket<Response>(wsUrl);
 
@@ -339,6 +341,14 @@ export function DynamicForm() {
               </SelectContent>
             </Select>
           )}
+
+          <span className="flex flex-row gap-2 items-center">
+            Use Plan
+            <Switch
+              checked={usePlan}
+              onCheckedChange={setUsePlan}
+						/>
+          </span>
       </div>
 
       <FormProvider {...methods}>
