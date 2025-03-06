@@ -5,9 +5,13 @@ import (
 	"strings"
 
 	"github.com/hashicorp/hcl/v2"
+	"github.com/zclconf/go-cty/cty"
 )
 
 func ReferenceNames(exp hcl.Expression) []string {
+	if exp == nil {
+		return []string{}
+	}
 	allVars := exp.Variables()
 	vars := make([]string, 0, len(allVars))
 
@@ -29,7 +33,14 @@ func CreateDotReferenceFromTraversal(traversals ...hcl.Traversal) string {
 			case hcl.TraverseAttr:
 				refParts = append(refParts, part.Name)
 			case hcl.TraverseIndex:
-				refParts = append(refParts, fmt.Sprintf("[%s]", part.Key.AsString()))
+				if part.Key.Type().Equals(cty.String) {
+					refParts = append(refParts, fmt.Sprintf("[%s]", part.Key.AsString()))
+				} else if part.Key.Type().Equals(cty.Number) {
+					idx, _ := part.Key.AsBigFloat().Int64()
+					refParts = append(refParts, fmt.Sprintf("[%d]", idx))
+				} else {
+					refParts = append(refParts, fmt.Sprintf("[?? %q]", part.Key.Type().FriendlyName()))
+				}
 			}
 		}
 	}
