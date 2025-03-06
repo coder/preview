@@ -13,6 +13,8 @@ import { Input } from "./components/Input/Input";
 export function DynamicForm() {
   const [testdata, setTestdata] = useState<string>("conditional");
   const [directories, setDirectories] = useState<string[]>([]);
+  const [users, setUsers] = useState<Record<string, { groups: string[] }>>({});
+  const [user, setUser] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   
@@ -52,9 +54,38 @@ export function DynamicForm() {
         setIsLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    setIsLoading(true);
+    setFetchError(null);
+    
+    fetch(`http://${serverAddress}/users/${testdata}`, {
+      mode: 'cors',
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        setUsers(data);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching users:', error);
+        setFetchError(error.message);
+        // Fallback to some default directories if fetch fails
+        // setDirectories(["conditional"]);
+        setIsLoading(false);
+      });
+  }, [testdata]);
   
   const planPath = "";
-  const wsUrl = `ws://${serverAddress}/ws/${encodeURIComponent(testdata)}${planPath ? `?plan=${encodeURIComponent(planPath)}` : ''}`;
+  const wsUrl = `ws://${serverAddress}/ws/${encodeURIComponent(testdata)}${planPath ? `?plan=${encodeURIComponent(planPath)}` : ''}${user ? `&user=${encodeURIComponent(user)}` : ''}`;
 
   const { message: serverResponse, sendMessage, connectionStatus } = useWebSocket<Response>(wsUrl);
 
@@ -262,8 +293,8 @@ export function DynamicForm() {
   const sortedParams = [...response.parameters].sort((a, b) => a.order - b.order);
 
   return (
-    <>
-      <div>
+    <div className="flex flex-col gap-12">
+      <div className="flex flex-row gap-4">
           <Select
             onValueChange={(value) => {
               setTestdata(value);
@@ -286,6 +317,28 @@ export function DynamicForm() {
               </SelectGroup>
             </SelectContent>
           </Select>
+
+          {Object.keys(users).length > 0 && (
+            <Select
+                onValueChange={(value) => {
+                  setUser(value);
+                }}
+              value={user}
+            >
+              <SelectTrigger className="w-fit">
+                <SelectValue placeholder="Select user" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {Object.keys(users).map((username, idx) => {
+                    return (
+                      <SelectItem key={idx} value={username}>{username}</SelectItem>
+                    );
+                  })}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          )}
       </div>
 
       <FormProvider {...methods}>
@@ -295,7 +348,7 @@ export function DynamicForm() {
           {sortedParams && sortedParams.map((param) => renderParameter(param))}
         </form>
       </FormProvider>
-    </>
+    </div>
   );
 }
 
