@@ -17,6 +17,10 @@
 - Plan hook replaces the same context for every block in a module. This work is duplicated and could be trimmed down.
 - [21](https://github.com/coder/preview/issues/21) Ensure no panics can occur during a preview.
 - websocket should use shared cache. 2 template websockets using the same files should not load the files into memory twice. 
+- Make a template with 10,000 options. Test the performance.
+- Add a parameter with 50 options to the demo template.
+  - searchable as well
+- Demo template should be multi-select for the IDE selector.
 
 ## Features
 
@@ -42,6 +46,7 @@
 
 - [23](https://github.com/coder/preview/issues/23) Implement `validation` blocks with a common code component to be reused by terraform provider?
 - Parameter values/defaults are only `string` types. 
+- Parameter groups/sections. Required?
 
 ## Upstream work
 
@@ -52,6 +57,7 @@
 ## Backward compatibility
 
 - Omitting `type` behavior, is there a default?
+- Backwards compatibility form controls. Default is radio vs dropdown. 
 
 ## Bugs
 
