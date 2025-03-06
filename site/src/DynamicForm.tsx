@@ -13,12 +13,23 @@ import { Input } from "./components/Input/Input";
 export function DynamicForm() {
   const [testdata, setTestdata] = useState<string>("conditional");
   const [directories, setDirectories] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   
   const serverAddress = "localhost:8100";
   
   // Fetch directories when component mounts
   useEffect(() => {
-    fetch(`http://${serverAddress}/directories`)
+    setIsLoading(true);
+    setFetchError(null);
+    
+    // Use mode: 'cors' explicitly and add credentials if needed
+    fetch(`http://${serverAddress}/directories`, {
+      mode: 'cors',
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
       .then(response => {
         if (!response.ok) {
           throw new Error(`Failed to fetch directories: ${response.status} ${response.statusText}`);
@@ -31,11 +42,14 @@ export function DynamicForm() {
         if (data.length > 0 && !data.includes(testdata)) {
           setTestdata(data[0]);
         }
+        setIsLoading(false);
       })
       .catch(error => {
         console.error('Error fetching directories:', error);
+        setFetchError(error.message);
         // Fallback to some default directories if fetch fails
         setDirectories(["conditional"]);
+        setIsLoading(false);
       });
   }, []);
   
@@ -219,6 +233,19 @@ export function DynamicForm() {
       </div>
     );
   };
+
+  if (isLoading && directories.length === 0) {
+    return <div>Loading directories...</div>;
+  }
+
+  if (fetchError) {
+    return (
+      <div className="error-container">
+        <h3>Error loading directories</h3>
+        <p>{fetchError}</p>
+      </div>
+    );
+  }
 
   if (connectionStatus === 'connecting') {
     return <div>Connecting to server...</div>;
