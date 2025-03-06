@@ -363,7 +363,7 @@ func (a assertParam) optVals(opts ...string) assertParam {
 	return a.extend(func(t *testing.T, parameter types.Parameter) {
 		var values []string
 		for _, opt := range parameter.Options {
-			values = append(values, opt.Value)
+			values = append(values, opt.Value.AsString())
 		}
 		assert.ElementsMatch(t, opts, values, "parameter option values equality check")
 	})

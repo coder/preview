@@ -126,7 +126,7 @@ func parameterOption(vals map[string]any) (*types.ParameterOption, error) {
 	opt := types.ParameterOption{
 		Name:        st.string("name"),
 		Description: st.optionalString("description"),
-		Value:       st.string("value"),
+		Value:       types.StringLiteral(st.string("value")),
 		Icon:        st.optionalString("icon"),
 	}
 

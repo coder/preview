@@ -95,13 +95,13 @@ func formatOptions(selected string, options []*types.ParameterOption) string {
 	for _, opt := range options {
 		str.WriteString(sep)
 		prefix := "[ ]"
-		if opt.Value == selected {
+		if opt.Value.AsString() == selected {
 			prefix = "[X]"
 			found = true
 		}
-		str.WriteString(fmt.Sprintf("%s %s (%s)", prefix, opt.Name, opt.Value))
+		str.WriteString(fmt.Sprintf("%s %s (%s)", prefix, opt.Name, opt.Value.AsString()))
 		if opt.Description != "" {
-			str.WriteString(fmt.Sprintf(": %s", maxLength(opt.Description, 20)))
+			str.WriteString(fmt.Sprintf("\n    %s", maxLength(opt.Description, 25)))
 		}
 		sep = "\n"
 	}

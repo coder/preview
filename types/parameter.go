@@ -168,10 +168,10 @@ func (v ParameterValidation) errorRendered(value string) error {
 }
 
 type ParameterOption struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Value       string `json:"value"`
-	Icon        string `json:"icon"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Value       HCLString `json:"value"`
+	Icon        string    `json:"icon"`
 }
 
 // CtyType returns the cty.Type for the RichParameter.

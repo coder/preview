@@ -155,9 +155,12 @@ func ParameterOptionFromBlock(block *terraform.Block) (types.ParameterOption, hc
 		diags = diags.Append(nameDiag)
 	}
 
-	pVal, valDiag := requiredString(block, "value")
-	if valDiag != nil {
-		diags = diags.Append(valDiag)
+	valAttr := block.GetAttribute("value")
+	//r := valAttr.HCLAttribute().Expr.Range()
+	pVal := types.HCLString{
+		Value:      valAttr.Value(),
+		ValueDiags: nil,
+		ValueExpr:  valAttr.HCLAttribute().Expr,
 	}
 
 	if diags.HasErrors() {
@@ -200,10 +203,15 @@ func requiredString(block *terraform.Block, key string) (string, *hcl.Diagnostic
 	tyAttr := block.GetAttribute(key)
 	tyVal := tyAttr.Value()
 	if tyVal.Type() != cty.String {
+		typeName := "<nil>"
+		if !tyVal.Type().Equals(cty.NilType) {
+			typeName = tyVal.Type().FriendlyName()
+		}
+
 		diag := &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  fmt.Sprintf("Invalid %q attribute", key),
-			Detail:   fmt.Sprintf("Expected a string, got %q", tyVal.Type().FriendlyName()),
+			Detail:   fmt.Sprintf("Expected a string, got %q", typeName),
 			Subject:  &(tyAttr.HCLAttribute().Range),
 			//Context:     &(block.HCLBlock().DefRange),
 			Expression:  tyAttr.HCLAttribute().Expr,
@@ -300,7 +308,8 @@ func required(block *terraform.Block, keys ...string) hcl.Diagnostics {
 	var diags hcl.Diagnostics
 	for _, key := range keys {
 		attr := block.GetAttribute(key)
-		if attr == nil || attr.IsNil() || attr.Value() == cty.NilVal {
+		value, _ := attr.HCLAttribute().Expr.Value(block.Context().Inner())
+		if attr == nil || attr.IsNil() || value == cty.NilVal {
 			r := block.HCLBlock().Body.MissingItemRange()
 			diags = diags.Append(&hcl.Diagnostic{
 				Severity: hcl.DiagError,

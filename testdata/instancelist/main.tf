@@ -21,8 +21,8 @@ data "coder_parameter" "user_location" {
     value = "us"
   }
   option {
-      name  = "Europe"
-      value = "eu"
+    name  = "Europe"
+    value = "eu"
   }
 }
 
