@@ -99,6 +99,7 @@ func formatOptions(selected string, options []*types.ParameterOption) string {
 			prefix = "[X]"
 			found = true
 		}
+
 		str.WriteString(fmt.Sprintf("%s %s (%s)", prefix, opt.Name, opt.Value.AsString()))
 		if opt.Description != "" {
 			str.WriteString(fmt.Sprintf("\n    %s", maxLength(opt.Description, 25)))

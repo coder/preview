@@ -158,9 +158,9 @@ func ParameterOptionFromBlock(block *terraform.Block) (types.ParameterOption, hc
 	}
 
 	valAttr := block.GetAttribute("value")
-	//r := valAttr.HCLAttribute().Expr.Range()
+
 	pVal := types.HCLString{
-		Value:      valAttr.Value(),
+		Value:      hclext.Value(valAttr.HCLAttribute().Expr, block.Context().Inner()),
 		ValueDiags: nil,
 		ValueExpr:  valAttr.HCLAttribute().Expr,
 	}

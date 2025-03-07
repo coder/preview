@@ -1,16 +1,9 @@
 package preview
 
 import (
-	"fmt"
-
 	"github.com/aquasecurity/trivy/pkg/iac/terraform"
 	tfcontext "github.com/aquasecurity/trivy/pkg/iac/terraform/context"
-	"github.com/hashicorp/hcl/v2"
-	"github.com/hashicorp/hcl/v2/ext/typeexpr"
 	"github.com/zclconf/go-cty/cty"
-	"github.com/zclconf/go-cty/cty/convert"
-
-	"github.com/coder/preview/hclext"
 )
 
 func ParameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value) {
@@ -40,7 +33,11 @@ func ParameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks 
 			} else {
 				// get the default value
 				// TODO: Log any diags
-				value, _ = evaluateCoderParameterDefault(block)
+				value, ok = evaluateCoderParameterDefault(block)
+				if !ok {
+					// no default value
+					return
+				}
 			}
 
 			// Set the default value as the 'value' attribute
@@ -55,68 +52,50 @@ func ParameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks 
 	}
 }
 
-func evaluateCoderParameterDefault(b *terraform.Block) (cty.Value, hcl.Diagnostics) {
+func evaluateCoderParameterDefault(b *terraform.Block) (cty.Value, bool) {
 	attributes := b.Attributes()
-	var valType cty.Type
-	var defaults *typeexpr.Defaults
 
-	typeAttr, exists := attributes["type"]
-	if exists {
-		ty, def, err := hclext.DecodeVarType(typeAttr.HCLAttribute().Expr)
-		if err != nil {
-			return cty.NilVal, hcl.Diagnostics{
-				{
-					Severity:    hcl.DiagError,
-					Summary:     fmt.Sprintf("Decoding parameter type for %q", b.FullName()),
-					Detail:      err.Error(),
-					Subject:     &typeAttr.HCLAttribute().Range,
-					Context:     &b.HCLBlock().DefRange,
-					Expression:  typeAttr.HCLAttribute().Expr,
-					EvalContext: b.Context().Inner(),
-				},
-			}
-		}
-		valType = ty
-		defaults = def
-	} else {
-		// Default to string type
-		valType = cty.String
-	}
-
-	// TODO: We should support different tf types, but at present the tf
-	// schema is static. So only string is allowed
-	valType = cty.String
-
-	var val cty.Value
+	//typeAttr, exists := attributes["type"]
+	//valueType := cty.String // TODO: Default to string?
+	//if exists {
+	//	typeVal := typeAttr.Value()
+	//	if !typeVal.Type().Equals(cty.String) || !typeVal.IsWhollyKnown() {
+	//		// TODO: Mark this value somehow
+	//		return cty.NilVal, nil
+	//	}
+	//
+	//	var err error
+	//	valueType, err = extract.ParameterCtyType(typeVal.AsString())
+	//	if err != nil {
+	//		// TODO: Mark this value somehow
+	//		return cty.NilVal, nil
+	//	}
+	//}
+	//
+	////return cty.NilVal, hcl.Diagnostics{
+	////	{
+	////		Severity:    hcl.DiagError,
+	////		Summary:     fmt.Sprintf("Decoding parameter type for %q", b.FullName()),
+	////		Detail:      err.Error(),
+	////		Subject:     &typeAttr.HCLAttribute().Range,
+	////		Context:     &b.HCLBlock().DefRange,
+	////		Expression:  typeAttr.HCLAttribute().Expr,
+	////		EvalContext: b.Context().Inner(),
+	////	},
+	////}
+	//
+	//// TODO: We should support different tf types, but at present the tf
+	//// schema is static. So only string is allowed
+	//var val cty.Value
 
 	def, exists := attributes["default"]
-	if exists {
-		val = def.NullableValue()
-	} else {
-		return cty.NilVal, nil
+	if !exists {
+		return cty.NilVal, false
 	}
 
-	if valType != cty.NilType {
-		if defaults != nil {
-			val = defaults.Apply(val)
-		}
-
-		typedVal, err := convert.Convert(val, valType)
-		if err != nil {
-			return cty.NilVal, hcl.Diagnostics{
-				{
-					Severity:    hcl.DiagError,
-					Summary:     "Converting default parameter value type",
-					Detail:      err.Error(),
-					Subject:     &def.HCLAttribute().Range,
-					Context:     &b.HCLBlock().DefRange,
-					Expression:  def.HCLAttribute().Expr,
-					EvalContext: b.Context().Inner(),
-				},
-			}
-		}
-		return typedVal, nil
+	v, diags := def.HCLAttribute().Expr.Value(b.Context().Inner())
+	if diags.HasErrors() {
+		return cty.NilVal, false
 	}
-
-	return val, nil
+	return v, true
 }
