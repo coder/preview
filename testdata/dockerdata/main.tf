@@ -21,13 +21,13 @@ data "coder_parameter" "example" {
   option {
     name = "Ubuntu"
     description = data.docker_registry_image.ubuntu.name
-    value = data.docker_registry_image.ubuntu.sha256_digest
+    value = trimprefix(data.docker_registry_image.ubuntu.sha256_digest, "sha256:")
   }
 
   option {
     name = "Centos"
     description = data.docker_registry_image.centos.name
-    value = data.docker_registry_image.centos.sha256_digest
+    value = trimprefix(data.docker_registry_image.centos.sha256_digest, "sha256:")
   }
 }
 

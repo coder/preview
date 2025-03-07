@@ -219,6 +219,17 @@ func Test_Extract(t *testing.T) {
 			params:      map[string]assertParam{},
 		},
 		{
+			name:        "dupeparams",
+			dir:         "dupeparams",
+			expTags:     map[string]string{},
+			failPreview: true, // duplicate parameters
+			input: preview.Input{
+				ParameterValues: map[string]string{},
+			},
+			unknownTags: []string{},
+			params:      map[string]assertParam{},
+		},
+		{
 			name:    "groups",
 			dir:     "groups",
 			expTags: map[string]string{},

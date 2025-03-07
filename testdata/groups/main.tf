@@ -14,6 +14,7 @@ output "groups" {
 
 data "coder_parameter" "groups" {
   name = "groups"
+  default = try(data.coder_workspace_owner.me.groups[0], "")
   dynamic "option" {
     for_each = data.coder_workspace_owner.me.groups
     content {

@@ -83,6 +83,10 @@ func convertKeyList[T any](vals map[string]any, key string, convert func(map[str
 		return list, nil
 	}
 
+	if value == nil {
+		return list, nil
+	}
+
 	elems, ok := value.([]any)
 	if !ok {
 		return list, fmt.Errorf("option is not a list, found %T", elems)
@@ -112,6 +116,24 @@ func parameterValidation(vals map[string]any) (*types.ParameterValidation, error
 		Min:       st.nullableInteger("min"),
 		Max:       st.nullableInteger("max"),
 		Monotonic: st.nullableString("monotonic"),
+	}
+
+	// The state may have zero values with these booleans.
+	if st.optionalBool("min_disabled") {
+		opt.Min = nil
+	}
+	if st.optionalBool("max_disabled") {
+		opt.Max = nil
+	}
+
+	// This is unfortunate, and unsure how to best resolve this.
+	// Zero values are actual <nil>
+	if opt.Regex != nil && *opt.Regex == "" {
+		opt.Regex = nil
+	}
+
+	if opt.Monotonic != nil && *opt.Monotonic == "" {
+		opt.Monotonic = nil
 	}
 
 	if len(st.errors) > 0 {

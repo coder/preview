@@ -1,6 +1,7 @@
 package extract
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
@@ -21,7 +22,9 @@ func (p *stateParse) optionalString(key string) string {
 }
 
 func (p *stateParse) optionalInteger(key string) int64 {
-	return optional[int64](p.values, key)
+	value := optional[json.Number](p.values, key)
+	i, _ := value.Int64()
+	return i
 }
 
 func (p *stateParse) optionalBool(key string) bool {
@@ -32,8 +35,9 @@ func (p *stateParse) nullableInteger(key string) *int64 {
 	if p.values[key] == nil {
 		return nil
 	}
-	v := optional[int64](p.values, key)
-	return &v
+	v := optional[json.Number](p.values, key)
+	i, _ := v.Int64()
+	return &i
 }
 
 func (p *stateParse) nullableString(key string) *string {

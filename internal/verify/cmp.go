@@ -34,6 +34,8 @@ func CompareParameters(t *testing.T, pr *preview.Output, values *tfjson.StateMod
 
 	types.SortParameters(stateParams)
 	types.SortParameters(pr.Parameters)
+	require.Len(t, pr.Parameters, len(stateParams), "number of parameters")
+
 	for i, param := range stateParams {
 		adata, err := json.Marshal(param)
 		require.NoError(t, err, "marshal parameter %q", param.Name)

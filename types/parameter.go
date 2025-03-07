@@ -1,17 +1,14 @@
 package types
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
-	"regexp"
 	"slices"
-	"strconv"
 	"strings"
 
 	"github.com/aquasecurity/trivy/pkg/iac/terraform"
 	"github.com/zclconf/go-cty/cty"
-	"golang.org/x/xerrors"
+
+	"github.com/coder/terraform-provider-coder/v2/provider"
 )
 
 // @typescript-ignore BlockTypeParameter
@@ -78,97 +75,20 @@ type ParameterValidation struct {
 	Monotonic *string `json:"validation_monotonic"`
 }
 
-// TODO: Match implementation from https://github.com/coder/terraform-provider-coder/blob/main/provider/parameter.go#L404-L462
-// TODO: Does the value have to be an option from the set of options?
-
 // Valid takes the type of the value and the value itself and returns an error
 // if the value is invalid.
 func (v ParameterValidation) Valid(typ, value string) error {
-	if typ != "number" {
-		var cannot []string
-		if v.Min != nil {
-			cannot = append(cannot, "min")
-		}
-
-		if v.Max != nil {
-			cannot = append(cannot, "max")
-		}
-
-		if v.Monotonic != nil {
-			cannot = append(cannot, "monotonic")
-		}
-
-		if len(cannot) == 1 {
-			return fmt.Errorf("field %q is not supported for the type %q", cannot[0], typ)
-		}
-
-		if len(cannot) > 1 {
-			return fmt.Errorf("fields [%s] are not supported for the type %q", strings.Join(cannot, ", "), typ)
-		}
-	}
-
-	if typ != "string" && v.Regex != nil {
-		return fmt.Errorf("field %q is not supported for the type %q", "regex", typ)
-	}
-
-	switch typ {
-	case "bool":
-		// Terraform boolean literals are "true" and "false" case-sensitive.
-		// Do not allow alternate casing.
-		if value != "true" && value != "false" {
-			return fmt.Errorf(`boolean value can be either "true" or "false"`)
-		}
-		return nil
-	case "string":
-		if v.Regex == nil {
-			return nil
-		}
-
-		exp, err := regexp.Compile(*v.Regex)
-		if err != nil {
-			return fmt.Errorf("compile regex %q: %s", *v.Regex, err)
-		}
-
-		if v.Error == "" {
-			return fmt.Errorf("an error must be specified with a regex validation")
-		}
-
-		matched := exp.MatchString(value)
-		if !matched {
-			return fmt.Errorf("%s (value %q does not match %q)", v.errorRendered(value), value, exp)
-		}
-	case "number":
-		num, err := strconv.ParseInt(value, 10, 64)
-		if err != nil {
-			return takeFirstError(v.errorRendered(value), fmt.Errorf("value %q is not a number", value))
-		}
-		if v.Min != nil && num < *v.Min {
-			return takeFirstError(v.errorRendered(value), fmt.Errorf("value %d is less than the minimum %d", num, v.Min))
-		}
-		if v.Max != nil && num > *v.Max {
-			return takeFirstError(v.errorRendered(value), fmt.Errorf("value %d is more than the maximum %d", num, v.Max))
-		}
-		if v.Monotonic != nil && *v.Monotonic != ValidationMonotonicIncreasing && *v.Monotonic != ValidationMonotonicDecreasing {
-			return fmt.Errorf("number monotonicity can be either %q or %q", ValidationMonotonicIncreasing, ValidationMonotonicDecreasing)
-		}
-	case "list(string)":
-		var listOfStrings []string
-		err := json.Unmarshal([]byte(value), &listOfStrings)
-		if err != nil {
-			return fmt.Errorf("value %q is not valid list of strings", value)
-		}
-	}
-
-	return nil
-}
-
-func (v ParameterValidation) errorRendered(value string) error {
-	r := strings.NewReplacer(
-		"{min}", fmt.Sprintf("%d", safeDeref(v.Min)),
-		"{max}", fmt.Sprintf("%d", safeDeref(v.Max)),
-		"{value}", value,
-	)
-	return errors.New(r.Replace(v.Error))
+	// Use the provider.Validation struct to validate the value to be
+	// consistent with the provider.
+	return (&provider.Validation{
+		Min:         int(orZero(v.Min)),
+		MinDisabled: v.Min == nil,
+		Max:         int(orZero(v.Max)),
+		MaxDisabled: v.Max == nil,
+		Monotonic:   orZero(v.Monotonic),
+		Regex:       orZero(v.Regex),
+		Error:       v.Error,
+	}).Valid(typ, value)
 }
 
 type ParameterOption struct {
@@ -195,19 +115,10 @@ func (r *RichParameter) CtyType() (cty.Type, error) {
 	}
 }
 
-func safeDeref[T any](v *T) T {
+func orZero[T any](v *T) T {
 	if v == nil {
 		var zero T
 		return zero
 	}
 	return *v
-}
-
-func takeFirstError(errs ...error) error {
-	for _, err := range errs {
-		if err != nil {
-			return err
-		}
-	}
-	return xerrors.Errorf("developer error: error message is not provided")
 }
