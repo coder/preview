@@ -310,7 +310,11 @@ func required(block *terraform.Block, keys ...string) hcl.Diagnostics {
 	var diags hcl.Diagnostics
 	for _, key := range keys {
 		attr := block.GetAttribute(key)
-		value, _ := attr.HCLAttribute().Expr.Value(block.Context().Inner())
+		value := cty.NilVal
+		if attr != nil {
+			value, _ = attr.HCLAttribute().Expr.Value(block.Context().Inner())
+		}
+
 		if attr == nil || attr.IsNil() || value == cty.NilVal {
 			r := block.HCLBlock().Body.MissingItemRange()
 			diags = diags.Append(&hcl.Diagnostic{

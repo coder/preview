@@ -2,24 +2,16 @@ package preview_test
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/zclconf/go-cty/cty/gocty"
 
 	"github.com/coder/preview"
 	"github.com/coder/preview/types"
 )
-
-func TestFoo(t *testing.T) {
-	ty, err := gocty.ImpliedType([]any{1, 2, 3})
-	require.NoError(t, err)
-	fmt.Println(ty.FriendlyName())
-}
 
 func Test_Extract(t *testing.T) {
 	t.Parallel()

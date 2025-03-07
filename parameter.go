@@ -26,12 +26,12 @@ func RichParameters(modules terraform.Modules) ([]types.Parameter, hcl.Diagnosti
 
 			if param != nil {
 				params = append(params, *param)
-			}
 
-			if _, ok := exists[param.Name]; !ok {
-				exists[param.Name] = make([]types.Parameter, 0)
+				if _, ok := exists[param.Name]; !ok {
+					exists[param.Name] = make([]types.Parameter, 0)
+				}
+				exists[param.Name] = append(exists[param.Name], *param)
 			}
-			exists[param.Name] = append(exists[param.Name], *param)
 		}
 	}
 

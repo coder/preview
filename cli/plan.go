@@ -49,7 +49,7 @@ func (r *RootCmd) TerraformPlan() *serpent.Command {
 			}
 
 			if !cmd.ProcessState.Success() {
-				return fmt.Errorf("terraform show not successful: %w", cmd.ProcessState)
+				return fmt.Errorf("terraform show not successful: %v", cmd.ProcessState)
 			}
 
 			var indented bytes.Buffer
