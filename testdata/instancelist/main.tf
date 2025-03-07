@@ -57,7 +57,8 @@ data "coder_parameter" "region" {
 }
 
 data "coder_parameter" "instance_type" {
-    name        = "Instance Type"
+    name = "instance_type"
+    display_name        = "Instance Type"
     description = "Which instance type would you like to use?"
     type        = "string"
     default     = local.limit_instance_types[0]

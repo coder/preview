@@ -18,12 +18,12 @@
             "provider_name": "registry.terraform.io/coder/coder",
             "schema_version": 0,
             "values": {
-              "default": "141d112217ea44f85a0319822be6499e03f37aa9f8ea2f04b21e6a2dcb5b859b",
+              "default": "b15ac50ce93fbdae93e39791c64fe77be508abdbf50e72d7c10d18e04983b3f7",
               "description": "The hash of the image",
               "display_name": "Hash",
               "ephemeral": false,
               "icon": null,
-              "id": "ebc752c9-a259-42e7-80f3-78cff9058be2",
+              "id": "cb27e58d-496b-4f49-97dc-c711b9b5f190",
               "mutable": false,
               "name": "hash",
               "option": null,
@@ -31,7 +31,7 @@
               "order": null,
               "type": "string",
               "validation": [],
-              "value": "141d112217ea44f85a0319822be6499e03f37aa9f8ea2f04b21e6a2dcb5b859b"
+              "value": "b15ac50ce93fbdae93e39791c64fe77be508abdbf50e72d7c10d18e04983b3f7"
             },
             "sensitive_values": {
               "validation": []
@@ -45,10 +45,10 @@
             "provider_name": "registry.terraform.io/kreuzwerker/docker",
             "schema_version": 0,
             "values": {
-              "id": "sha256:141d112217ea44f85a0319822be6499e03f37aa9f8ea2f04b21e6a2dcb5b859b",
+              "id": "sha256:b15ac50ce93fbdae93e39791c64fe77be508abdbf50e72d7c10d18e04983b3f7",
               "insecure_skip_verify": false,
               "name": "ghcr.io/coder/coder:latest",
-              "sha256_digest": "sha256:141d112217ea44f85a0319822be6499e03f37aa9f8ea2f04b21e6a2dcb5b859b"
+              "sha256_digest": "sha256:b15ac50ce93fbdae93e39791c64fe77be508abdbf50e72d7c10d18e04983b3f7"
             },
             "sensitive_values": {}
           }
@@ -114,7 +114,7 @@
       ]
     }
   },
-  "timestamp": "2025-03-04T17:01:55Z",
+  "timestamp": "2025-03-07T16:11:16Z",
   "applyable": false,
   "complete": true,
   "errored": false

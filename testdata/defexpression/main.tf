@@ -12,7 +12,6 @@ terraform {
 
 
 data "coder_parameter" "hash" {
-  # count       = 1
   name        = "hash"
   display_name = "Hash"
   description = "The hash of the image"

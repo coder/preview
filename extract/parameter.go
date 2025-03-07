@@ -53,6 +53,8 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 			DisplayName:  optionalString(block, "display_name"),
 			Order:        optionalInteger(block, "order"),
 			Ephemeral:    optionalBoolean(block, "ephemeral"),
+
+			Source: block,
 		},
 	}
 

@@ -11,7 +11,7 @@ module "dupe" {
 }
 
 data "coder_parameter" "dupe" {
-  name        = "Dupe Question"
+  name        = "dupe_question"
   description = "A question that will be duplicated"
   type        = "string"
   default     = "dupe"

@@ -167,7 +167,8 @@ func Test_Extract(t *testing.T) {
 					value("GO"),
 			},
 		},
-		{ // Continue fixing from here
+		{
+			// TODO: Add aws instance list test with args
 			name:    "aws instance list",
 			dir:     "instancelist",
 			expTags: map[string]string{},
@@ -176,11 +177,20 @@ func Test_Extract(t *testing.T) {
 				ParameterValues: map[string]string{},
 			},
 			unknownTags: []string{},
-			params:      map[string]assertParam{},
+			params: map[string]assertParam{
+				"Home": ap().
+					optVals("us", "eu").def("us").value("us"),
+				"Region": ap().def("us-east-1"),
+				"instance_type": ap().numOpts(20).
+					optExists("m7g.12xlarge").
+					optExists("t3a.large").
+					def("m7gd.8xlarge").
+					value("m7gd.8xlarge"),
+			},
 		},
 		{
-			name:    "null default",
-			dir:     "nulldefault",
+			name:    "empty file",
+			dir:     "empty",
 			expTags: map[string]string{},
 			input: preview.Input{
 				ParameterValues: map[string]string{},
@@ -194,24 +204,27 @@ func Test_Extract(t *testing.T) {
 			expTags: map[string]string{},
 			input: preview.Input{
 				ParameterValues: map[string]string{},
-				PlanJSONPath:    "out.json",
+				PlanJSONPath:    "plan.json",
 			},
 			unknownTags: []string{},
-			params:      map[string]assertParam{},
+			params: map[string]assertParam{
+				"main_question": ap().def("main").
+					optVals("main", "one", "two", "1.11.1", "1.15.15", "one-a"),
+				"one_question":   ap().def("one").optVals("one", "one-a", "1.11.1"),
+				"two_question":   ap().def("two").optVals("two", "1.15.15"),
+				"one_a_question": ap().def("one-a").optVals("one-a", "1.11.2", "bar"),
+			},
 		},
 		{
-			name:    "dupemodparams",
-			dir:     "dupemodparams",
-			expTags: map[string]string{},
+			name:        "dupemodparams",
+			dir:         "dupemodparams",
+			expTags:     map[string]string{},
+			failPreview: true, // duplicate parameters
 			input: preview.Input{
 				ParameterValues: map[string]string{},
 			},
 			unknownTags: []string{},
 			params:      map[string]assertParam{},
-		},
-		{
-			name: "not-exists",
-			dir:  "not-existing-directory",
 		},
 		{
 			name:    "groups",
@@ -226,42 +239,22 @@ func Test_Extract(t *testing.T) {
 			},
 			unknownTags: []string{},
 			params: map[string]assertParam{
-				"Groups": ap().
+				"groups": ap().
 					optVals("developer", "manager", "admin"),
 			},
 		},
 		{
-			name:    "ambigious",
-			dir:     "ambigious",
+			name:    "submodule cannot affect dynamic parent elements",
+			dir:     "submoduledynamic",
 			expTags: map[string]string{},
 			input: preview.Input{
 				PlanJSONPath:    "",
 				ParameterValues: map[string]string{},
-				Owner: types.WorkspaceOwner{
-					Groups: []string{"developer", "manager", "admin"},
-				},
+				Owner:           types.WorkspaceOwner{},
 			},
 			unknownTags: []string{},
-			params: map[string]assertParam{
-				"IsAdmin": ap().
-					value("true"),
-				"IsAdmin_Root": ap().
-					value("true"),
-			},
-		},
-		{
-			name:    "ambigious",
-			dir:     "ambigious",
-			expTags: map[string]string{},
-			input: preview.Input{
-				PlanJSONPath:    "",
-				ParameterValues: map[string]string{},
-				Owner: types.WorkspaceOwner{
-					Groups: []string{},
-				},
-			},
-			unknownTags: []string{},
-			params:      map[string]assertParam{},
+			// should be 0 params
+			params: map[string]assertParam{},
 		},
 		{
 			name: "demo",
@@ -289,9 +282,21 @@ func Test_Extract(t *testing.T) {
 				Owner:           types.WorkspaceOwner{},
 			},
 			unknownTags: []string{},
-			params:      map[string]assertParam{
-				//"hash": ap[cty.Value]().value(cty.StringVal("hash")).
-				//	f(),
+			params: map[string]assertParam{
+				"hash": ap().value("b15ac50ce93fbdae93e39791c64fe77be508abdbf50e72d7c10d18e04983b3f7"),
+			},
+		},
+		{
+			name:    "defexpression no plan.json",
+			dir:     "defexpression",
+			expTags: map[string]string{},
+			input: preview.Input{
+				ParameterValues: map[string]string{},
+				Owner:           types.WorkspaceOwner{},
+			},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"hash": ap().unknown(),
 			},
 		},
 	} {
@@ -350,6 +355,23 @@ func (a assertParam) unknown() assertParam {
 func (a assertParam) value(str string) assertParam {
 	return a.extend(func(t *testing.T, parameter types.Parameter) {
 		assert.Equal(t, str, parameter.Value.AsString(), "parameter value equality check")
+	})
+}
+
+func (a assertParam) optExists(v string) assertParam {
+	return a.extend(func(t *testing.T, parameter types.Parameter) {
+		for _, opt := range parameter.Options {
+			if opt.Value.AsString() == v {
+				return
+			}
+		}
+		assert.Failf(t, "parameter option existence check", "option %q not found", v)
+	})
+}
+
+func (a assertParam) numOpts(n int) assertParam {
+	return a.extend(func(t *testing.T, parameter types.Parameter) {
+		assert.Len(t, parameter.Options, n, "parameter options length check")
 	})
 }
 

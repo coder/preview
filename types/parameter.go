@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/aquasecurity/trivy/pkg/iac/terraform"
 	"github.com/zclconf/go-cty/cty"
 	"golang.org/x/xerrors"
 )
@@ -62,6 +63,9 @@ type RichParameter struct {
 	// legacy_variable_name was removed (= 14)
 	Order     int64 `json:"order"`
 	Ephemeral bool  `json:"ephemeral"`
+
+	// Unexported fields, not always available.
+	Source *terraform.Block `json:"-"`
 }
 
 type ParameterValidation struct {

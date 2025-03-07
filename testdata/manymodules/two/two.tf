@@ -11,7 +11,8 @@ locals {
 }
 
 data "coder_parameter" "twoquestion" {
-  name        = "Two Question"
+  name = "two_question"
+  display_name = "Two Question"
   description = "From module 2"
   type        = "string"
   default     = local.foo

@@ -11,7 +11,8 @@ locals {
 }
 
 data "coder_parameter" "one-a-question" {
-  name        = "One A Question"
+  name       = "one_a_question"
+  display_name = "One A Question"
   description = "From module 1, sub A"
   type        = "string"
   default     = local.foo
@@ -22,7 +23,7 @@ data "coder_parameter" "one-a-question" {
   }
 
   option {
-    name  = "Terraform"
+    name  = "Packer"
     value = jsondecode(data.http.packer.response_body).current_version
   }
 
