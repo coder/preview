@@ -20,12 +20,12 @@
             "values": {
               "default": "main",
               "description": "From module 2",
-              "display_name": null,
+              "display_name": "Main Question",
               "ephemeral": false,
               "icon": null,
-              "id": "653a8346-a556-47f6-9d2a-9646652d3cb3",
+              "id": "9267b281-a9fa-46b6-987a-e0309d1a20f7",
               "mutable": false,
-              "name": "Main Question",
+              "name": "main_question",
               "option": [
                 {
                   "description": "",
@@ -49,7 +49,7 @@
                   "description": "",
                   "icon": "",
                   "name": "Terraform",
-                  "value": "1.10.5"
+                  "value": "1.11.1"
                 },
                 {
                   "description": "",
@@ -96,12 +96,12 @@
                 "values": {
                   "default": "one",
                   "description": "From module 1",
-                  "display_name": null,
+                  "display_name": "One Question",
                   "ephemeral": false,
                   "icon": null,
-                  "id": "a695a7a8-a7a7-409a-aee1-5e96855333d1",
+                  "id": "d64d7f9e-3387-493b-9b2d-b7d16c2b7672",
                   "mutable": false,
-                  "name": "One Question",
+                  "name": "one_question",
                   "option": [
                     {
                       "description": "",
@@ -119,7 +119,7 @@
                       "description": "",
                       "icon": "",
                       "name": "Terraform",
-                      "value": "1.10.5"
+                      "value": "1.11.1"
                     }
                   ],
                   "optional": true,
@@ -145,7 +145,7 @@
                 "provider_name": "registry.terraform.io/hashicorp/http",
                 "schema_version": 0,
                 "values": {
-                  "body": "{\"product\":\"terraform\",\"current_version\":\"1.10.5\",\"current_release\":1737574371,\"current_download_url\":\"https://releases.hashicorp.com/terraform/1.10.5\",\"current_changelog_url\":\"https://github.com/hashicorp/terraform/blob/v1.10.5/CHANGELOG.md\",\"project_website\":\"https://www.terraform.io\",\"alerts\":[]}",
+                  "body": "{\"product\":\"terraform\",\"current_version\":\"1.11.1\",\"current_release\":1741182992,\"current_download_url\":\"https://releases.hashicorp.com/terraform/1.11.1\",\"current_changelog_url\":\"https://github.com/hashicorp/terraform/blob/v1.11.1/CHANGELOG.md\",\"project_website\":\"https://www.terraform.io\",\"alerts\":[]}",
                   "ca_cert_pem": null,
                   "id": "https://checkpoint-api.hashicorp.com/v1/check/terraform",
                   "insecure": null,
@@ -155,8 +155,8 @@
                     "Accept": "application/json"
                   },
                   "request_timeout_ms": null,
-                  "response_body": "{\"product\":\"terraform\",\"current_version\":\"1.10.5\",\"current_release\":1737574371,\"current_download_url\":\"https://releases.hashicorp.com/terraform/1.10.5\",\"current_changelog_url\":\"https://github.com/hashicorp/terraform/blob/v1.10.5/CHANGELOG.md\",\"project_website\":\"https://www.terraform.io\",\"alerts\":[]}",
-                  "response_body_base64": "eyJwcm9kdWN0IjoidGVycmFmb3JtIiwiY3VycmVudF92ZXJzaW9uIjoiMS4xMC41IiwiY3VycmVudF9yZWxlYXNlIjoxNzM3NTc0MzcxLCJjdXJyZW50X2Rvd25sb2FkX3VybCI6Imh0dHBzOi8vcmVsZWFzZXMuaGFzaGljb3JwLmNvbS90ZXJyYWZvcm0vMS4xMC41IiwiY3VycmVudF9jaGFuZ2Vsb2dfdXJsIjoiaHR0cHM6Ly9naXRodWIuY29tL2hhc2hpY29ycC90ZXJyYWZvcm0vYmxvYi92MS4xMC41L0NIQU5HRUxPRy5tZCIsInByb2plY3Rfd2Vic2l0ZSI6Imh0dHBzOi8vd3d3LnRlcnJhZm9ybS5pbyIsImFsZXJ0cyI6W119",
+                  "response_body": "{\"product\":\"terraform\",\"current_version\":\"1.11.1\",\"current_release\":1741182992,\"current_download_url\":\"https://releases.hashicorp.com/terraform/1.11.1\",\"current_changelog_url\":\"https://github.com/hashicorp/terraform/blob/v1.11.1/CHANGELOG.md\",\"project_website\":\"https://www.terraform.io\",\"alerts\":[]}",
+                  "response_body_base64": "eyJwcm9kdWN0IjoidGVycmFmb3JtIiwiY3VycmVudF92ZXJzaW9uIjoiMS4xMS4xIiwiY3VycmVudF9yZWxlYXNlIjoxNzQxMTgyOTkyLCJjdXJyZW50X2Rvd25sb2FkX3VybCI6Imh0dHBzOi8vcmVsZWFzZXMuaGFzaGljb3JwLmNvbS90ZXJyYWZvcm0vMS4xMS4xIiwiY3VycmVudF9jaGFuZ2Vsb2dfdXJsIjoiaHR0cHM6Ly9naXRodWIuY29tL2hhc2hpY29ycC90ZXJyYWZvcm0vYmxvYi92MS4xMS4xL0NIQU5HRUxPRy5tZCIsInByb2plY3Rfd2Vic2l0ZSI6Imh0dHBzOi8vd3d3LnRlcnJhZm9ybS5pbyIsImFsZXJ0cyI6W119",
                   "response_headers": {
                     "Access-Control-Allow-Headers": "Accept, Cache-Control, X-Requested-With, Content-Type",
                     "Access-Control-Allow-Methods": "GET, OPTIONS",
@@ -165,10 +165,10 @@
                     "Connection": "keep-alive",
                     "Content-Length": "300",
                     "Content-Type": "application/json",
-                    "Date": "Fri, 14 Feb 2025 16:11:13 GMT",
-                    "Via": "1.1 ec7b06429be1c7c502aa30576c8d24c2.cloudfront.net (CloudFront)",
-                    "X-Amz-Cf-Id": "cPxHIWr8PivJ0r36GeVPYzjQHP7RBb2L1a833LDNEIfNNmU9O2r6KQ==",
-                    "X-Amz-Cf-Pop": "DFW57-P5",
+                    "Date": "Fri, 07 Mar 2025 19:03:58 GMT",
+                    "Via": "1.1 d0d601bbf0821b7fe380f6619ce78e6c.cloudfront.net (CloudFront)",
+                    "X-Amz-Cf-Id": "8UdqmdqSlvQMaVNZkR3eTCqxKeRT5sI90EgOB-z3kUlvqPjHO4TM8g==",
+                    "X-Amz-Cf-Pop": "MCI50-P3",
                     "X-Cache": "Miss from cloudfront"
                   },
                   "retry": null,
@@ -195,12 +195,12 @@
                     "values": {
                       "default": "one-a",
                       "description": "From module 1, sub A",
-                      "display_name": null,
+                      "display_name": "One A Question",
                       "ephemeral": false,
                       "icon": null,
-                      "id": "bb461d25-32b1-4d27-8a3d-dab8b6a7ce01",
+                      "id": "e33a92b9-b6fc-4d12-9a24-3d306af5083a",
                       "mutable": false,
-                      "name": "One A Question",
+                      "name": "one_a_question",
                       "option": [
                         {
                           "description": "",
@@ -211,8 +211,14 @@
                         {
                           "description": "",
                           "icon": "",
-                          "name": "Terraform",
+                          "name": "Packer",
                           "value": "1.11.2"
+                        },
+                        {
+                          "description": "",
+                          "icon": "",
+                          "name": "NullResource",
+                          "value": "bar"
                         }
                       ],
                       "optional": true,
@@ -223,6 +229,7 @@
                     },
                     "sensitive_values": {
                       "option": [
+                        {},
                         {},
                         {}
                       ],
@@ -258,10 +265,10 @@
                         "Connection": "keep-alive",
                         "Content-Length": "303",
                         "Content-Type": "application/json",
-                        "Date": "Fri, 14 Feb 2025 16:11:13 GMT",
-                        "Via": "1.1 bf9e5565039f7e32c47e53e1895197ba.cloudfront.net (CloudFront)",
-                        "X-Amz-Cf-Id": "QeVQJ7TDBCdqA05XaJMB-jUdqEg2QCV0cEDu71tVRuNlJnlStiYo-g==",
-                        "X-Amz-Cf-Pop": "DFW57-P5",
+                        "Date": "Fri, 07 Mar 2025 19:03:58 GMT",
+                        "Via": "1.1 9b2220befd8b5327077097335b6862f4.cloudfront.net (CloudFront)",
+                        "X-Amz-Cf-Id": "aaoJjU2RN71GDI030eyoW1csl2uC_lhk6YQaHbiD6seN7Iv62WcHqQ==",
+                        "X-Amz-Cf-Pop": "MCI50-P3",
                         "X-Cache": "Miss from cloudfront"
                       },
                       "retry": null,
@@ -289,7 +296,7 @@
                       "outputs": {
                         "foo": "bar"
                       },
-                      "random": "4176718139949707995"
+                      "random": "3031638891330809551"
                     },
                     "sensitive_values": {
                       "inputs": {},
@@ -313,12 +320,12 @@
                 "values": {
                   "default": "two",
                   "description": "From module 2",
-                  "display_name": null,
+                  "display_name": "Two Question",
                   "ephemeral": false,
                   "icon": null,
-                  "id": "cdb4156d-e3b3-4975-a392-4d1f97084f3b",
+                  "id": "154446fa-d795-44ff-a623-ced7672b7238",
                   "mutable": false,
-                  "name": "Two Question",
+                  "name": "two_question",
                   "option": [
                     {
                       "description": "",
@@ -375,10 +382,10 @@
                     "Connection": "keep-alive",
                     "Content-Length": "293",
                     "Content-Type": "application/json",
-                    "Date": "Fri, 14 Feb 2025 16:11:13 GMT",
-                    "Via": "1.1 220f793ecf40dd176c72c476d8fd2296.cloudfront.net (CloudFront)",
-                    "X-Amz-Cf-Id": "THcfeOGzpfqzCCgXqVDYXvW4QrXNLh_NRrJX_bJ8gTcAyzy3SkozLw==",
-                    "X-Amz-Cf-Pop": "DFW57-P5",
+                    "Date": "Fri, 07 Mar 2025 19:03:58 GMT",
+                    "Via": "1.1 d8de853718c0ce94813e0f6ecef81ac4.cloudfront.net (CloudFront)",
+                    "X-Amz-Cf-Id": "g1a_KLhLku3BmQqfCkUXyK1YMUEWTIlEvyNi0gOb3u-OrrcksKV2Uw==",
+                    "X-Amz-Cf-Pop": "MCI50-P3",
                     "X-Cache": "Miss from cloudfront"
                   },
                   "retry": null,
@@ -436,8 +443,11 @@
             "description": {
               "constant_value": "From module 2"
             },
-            "name": {
+            "display_name": {
               "constant_value": "Main Question"
+            },
+            "name": {
+              "constant_value": "main_question"
             },
             "option": [
               {
@@ -558,8 +568,11 @@
                   "description": {
                     "constant_value": "From module 1"
                   },
-                  "name": {
+                  "display_name": {
                     "constant_value": "One Question"
+                  },
+                  "name": {
+                    "constant_value": "one_question"
                   },
                   "option": [
                     {
@@ -657,8 +670,11 @@
                         "description": {
                           "constant_value": "From module 1, sub A"
                         },
-                        "name": {
+                        "display_name": {
                           "constant_value": "One A Question"
+                        },
+                        "name": {
+                          "constant_value": "one_a_question"
                         },
                         "option": [
                           {
@@ -673,12 +689,24 @@
                           },
                           {
                             "name": {
-                              "constant_value": "Terraform"
+                              "constant_value": "Packer"
                             },
                             "value": {
                               "references": [
                                 "data.http.packer.response_body",
                                 "data.http.packer"
+                              ]
+                            }
+                          },
+                          {
+                            "name": {
+                              "constant_value": "NullResource"
+                            },
+                            "value": {
+                              "references": [
+                                "data.null_data_source.values.outputs[\"foo\"]",
+                                "data.null_data_source.values.outputs",
+                                "data.null_data_source.values"
                               ]
                             }
                           }
@@ -766,8 +794,11 @@
                   "description": {
                     "constant_value": "From module 2"
                   },
-                  "name": {
+                  "display_name": {
                     "constant_value": "Two Question"
+                  },
+                  "name": {
+                    "constant_value": "two_question"
                   },
                   "option": [
                     {
@@ -824,12 +855,6 @@
   },
   "relevant_attributes": [
     {
-      "resource": "module.two.data.http.consul",
-      "attribute": [
-        "response_body"
-      ]
-    },
-    {
       "resource": "module.one.data.http.terraform",
       "attribute": [
         "response_body"
@@ -840,9 +865,15 @@
       "attribute": [
         "response_body"
       ]
+    },
+    {
+      "resource": "module.two.data.http.consul",
+      "attribute": [
+        "response_body"
+      ]
     }
   ],
-  "timestamp": "2025-02-14T16:11:12Z",
+  "timestamp": "2025-03-07T19:03:58Z",
   "applyable": false,
   "complete": true,
   "errored": false

@@ -17,6 +17,7 @@ func Test_Extract(t *testing.T) {
 	t.Parallel()
 
 	for _, tc := range []struct {
+		skip        string
 		name        string
 		dir         string
 		failPreview bool
@@ -260,6 +261,7 @@ func Test_Extract(t *testing.T) {
 			params: map[string]assertParam{},
 		},
 		{
+			skip: "Broken until https://github.com/aquasecurity/trivy/pull/8479 fixed",
 			name: "demo",
 			dir:  "demo",
 			expTags: map[string]string{
@@ -305,6 +307,10 @@ func Test_Extract(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+			if tc.skip != "" {
+				t.Skip(tc.skip)
+			}
+
 			if tc.unknownTags == nil {
 				tc.unknownTags = []string{}
 			}
