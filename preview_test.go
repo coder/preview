@@ -304,6 +304,19 @@ func Test_Extract(t *testing.T) {
 				"hash": ap().unknown(),
 			},
 		},
+		{
+			name:    "cyclical",
+			dir:     "cyclical",
+			expTags: map[string]string{},
+			input: preview.Input{
+				ParameterValues: map[string]string{},
+			},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"alpha": ap().unknown(),
+				"beta":  ap().unknown(),
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
