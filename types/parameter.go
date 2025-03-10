@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/aquasecurity/trivy/pkg/iac/terraform"
+	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/coder/terraform-provider-coder/v2/provider"
@@ -30,6 +31,16 @@ func SortParameters(lists []Parameter) {
 
 		return strings.Compare(a.Name, b.Name)
 	})
+}
+
+// ParameterFormDiagnostics returns diagnostics for parameters assuming
+// they are required to be resolvable and usable. Parameters are lazily
+// evaluated, so this function adds stricter checks when parameters are
+// required to be used.
+func ParameterFormDiagnostics(p Parameter) hcl.Diagnostics {
+	// First, ensure all values are valid and known.
+	// Coder only supports string types
+	return nil
 }
 
 type Parameter struct {

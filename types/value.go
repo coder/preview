@@ -49,7 +49,20 @@ func StringLiteral(s string) HCLString {
 // calling this function.
 func (s HCLString) AsString() string {
 	if s.Valid() && s.Value.IsKnown() {
-		return s.Value.AsString()
+		switch {
+		case s.Value.Type().Equals(cty.String):
+			return s.Value.AsString()
+		case s.Value.Type().Equals(cty.Number):
+			// TODO: Float vs Int?
+			return s.Value.AsBigFloat().String()
+		case s.Value.Type().Equals(cty.Bool):
+			if s.Value.True() {
+				return "true"
+			}
+			return "false"
+		default:
+			// ?? What to do?
+		}
 	}
 
 	if s.Source != nil {
@@ -68,7 +81,10 @@ func (s HCLString) Valid() bool {
 		return false
 	}
 
-	if !s.Value.Type().Equals(cty.String) {
+	// TODO: Terraform seems to automatically cast these into strings?
+	if !(s.Value.Type().Equals(cty.String) ||
+		s.Value.Type().Equals(cty.Number) ||
+		s.Value.Type().Equals(cty.Bool)) {
 		return false
 	}
 

@@ -22,6 +22,7 @@ data "coder_parameter" "region" {
   description = "Which region would you like to deploy to?"
   type        = "string"
   default     = "us"
+  order       = 1
 
   option {
     name  = "Europe"
@@ -31,4 +32,12 @@ data "coder_parameter" "region" {
     name  = "United States"
     value = "us"
   }
+}
+
+data "coder_parameter" "numerical" {
+  name        = "numerical"
+  description = "Numerical parameter"
+  type        = "number"
+  default     = 5
+  order       = 2
 }

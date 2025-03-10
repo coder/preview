@@ -81,7 +81,7 @@ func (r *RootCmd) WebsocketServer() *serpent.Command {
 				Flag:     "pnpm",
 				Default:  "",
 				Value:    serpent.StringOf(&siteDir),
-				Hidden:   true,
+				Hidden:   false,
 			},
 			{
 				Name:        "dir",
@@ -90,7 +90,7 @@ func (r *RootCmd) WebsocketServer() *serpent.Command {
 				Flag:        "dir",
 				Default:     "testdata",
 				Value:       serpent.StringOf(&dataDir),
-				Hidden:      true,
+				Hidden:      false,
 			},
 		},
 		// This command is mainly for developing the preview tool.

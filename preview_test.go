@@ -43,6 +43,7 @@ func Test_Extract(t *testing.T) {
 				"Region": ap().value("us").
 					def("us").
 					optVals("us", "eu"),
+				"numerical": ap().value("5"),
 			},
 		},
 		{
