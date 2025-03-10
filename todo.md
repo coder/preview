@@ -4,7 +4,7 @@
 
 - Dynamic parameter names? A parameter's name can change. Should we throw a warning if it is not static?
 - [18](https://github.com/coder/preview/issues/18) `terraform init` not run before a `preview` fails to load a module. Should this prevent a preview?
-- Providing input values for parameters that does not exist should return a warning.
+- [29](https://github.com/coder/preview/issues/29) Providing input values for parameters that does not exist should return a warning.
 - Unresolved modules should throw an error/warning that the preview is incomplete.
 - 2 options with the same value should throw an error.
 

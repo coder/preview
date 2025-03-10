@@ -69,7 +69,19 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 		p.Options = append(p.Options, &opt)
 	}
 
+	validBlocks := block.GetBlocks("validation")
+	if len(validBlocks) > 1 {
+		diags = diags.Append(&hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  "Multiple 'validation' blocks found",
+			Detail:   "Only one validation block is allowed",
+			Subject:  &validBlocks[0].HCLBlock().TypeRange,
+			Context:  &validBlocks[0].HCLBlock().DefRange,
+		})
+	}
+
 	for _, b := range block.GetBlocks("validation") {
+		// TODO: Only parse if only 1 valid block exists
 		valid, validDiags := ParameterValidationFromBlock(b)
 		diags = diags.Extend(validDiags)
 
@@ -114,10 +126,52 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 		}
 	}
 
+	// Parameter usage diags are useful.
+	usageDiags := ParameterUsageDiagnostics(p)
+	if usageDiags.HasErrors() {
+		p.FormControl = types.FormControlError
+	}
+	diags = diags.Extend(usageDiags)
+
 	// Diagnostics are scoped to the parameter
 	p.Diagnostics = types.Diagnostics(diags)
 
 	return &p, nil
+}
+
+func ParameterUsageDiagnostics(p types.Parameter) hcl.Diagnostics {
+	valErr := "The value of a parameter is required to be sourced (default or input) for the parameter to function."
+	var diags hcl.Diagnostics
+	if !p.Value.Valid() {
+		diags = diags.Append(&hcl.Diagnostic{
+			Severity:   hcl.DiagError,
+			Summary:    "Parameter value is not valid",
+			Detail:     valErr,
+			Expression: p.Value.ValueExpr,
+		})
+	} else if !p.Value.IsKnown() {
+		diags = diags.Append(&hcl.Diagnostic{
+			Severity:   hcl.DiagError,
+			Summary:    "Parameter value is unknown, it likely includes a reference without a value",
+			Detail:     valErr,
+			Expression: p.Value.ValueExpr,
+		})
+	}
+
+	var badOpts int
+	for _, opt := range p.Options {
+		if !opt.Value.IsKnown() || !opt.Value.Valid() {
+			badOpts++
+		}
+	}
+
+	diags = diags.Append(&hcl.Diagnostic{
+		Severity: hcl.DiagError,
+		Summary:  fmt.Sprintf("Parameter contains %d invalid options", badOpts),
+		Detail:   "The set of options cannot be resolved, and use of the parameter is limited.",
+	})
+
+	return diags
 }
 
 func ParameterValidationFromBlock(block *terraform.Block) (types.ParameterValidation, hcl.Diagnostics) {
