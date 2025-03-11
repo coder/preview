@@ -11,52 +11,23 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectI
 import { Input } from "./components/Input/Input";
 import { Switch } from "./components/Switch/Switch";
 import { useUsers } from './hooks/useUsers';
+import { useDirectories } from './hooks/useDirectories';
 
 export function DynamicForm() {
-  const [testdata, setTestdata] = useState<string>("conditional");
-  const [directories, setDirectories] = useState<string[]>([]);
-  const [user, setUser] = useState<string>("");
-  const [usePlan, setUsePlan] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  
   const serverAddress = "localhost:8100";
   
-  // Fetch directories when component mounts
-  useEffect(() => {
-    setIsLoading(true);
-    setFetchError(null);
-    
-    // Use mode: 'cors' explicitly and add credentials if needed
-    fetch(`http://${serverAddress}/directories`, {
-      mode: 'cors',
-      headers: {
-        'Accept': 'application/json'
-      }
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Failed to fetch directories: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        setDirectories(data);
-        // If testdata is not in the list of directories, set it to the first directory
-        if (data.length > 0 && !data.includes(testdata)) {
-          setTestdata(data[0]);
-        }
-        setIsLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching directories:', error);
-        setFetchError(error.message);
-        // Fallback to some default directories if fetch fails
-        setDirectories(["conditional"]);
-        setIsLoading(false);
-      });
-  }, []);
-
+  // Use the custom hook to fetch directories
+  const { 
+    directories, 
+    testdata, 
+    setTestdata, 
+    isLoading, 
+    fetchError 
+  } = useDirectories(serverAddress, "conditional");
+  
+  const [user, setUser] = useState<string>("");
+  const [usePlan, setUsePlan] = useState<boolean>(false);
+  
   // Use the custom hook to fetch users
   const { 
     users, 
