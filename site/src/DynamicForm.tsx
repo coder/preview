@@ -10,11 +10,11 @@ import {
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "./components/Select/Select";
 import { Input } from "./components/Input/Input";
 import { Switch } from "./components/Switch/Switch";
+import { useUsers } from './hooks/useUsers';
 
 export function DynamicForm() {
   const [testdata, setTestdata] = useState<string>("conditional");
   const [directories, setDirectories] = useState<string[]>([]);
-  const [users, setUsers] = useState<Record<string, { groups: string[] }>>({});
   const [user, setUser] = useState<string>("");
   const [usePlan, setUsePlan] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -57,34 +57,12 @@ export function DynamicForm() {
       });
   }, []);
 
-  useEffect(() => {
-    setIsLoading(true);
-    setFetchError(null);
-    
-    fetch(`http://${serverAddress}/users/${testdata}`, {
-      mode: 'cors',
-      headers: {
-        'Accept': 'application/json'
-      }
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        setUsers(data);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching users:', error);
-        setFetchError(error.message);
-        // Fallback to some default directories if fetch fails
-        // setDirectories(["conditional"]);
-        setIsLoading(false);
-      });
-  }, [testdata]);
+  // Use the custom hook to fetch users
+  const { 
+    users, 
+    isLoading: usersLoading, 
+    fetchError: usersFetchError 
+  } = useUsers(serverAddress, testdata);
   
   const planPath = "plan.json";
   const wsUrl = `ws://${serverAddress}/ws/${encodeURIComponent(testdata)}?${usePlan ? `plan=${encodeURIComponent(planPath)}&` : ''}${user ? `user=${encodeURIComponent(user)}` : ''}`;
