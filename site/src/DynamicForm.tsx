@@ -15,30 +15,75 @@ import { useDirectories } from './hooks/useDirectories';
 
 export function DynamicForm() {
   const serverAddress = "localhost:8100";
-  
-  // Use the custom hook to fetch directories
+  const [user, setUser] = useState<string>("");
+  const [plan, setPlan] = useState<string>("");
+  const [urlTestdata, setUrlTestdata] = useState<string>("");
+
+  // Function to read URL parameters and update state
+  const updateStateFromURL = () => {
+    const params = new URLSearchParams(window.location.search);
+    const testdataParam = params.get('testdata') ?? "conditional";
+    const planParam = params.get('plan');
+    const userParam = params.get('user');
+
+    setUrlTestdata(testdataParam);
+    if (userParam) setUser(userParam);
+    if (planParam) setPlan(planParam);
+  };
+
+  // Read URL parameters on component mount
+  useEffect(() => {
+    updateStateFromURL();
+  }, []);
+
   const { 
     directories, 
-    testdata, 
-    setTestdata, 
+    // testdata, 
+    // setTestdata, 
     isLoading, 
     fetchError 
-  } = useDirectories(serverAddress, "conditional");
+  } = useDirectories(serverAddress, urlTestdata);
   
-  const [user, setUser] = useState<string>("");
-  const [usePlan, setUsePlan] = useState<boolean>(false);
+  const handleTestdataChange = (value: string) => {
+    const params = new URLSearchParams(window.location.search);
+    params.set('testdata', value);
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState({}, '', newUrl);
+    setUrlTestdata(value);
+    setPlan("");
+    setUser("");
+    setResponse(null);
+  };
   
-  // Use the custom hook to fetch users
   const { 
     users, 
     isLoading: usersLoading, 
     fetchError: usersFetchError 
-  } = useUsers(serverAddress, testdata);
+  } = useUsers(serverAddress, urlTestdata);
   
-  const planPath = "plan.json";
-  const wsUrl = `ws://${serverAddress}/ws/${encodeURIComponent(testdata)}?${usePlan ? `plan=${encodeURIComponent(planPath)}&` : ''}${user ? `user=${encodeURIComponent(user)}` : ''}`;
+  // Update URL when user or usePlan changes
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    
+    if (plan) {
+      params.set('plan', plan);
+    } else {
+      params.delete('plan');
+    }
+    
+    if (user) {
+      params.set('user', user);
+    } else {
+      params.delete('user');
+    }
+    
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState({}, '', newUrl);
+  }, [user, plan]);
 
-  const { message: serverResponse, sendMessage, connectionStatus } = useWebSocket<Response>(wsUrl);
+  const wsUrl = `ws://${serverAddress}/ws/${encodeURIComponent(urlTestdata)}?${plan ? `plan=${encodeURIComponent(plan)}&` : ''}${user ? `user=${encodeURIComponent(user)}` : ''}`;
+
+  const { message: serverResponse, sendMessage, connectionStatus } = useWebSocket<Response>(wsUrl, urlTestdata);
 
   const [response, setResponse] = useState<Response | null>(null);
   const [currentId, setCurrentId] = useState<number>(0);
@@ -241,19 +286,14 @@ export function DynamicForm() {
     return <div>Loading form...</div>;
   }
 
-  const sortedParams = [...response.parameters].sort((a, b) => a.order - b.order);
+  const sortedParams = response.parameters ? [...response.parameters].sort((a, b) => a.order - b.order) : [];
 
   return (
     <div className="flex flex-col gap-12">
       <div className="flex flex-row gap-4">
           <Select
-            onValueChange={(value) => {
-              setTestdata(value);
-              // Reset response when changing testdata to avoid showing stale data
-              setResponse(null);
-            }}
-            value={testdata}
-            defaultValue={testdata}
+            onValueChange={handleTestdataChange}
+            value={urlTestdata}
           >
             <SelectTrigger className="w-fit">
               <SelectValue />
@@ -294,8 +334,8 @@ export function DynamicForm() {
           <span className="flex flex-row gap-2 items-center">
             Use Plan
             <Switch
-              checked={usePlan}
-              onCheckedChange={setUsePlan}
+              checked={plan !== ""}
+              onCheckedChange={() => setPlan(plan !== "" ? "" : "plan.json")}
 						/>
           </span>
       </div>

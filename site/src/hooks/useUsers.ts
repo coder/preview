@@ -13,27 +13,29 @@ export function useUsers(serverAddress: string, testdata: string) {
     setIsLoading(true);
     setFetchError(null);
     
-    fetch(`http://${serverAddress}/users/${testdata}`, {
-      mode: 'cors',
-      headers: {
-        'Accept': 'application/json'
-      }
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`);
+    if (testdata !== "") {
+      fetch(`http://${serverAddress}/users/${testdata}`, {
+        mode: 'cors',
+        headers: {
+          'Accept': 'application/json'
         }
-        return response.json();
       })
-      .then(data => {
-        setUsers(data);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching users:', error);
-        setFetchError(error.message);
-        setIsLoading(false);
-      });
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          setUsers(data);
+          setIsLoading(false);
+        })
+        .catch(error => {
+          console.error('Error fetching users:', error);
+          setFetchError(error.message);
+          setIsLoading(false);
+        });
+    }
   }, [serverAddress, testdata]);
 
   return { users, isLoading, fetchError };

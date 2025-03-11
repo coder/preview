@@ -1,7 +1,7 @@
 // useWebSocket.ts
 import { useEffect, useRef, useState, useCallback } from "react";
 
-export function useWebSocket<T>(url: string, reconnectDelay = 3000) {
+export function useWebSocket<T>(url: string, testdata: string, reconnectDelay = 3000) {
   const [message, setMessage] = useState<T | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
   const wsRef = useRef<WebSocket | null>(null);
@@ -64,6 +64,9 @@ export function useWebSocket<T>(url: string, reconnectDelay = 3000) {
   }, [reconnectDelay]); // Only depends on reconnectDelay, not url
 
   useEffect(() => {
+    if (!testdata) {
+      return;
+    }
     // Close any existing connection when the URL changes
     if (wsRef.current) {
       wsRef.current.close();
@@ -79,7 +82,7 @@ export function useWebSocket<T>(url: string, reconnectDelay = 3000) {
         window.clearTimeout(reconnectTimeoutRef.current);
       }
     };
-  }, [url, connectWebSocket]); // Reconnect when URL changes
+  }, [url, testdata, connectWebSocket]); // Reconnect when URL changes
 
   const sendMessage = (data: unknown) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
