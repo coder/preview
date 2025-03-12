@@ -165,11 +165,13 @@ func ParameterUsageDiagnostics(p types.Parameter) hcl.Diagnostics {
 		}
 	}
 
-	diags = diags.Append(&hcl.Diagnostic{
-		Severity: hcl.DiagError,
-		Summary:  fmt.Sprintf("Parameter contains %d invalid options", badOpts),
-		Detail:   "The set of options cannot be resolved, and use of the parameter is limited.",
-	})
+	if badOpts > 0 {
+		diags = diags.Append(&hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("Parameter contains %d invalid options", badOpts),
+			Detail:   "The set of options cannot be resolved, and use of the parameter is limited.",
+		})
+	}
 
 	return diags
 }
