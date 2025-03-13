@@ -7,6 +7,7 @@ import (
 	tfjson "github.com/hashicorp/terraform-json"
 
 	"github.com/coder/preview/types"
+	"github.com/coder/terraform-provider-coder/v2/provider"
 )
 
 func ParametersFromState(state *tfjson.StateModule) ([]types.Parameter, error) {
@@ -53,12 +54,13 @@ func ParameterFromState(block *tfjson.StateResource) (types.Parameter, error) {
 
 	param := types.Parameter{
 		Value: types.StringLiteral(st.string("value")),
-		RichParameter: types.RichParameter{
+		ParameterData: types.ParameterData{
 			Name:         st.string("name"),
 			Description:  st.optionalString("description"),
 			Type:         types.ParameterType(st.optionalString("type")),
+			FormType:     provider.ParameterFormType(st.optionalString("form_type")),
 			Mutable:      st.optionalBool("mutable"),
-			DefaultValue: st.optionalString("default"),
+			DefaultValue: types.StringLiteral(st.optionalString("default")),
 			Icon:         st.optionalString("icon"),
 			Options:      options,
 			Validations:  validations,

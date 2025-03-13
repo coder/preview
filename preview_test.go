@@ -11,6 +11,7 @@ import (
 
 	"github.com/coder/preview"
 	"github.com/coder/preview/types"
+	"github.com/coder/terraform-provider-coder/v2/provider"
 )
 
 func Test_Extract(t *testing.T) {
@@ -40,9 +41,10 @@ func Test_Extract(t *testing.T) {
 			},
 			unknownTags: []string{},
 			params: map[string]assertParam{
-				"Region": ap().value("us").
+				"region": ap().value("us").
 					def("us").
-					optVals("us", "eu"),
+					optVals("us", "eu").
+					formType(provider.ParameterFormTypeRadio),
 				"numerical": ap().value("5"),
 			},
 		},
@@ -367,6 +369,12 @@ type assertParam func(t *testing.T, parameter types.Parameter)
 
 func ap() assertParam {
 	return func(t *testing.T, parameter types.Parameter) {}
+}
+
+func (a assertParam) formType(exp provider.ParameterFormType) assertParam {
+	return a.extend(func(t *testing.T, parameter types.Parameter) {
+		assert.Equal(t, exp, parameter.FormType, "parameter form type equality check")
+	})
 }
 
 func (a assertParam) unknown() assertParam {

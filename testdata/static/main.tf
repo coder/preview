@@ -18,7 +18,7 @@ data "coder_workspace_tags" "custom_workspace_tags" {
 }
 
 data "coder_parameter" "region" {
-  name        = "Region"
+  name        = "region"
   description = "Which region would you like to deploy to?"
   type        = "string"
   default     = "us"

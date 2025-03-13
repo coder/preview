@@ -32,14 +32,8 @@ func SortParameters(lists []Parameter) {
 	})
 }
 
-type FormControl string
-
-const (
-	FormControlError FormControl = "error"
-)
-
 type Parameter struct {
-	RichParameter
+	ParameterData
 	// Value is not immediately cast into a string.
 	// Value is not required at template import, so defer
 	// casting to a string until it is absolutely necessary.
@@ -50,19 +44,18 @@ type Parameter struct {
 	Diagnostics Diagnostics `json:"diagnostics"`
 }
 
-type RichParameter struct {
-	Name        string        `json:"name"`
-	DisplayName string        `json:"display_name"`
-	Description string        `json:"description"`
-	FormControl FormControl   `json:"form_control"`
-	Type        ParameterType `json:"type"`
-	Mutable     bool          `json:"mutable"`
-	// TODO: Default value might want to be a HCLString
-	DefaultValue string                 `json:"default_value"`
-	Icon         string                 `json:"icon"`
-	Options      []*ParameterOption     `json:"options"`
-	Validations  []*ParameterValidation `json:"validations"`
-	Required     bool                   `json:"required"`
+type ParameterData struct {
+	Name         string                     `json:"name"`
+	DisplayName  string                     `json:"display_name"`
+	Description  string                     `json:"description"`
+	Type         ParameterType              `json:"type"`
+	FormType     provider.ParameterFormType `json:"form_type"`
+	Mutable      bool                       `json:"mutable"`
+	DefaultValue HCLString                  `json:"default_value"`
+	Icon         string                     `json:"icon"`
+	Options      []*ParameterOption         `json:"options"`
+	Validations  []*ParameterValidation     `json:"validations"`
+	Required     bool                       `json:"required"`
 	// legacy_variable_name was removed (= 14)
 	Order     int64 `json:"order"`
 	Ephemeral bool  `json:"ephemeral"`
@@ -104,9 +97,9 @@ type ParameterOption struct {
 	Icon        string    `json:"icon"`
 }
 
-// CtyType returns the cty.Type for the RichParameter.
+// CtyType returns the cty.Type for the ParameterData.
 // A fixed set of types are supported.
-func (r *RichParameter) CtyType() (cty.Type, error) {
+func (r *ParameterData) CtyType() (cty.Type, error) {
 	switch r.Type {
 	case "string":
 		return cty.String, nil

@@ -2,6 +2,7 @@ package extract
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/aquasecurity/trivy/pkg/iac/terraform"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/coder/preview/hclext"
 	"github.com/coder/preview/types"
+	"github.com/coder/terraform-provider-coder/v2/provider"
 )
 
 func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnostics) {
@@ -26,6 +28,16 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 		diags = diags.Append(typDiag)
 	}
 
+	formType, formTypeDiags := optionalStringEnum[provider.ParameterFormType](block, "form_type", provider.ParameterFormTypeDefault, func(s provider.ParameterFormType) error {
+		if !slices.Contains(provider.ParameterFormTypes(), s) {
+			return fmt.Errorf("invalid form type %q, expected one of [%s]", s, strings.Join(toStrings(provider.ParameterFormTypes()), ", "))
+		}
+		return nil
+	})
+	if formTypeDiags != nil {
+		diags = diags.Append(formTypeDiags)
+	}
+
 	pName, nameDiag := requiredString(block, "name")
 	if nameDiag != nil {
 		diags = diags.Append(nameDiag)
@@ -36,16 +48,24 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 	}
 
 	pVal := richParameterValue(block)
+
+	def := types.StringLiteral("")
+	defAttr := block.GetAttribute("default")
+	if !defAttr.IsNil() {
+		def = types.ToHCLString(block, defAttr)
+	}
+
 	p := types.Parameter{
 		Value: pVal,
-		RichParameter: types.RichParameter{
+		ParameterData: types.ParameterData{
 			Name:        pName,
 			Description: optionalString(block, "description"),
 			Type:        pType,
+			FormType:    formType,
 			Mutable:     optionalBoolean(block, "mutable"),
 			// Default value is always written as a string, then converted
 			// to the correct type.
-			DefaultValue: optionalString(block, "default"),
+			DefaultValue: def,
 			Icon:         optionalString(block, "icon"),
 			Options:      make([]*types.ParameterOption, 0),
 			Validations:  make([]*types.ParameterValidation, 0),
@@ -58,7 +78,25 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 		},
 	}
 
-	for _, b := range block.GetBlocks("option") {
+	optBlocks := block.GetBlocks("option")
+
+	optionType, newFormType, err := provider.ValidateFormType(string(p.Type), len(optBlocks), p.FormType)
+	if err != nil {
+		diags = diags.Append(&hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("Invalid parameter `type=%q` and `form_type=%q`", p.Type, p.FormType),
+			Detail:   err.Error(),
+			Context:  &block.HCLBlock().DefRange,
+		})
+
+		// Parameter cannot be used
+		p.FormType = provider.ParameterFormTypeError
+	} else {
+		p.Type = types.ParameterType(optionType)
+		p.FormType = newFormType
+	}
+
+	for _, b := range optBlocks {
 		opt, optDiags := ParameterOptionFromBlock(b)
 		diags = diags.Extend(optDiags)
 
@@ -107,6 +145,7 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 			paramTypeDiag.EvalContext = block.Context().Inner()
 		}
 		diags = diags.Append(paramTypeDiag)
+		p.FormType = provider.ParameterFormTypeError
 	}
 
 	if ctyType != cty.NilType && pVal.Value.Type().Equals(cty.String) {
@@ -126,10 +165,9 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 		}
 	}
 
-	// Parameter usage diags are useful.
 	usageDiags := ParameterUsageDiagnostics(p)
 	if usageDiags.HasErrors() {
-		p.FormControl = types.FormControlError
+		p.FormType = provider.ParameterFormTypeError
 	}
 	diags = diags.Extend(usageDiags)
 
@@ -215,12 +253,6 @@ func ParameterOptionFromBlock(block *terraform.Block) (types.ParameterOption, hc
 
 	valAttr := block.GetAttribute("value")
 
-	pVal := types.HCLString{
-		Value:      hclext.Value(valAttr.HCLAttribute().Expr, block.Context().Inner()),
-		ValueDiags: nil,
-		ValueExpr:  valAttr.HCLAttribute().Expr,
-	}
-
 	if diags.HasErrors() {
 		return types.ParameterOption{}, diags
 	}
@@ -228,7 +260,7 @@ func ParameterOptionFromBlock(block *terraform.Block) (types.ParameterOption, hc
 	p := types.ParameterOption{
 		Name:        pName,
 		Description: optionalString(block, "description"),
-		Value:       pVal,
+		Value:       types.ToHCLString(block, valAttr),
 		Icon:        optionalString(block, "icon"),
 	}
 
@@ -355,7 +387,7 @@ func optionalString(block *terraform.Block, key string) string {
 		return ""
 	}
 	val := attr.Value()
-	if val.Type() != cty.String {
+	if !val.Type().Equals(cty.String) {
 		return ""
 	}
 
@@ -439,4 +471,12 @@ func ParameterCtyType(typ string) (cty.Type, error) {
 	default:
 		return cty.Type{}, fmt.Errorf("unsupported type: %q", typ)
 	}
+}
+
+func toStrings[A ~string](l []A) []string {
+	var r []string
+	for _, v := range l {
+		r = append(r, string(v))
+	}
+	return r
 }

@@ -3,6 +3,7 @@ package types
 import (
 	"encoding/json"
 
+	"github.com/aquasecurity/trivy/pkg/iac/terraform"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
 	"github.com/zclconf/go-cty/cty"
@@ -20,6 +21,18 @@ type HCLString struct {
 	// Source is the literal hcl text that was parsed.
 	// This is a best effort, it may not be available.
 	Source *string
+}
+
+func ToHCLString(block *terraform.Block, attr *terraform.Attribute) HCLString {
+	val, diags := attr.HCLAttribute().Expr.Value(block.Context().Inner())
+
+	return HCLString{
+		Value:      val,
+		ValueDiags: diags,
+		ValueExpr:  attr.HCLAttribute().Expr,
+		// ??
+		//Source:     attr.HCLAttribute().Range,
+	}
 }
 
 func (s HCLString) MarshalJSON() ([]byte, error) {
