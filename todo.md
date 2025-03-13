@@ -48,6 +48,7 @@
 - [23](https://github.com/coder/preview/issues/23) Implement `validation` blocks with a common code component to be reused by terraform provider?
 - Parameter values/defaults are only `string` types. 
 - Parameter groups/sections. Required?
+- Add a custom linter to prevent `cty.Type == cty.Type`. Use `cty.Type.Equals(cty.Type)` instead.
 
 ## Upstream work
 
