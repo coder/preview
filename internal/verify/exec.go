@@ -48,6 +48,10 @@ func (e Executable) WorkingDir(dir string) (WorkingExecutable, error) {
 	}, nil
 }
 
+func (e WorkingExecutable) Validate(ctx context.Context) (*tfjson.ValidateOutput, error) {
+	return e.TF.Validate(ctx)
+}
+
 func (e WorkingExecutable) Init(ctx context.Context) error {
 	return e.TF.Init(ctx, tfexec.Upgrade(true))
 }

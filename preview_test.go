@@ -408,7 +408,7 @@ func (a assertParam) numOpts(n int) assertParam {
 
 func (a assertParam) def(str string) assertParam {
 	return a.extend(func(t *testing.T, parameter types.Parameter) {
-		assert.Equal(t, str, parameter.DefaultValue, "parameter default equality check")
+		assert.Equal(t, str, parameter.DefaultValue.AsString(), "parameter default equality check")
 	})
 }
 
