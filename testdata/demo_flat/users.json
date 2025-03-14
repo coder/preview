@@ -1,0 +1,14 @@
+{
+  "administrator": {
+    "groups": ["admin"]
+  },
+  "developer": {
+    "groups": ["developer"]
+  },
+  "contractor": {
+    "groups": ["contractor"]
+  },
+  "eu-developer": {
+    "groups": ["developer", "eu-helsinki"]
+  }
+}
