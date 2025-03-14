@@ -162,6 +162,7 @@ data "coder_parameter" "list_string_without_options" {
   order        = 8
   icon         = "/emojis/0031-fe0f-20e3.png"
   default      = jsonencode(["purple", "blue", "green", "red", "orange"])
+  // You could send jsonencode(["airplane", "car", "school"])
 }
 
 data "coder_parameter" "list_string_multi_select_options" {
