@@ -57,6 +57,18 @@ func Test_VerifyE2E(t *testing.T) {
 	tfexecs := verify.InstallTerraforms(installCtx, t, versions...)
 	cancel()
 
+	if len(tfexecs) > 0 {
+		t.Run("Validate", func(t *testing.T) {
+			running, err := tfexecs[0].WorkingDir(".")
+			require.NoError(t, err, "creating working dir")
+			valid, err := running.Validate(context.Background())
+			require.NoError(t, err, "terraform validate")
+
+			d, _ := json.MarshalIndent(valid, "", "  ")
+			t.Logf("validate:\n%s", string(d))
+		})
+	}
+
 	dirFs := os.DirFS("testdata")
 	entries, err := fs.ReadDir(dirFs, ".")
 	require.NoError(t, err)

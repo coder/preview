@@ -46,6 +46,8 @@ jobs:
       - name: Install gotestsum
         shell: bash
         run: go install gotest.tools/gotestsum@latest
-
+      - name: Verify terraform provider
+        run: |
+          TF_CLI_CONFIG_FILE=$HOME/.terraformrc go test ./... -run=Test_VerifyE2E/Validate -v
       - name: Run tests
         run: TF_CLI_CONFIG_FILE=$HOME/.terraformrc gotestsum ./...
