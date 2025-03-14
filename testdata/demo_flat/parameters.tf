@@ -27,10 +27,16 @@ data "coder_parameter" "browser" {
   type        = "string"
   default     = "chromium"
   order       = 12
+  # count = 1
   count       = (
     data.coder_parameter.team.value == "frontend" ||
     data.coder_parameter.team.value == "fullstack"? 1 : 0
   )
+
+  option {
+    name  = "test"
+    value = data.coder_parameter.team.value
+  }
 
   option {
     name  = "Chrome"

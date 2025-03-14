@@ -281,6 +281,34 @@ func Test_Extract(t *testing.T) {
 			params:      map[string]assertParam{},
 		},
 		{
+			name: "demo_flat",
+			dir:  "demo_flat",
+			expTags: map[string]string{
+				"cluster": "confidential",
+			},
+			input: preview.Input{
+				PlanJSONPath:    "",
+				ParameterValues: map[string]string{},
+				Owner: types.WorkspaceOwner{
+					Groups: []string{"admin"},
+				},
+			},
+			unknownTags: []string{},
+			params:      map[string]assertParam{},
+		},
+		{
+			name:    "count",
+			dir:     "count",
+			expTags: map[string]string{},
+			input: preview.Input{
+				PlanJSONPath:    "",
+				ParameterValues: map[string]string{},
+				Owner:           types.WorkspaceOwner{},
+			},
+			unknownTags: []string{},
+			params:      map[string]assertParam{},
+		},
+		{
 			name:    "defexpression",
 			dir:     "defexpression",
 			expTags: map[string]string{},

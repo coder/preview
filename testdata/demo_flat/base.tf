@@ -1,7 +1,7 @@
 locals {
   // default to the only option if only 1 exists
   choose_security = length(keys(local.allowed_security_levels)) > 1
-  secutity_level = local.choose_security ? data.coder_parameter.security_level[0].value : keys(module.deploys.security_levels)[0]
+  secutity_level = local.choose_security ? data.coder_parameter.security_level[0].value : keys(local.allowed_security_levels)[0]
 }
 
 data "coder_parameter" "security_level" {
