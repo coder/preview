@@ -51,8 +51,8 @@ func RichParameters(modules terraform.Modules) ([]types.Parameter, hcl.Diagnosti
 				Detail:   detail.String(),
 			})
 		}
-
 	}
 
+	types.SortParameters(params)
 	return params, diags
 }
