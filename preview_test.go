@@ -371,6 +371,22 @@ func Test_Extract(t *testing.T) {
 				"beta":  ap().unknown(),
 			},
 		},
+		{
+			name:    "wordle",
+			dir:     "wordle",
+			expTags: map[string]string{},
+			input: preview.Input{
+				PlanJSONPath: "",
+				ParameterValues: map[string]string{
+					"first": "curse",
+				},
+				Owner: types.WorkspaceOwner{},
+			},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"first": ap().value("curse"),
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()

@@ -72,7 +72,7 @@ func Parameters(writer io.Writer, params []types.Parameter, files map[string]*hc
 		//}
 
 		tableWriter.AppendRow(table.Row{
-			fmt.Sprintf("%s: %s\n%s", p.Name, p.Description, formatOptions(strVal, p.Options)),
+			fmt.Sprintf("(%s) %s: %s\n%s", p.DisplayName, p.Name, p.Description, formatOptions(strVal, p.Options)),
 		})
 
 		if hcl.Diagnostics(p.Diagnostics).HasErrors() {

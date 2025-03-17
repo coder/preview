@@ -6,19 +6,10 @@ variable "correct" {
   type = string
 }
 
-locals {
-  valid = length(var.input) == 5
-  result = join("", [
+output "result" {
+  value = join("", [
     for i in range(0, length(var.correct)) : (
       substr(var.input, i, 1) == substr(var.correct, i, 1) ? "#" : "_"
     )
   ])
-}
-
-output "result" {
-  value = local.result
-}
-
-output "valid" {
-  value = local.valid
 }
