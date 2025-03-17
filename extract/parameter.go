@@ -69,7 +69,7 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 			Description:      optionalString(block, "description"),
 			Type:             pType,
 			FormType:         formType,
-			FormTypeMetadata: ftmeta,
+			FormTypeMetadata: formTypeMeta,
 			Mutable:          optionalBoolean(block, "mutable"),
 			// Default value is always written as a string, then converted
 			// to the correct type.

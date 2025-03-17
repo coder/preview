@@ -21,7 +21,7 @@ data coder_workspace_owner "me" {}
 
 module "jetbrains_gateway" {
   count          = 1
-  source         = "registry.coder.com/modules/jetbrains-gateway/coder"
+  source         = "./jetbrains_ide"
   version        = "1.0.28"
   agent_id       = "random"
   folder         = "/home/coder/example"

@@ -99,6 +99,7 @@ data "coder_workspace_tags" "test" {
 }
 
 // Advanced admin parameter
+// preview -g admin -p plan.json -v hash="52bb4d943694f2f5867a251780f85e5a68906787b4ffa3157e29b9ef510b1a97"
 data "coder_parameter" "image_hash" {
   count       = local.isAdmin ? 1 : 0
   name        = "hash"
@@ -122,6 +123,7 @@ data "coder_parameter" "region" {
   name         = "Region"
   display_name = "Region"
   description  = "What region are you in?"
+  form_type    = "dropdown"
   default      = local.default_region
   icon         = "/icon/memory.svg"
   mutable      = false
