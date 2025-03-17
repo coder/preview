@@ -2,6 +2,14 @@
 	To enable opacity in colors, please use the new HSL format.
 	Related issue: https://github.com/shadcn-ui/ui/issues/805#issuecomment-1616021820
 */
+/*
+	---break---
+*/
+@plugin "tailwindcss-animate";
+/*
+	---break---
+*/
+@custom-variant dark (&:is(.dark *));
 
 @import 'tailwindcss';
 
@@ -26,77 +34,6 @@
 }
 
 @layer base {
-	:root {
-		--content-primary: 240 10% 4%;
-		--content-secondary: 240 5% 34%;
-		--content-link: 221 83% 53%;
-		--content-invert: 0 0% 98%;
-		--content-disabled: 240 5% 65%;
-		--content-success: 142 72% 29%;
-		--content-warning: 27 96% 61%;
-		--content-destructive: 0 84% 60%;
-		--surface-primary: 0 0% 98%;
-		--surface-secondary: 240 5% 96%;
-		--surface-tertiary: 240 6% 90%;
-		--surface-quaternary: 240 5% 84%;
-		--surface-invert-primary: 240 4% 16%;
-		--surface-invert-secondary: 240 5% 26%;
-		--surface-destructive: 0 93% 94%;
-		--surface-green: 141 79% 85%;
-		--surface-grey: 240 5% 96%;
-		--surface-orange: 34 100% 92%;
-		--surface-sky: 201 94% 86%;
-		--border-default: 240 6% 90%;
-		--border-success: 142 76% 36%;
-		--border-destructive: 0 84% 60%;
-		--overlay-default: 240 5% 84% / 80%;
-		--radius: 0.5rem;
-		--highlight-purple: 262 83% 58%;
-		--highlight-green: 143 64% 24%;
-		--highlight-grey: 240 5% 65%;
-		--highlight-sky: 201 90% 27%;
-		--border: 240 5.9% 90%;
-		--input: 240 5.9% 90%;
-		--ring: 240 10% 3.9%;
-		--avatar-lg: 2.5rem;
-		--avatar-default: 1.5rem;
-		--avatar-sm: 1.125rem;
-	}
-	.dark {
-		--content-primary: 0 0% 98%;
-		--content-secondary: 240 5% 65%;
-		--content-link: 213 94% 68%;
-		--content-invert: 240 10% 4%;
-		--content-disabled: 240 5% 26%;
-		--content-success: 142 76% 36%;
-		--content-warning: 31 97% 72%;
-		--content-destructive: 0 91% 71%;
-		--surface-primary: 240 10% 4%;
-		--surface-secondary: 240 6% 10%;
-		--surface-tertiary: 240 4% 16%;
-		--surface-quaternary: 240 5% 26%;
-		--surface-invert-primary: 240 6% 90%;
-		--surface-invert-secondary: 240 5% 65%;
-		--surface-destructive: 0 75% 15%;
-		--surface-green: 145 80% 10%;
-		--surface-grey: 240 6% 10%;
-		--surface-orange: 13 81% 15%;
-		--surface-sky: 204 80% 16%;
-		--border-default: 240 4% 16%;
-		--border-success: 142 76% 36%;
-		--border-destructive: 0 91% 71%;
-		--overlay-default: 240 10% 4% / 80%;
-		--highlight-purple: 252 95% 85%;
-		--highlight-green: 141 79% 85%;
-		--highlight-grey: 240 4% 46%;
-		--highlight-sky: 198 93% 60%;
-		--border: 240 3.7% 15.9%;
-		--input: 240 3.7% 15.9%;
-		--ring: 240 4.9% 83.9%;
-	}
-}
-
-@layer base {
 	* {
 		@apply border-border;
 	}
@@ -106,11 +43,163 @@
 	causing some shifting when the dropdown has a full-width size, as is the case with the mobile menu.
 	To prevent this, we need to apply the styles below.
 
-	There’s a related issue on GitHub: Radix UI Primitives Issue #3251
+	There's a related issue on GitHub: Radix UI Primitives Issue #3251
 	https://github.com/radix-ui/primitives/issues/3251
 	 */
 	html body[data-scroll-locked] {
 		--removed-body-scroll-bar-size: 0 !important;
 		margin-right: 0 !important;
 	}
+}
+
+:root {
+  --content-primary: oklch(0.145 0.003 240);
+  --content-secondary: oklch(0.384 0.003 240);
+  --content-link: oklch(0.597 0.187 250);
+  --content-invert: oklch(0.987 0 0);
+  --content-disabled: oklch(0.678 0.003 240);
+  --content-success: oklch(0.455 0.127 142);
+  --content-warning: oklch(0.801 0.157 80);
+  --content-destructive: oklch(0.637 0.236 25);
+  --surface-primary: oklch(0.987 0 0);
+  --surface-secondary: oklch(0.965 0.003 240);
+  --surface-tertiary: oklch(0.910 0.004 240);
+  --surface-quaternary: oklch(0.856 0.003 240);
+  --surface-invert-primary: oklch(0.201 0.003 240);
+  --surface-invert-secondary: oklch(0.294 0.003 240);
+  --surface-destructive: oklch(0.947 0.048 0);
+  --surface-green: oklch(0.873 0.095 141);
+  --surface-grey: oklch(0.965 0.003 240);
+  --surface-orange: oklch(0.937 0.064 80);
+  --surface-sky: oklch(0.892 0.102 220);
+  --border-default: oklch(0.910 0.004 240);
+  --border-success: oklch(0.455 0.127 142);
+  --border-destructive: oklch(0.637 0.236 25);
+  --overlay-default: oklch(0.856 0.003 240 / 80%);
+  --radius: 0.5rem;
+  --highlight-purple: oklch(0.637 0.236 285);
+  --highlight-green: oklch(0.384 0.127 143);
+  --highlight-grey: oklch(0.678 0.003 240);
+  --highlight-sky: oklch(0.455 0.187 220);
+  --border: oklch(0.910 0.004 240);
+  --input: oklch(0.910 0.004 240);
+  --ring: oklch(0.145 0.003 240);
+
+  --avatar-lg: 2.5rem;
+  --avatar-default: 1.5rem;
+  --avatar-sm: 1.125rem;
+
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+}
+
+.dark {
+  --content-primary: oklch(0.987 0 0);
+  --content-secondary: oklch(0.678 0.003 240);
+  --content-link: oklch(0.725 0.167 250);
+  --content-invert: oklch(0.145 0.003 240);
+  --content-disabled: oklch(0.294 0.003 240);
+  --content-success: oklch(0.455 0.127 142);
+  --content-warning: oklch(0.831 0.157 80);
+  --content-destructive: oklch(0.748 0.191 25);
+  --surface-primary: oklch(0.145 0.003 240);
+  --surface-secondary: oklch(0.116 0.003 240);
+  --surface-tertiary: oklch(0.201 0.003 240);
+  --surface-quaternary: oklch(0.294 0.003 240);
+  --surface-invert-primary: oklch(0.910 0.004 240);
+  --surface-invert-secondary: oklch(0.678 0.003 240);
+  --surface-destructive: oklch(0.167 0.127 0);
+  --surface-green: oklch(0.116 0.095 145);
+  --surface-grey: oklch(0.116 0.003 240);
+  --surface-orange: oklch(0.167 0.095 13);
+  --surface-sky: oklch(0.201 0.095 204);
+  --border-default: oklch(0.201 0.003 240);
+  --border-success: oklch(0.455 0.127 142);
+  --border-destructive: oklch(0.748 0.191 25);
+  --overlay-default: oklch(0.145 0.003 240 / 80%);
+  --highlight-purple: oklch(0.873 0.127 252);
+  --highlight-green: oklch(0.873 0.095 141);
+  --highlight-grey: oklch(0.498 0.003 240);
+  --highlight-sky: oklch(0.678 0.187 198);
+  --border: oklch(0.189 0.003 240);
+  --input: oklch(0.189 0.003 240);
+  --ring: oklch(0.856 0.003 240);
+
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+}
+
+@theme inline {
+  --color-content-primary: var(--content-primary);
+  --color-content-secondary: var(--content-secondary);
+  --color-content-link: var(--content-link);
+  --color-content-invert: var(--content-invert);
+  --color-content-disabled: var(--content-disabled);
+  --color-content-success: var(--content-success);
+  --color-content-warning: var(--content-warning);
+  --color-content-destructive: var(--content-destructive);
+  --color-surface-primary: var(--surface-primary);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-tertiary: var(--surface-tertiary);
+  --color-surface-quaternary: var(--surface-quaternary);
+  --color-surface-invert-primary: var(--surface-invert-primary);
+  --color-surface-invert-secondary: var(--surface-invert-secondary);
+  --color-surface-destructive: var(--surface-destructive);
+  --color-surface-green: var(--surface-green);
+  --color-surface-grey: var(--surface-grey);
+  --color-surface-orange: var(--surface-orange);
+  --color-surface-sky: var(--surface-sky);
+  --color-border-default: var(--border-default);
+  --color-border-success: var(--border-success);
+  --color-border-destructive: var(--border-destructive);
+  --color-overlay-default: var(--overlay-default);
+  --color-highlight-purple: var(--highlight-purple);
+  --color-highlight-green: var(--highlight-green);
+  --color-highlight-grey: var(--highlight-grey);
+  --color-highlight-sky: var(--highlight-sky);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
 }

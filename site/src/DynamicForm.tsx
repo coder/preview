@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { useWebSocket } from "./useWebSocket";
+import MultipleSelector from "./components/ui/multiselect";
 import {
   Response,
   Parameter,
@@ -146,7 +147,7 @@ export function DynamicForm() {
           id: newId,
           inputs: watchedValues
         };
-        
+        console.log("request", request);
         sendMessage(request);
         return newId;
       });
@@ -156,37 +157,78 @@ export function DynamicForm() {
   }, [watchedValues, response, sendMessage, prevValues]);
 
   const renderParameter = (param: Parameter) => {
-    // if the param has a form_control property, use that to determine the type of component to render
-    const formControl = param.form_control;
-    if (formControl) {
-      switch (formControl) {
-        case "select":
+    const controlType = param.form_type;
+    if (controlType) {
+      switch (controlType) {
+        case "dropdown":
           return  (
-            <Controller
-            name={param.name}
-            control={methods.control}
-            render={({ field }) => (
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={param.value}
-              >
-                <SelectTrigger className="w-[300px]">
-                  <SelectValue placeholder={param.description} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {(param.options || []).map((option, idx) => {
-                      if (!option) return null;
-                      return (
-                        <SelectItem key={idx} value={option.value}>{option.name}</SelectItem>
-                      );
-                    })}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            )}
-          />
+            <div key={param.name} className="flex flex-col gap-2 items-center">
+              <label>
+                {param.display_name || param.name}
+                {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+              </label>
+              {param.description && <div className="text-sm">{param.description}</div>}
+              <Controller
+                name={param.name}
+                control={methods.control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={param.value}
+                  >
+                    <SelectTrigger className="w-[300px]">
+                      <SelectValue placeholder={param.description} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {(param.options || []).map((option, idx) => {
+                          if (!option) return null;
+                          return (
+                            <SelectItem key={idx} value={option.value}>{option.name}</SelectItem>
+                          );
+                        })}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {renderDiagnostics(param.diagnostics)}
+            </div>
         )
+        case "multi-select":
+          return (
+            <div key={param.name} className="flex flex-col gap-2 items-center">
+              <label>
+                {param.display_name || param.name}
+                {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+              </label>
+              {param.description && <div className="text-sm">{param.description}</div>}
+              <Controller
+                name={param.name}
+                control={methods.control}
+                render={({ field }) => (
+                  <div className="w-[300px]">
+                    <MultipleSelector
+                      commandProps={{
+                        label: "Select frameworks",
+                      }}
+                      onChange={(selectedOptions) => {
+                        const values = selectedOptions.map(opt => opt.value).join(',');
+                        field.onChange(values);
+                      }}
+                      defaultOptions={param.options?.map(opt => ({
+                        value: opt?.value || '',
+                        label: opt?.name || '',
+                        disabled: false
+                      })) || []}
+                      emptyIndicator={<p className="text-sm">No results found</p>}
+                    />
+                  </div>
+                )}
+              />
+              {renderDiagnostics(param.diagnostics)}
+            </div>
+          )
       }
     }
 
@@ -199,7 +241,7 @@ export function DynamicForm() {
             {label}
             {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
           </label>
-          {param.description && <div style={{ fontSize: "0.8rem" }}>{param.description}</div>}
+          {param.description && <div className="text-sm">{param.description}</div>}
           <Controller
             name={param.name}
             control={methods.control}
