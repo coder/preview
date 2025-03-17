@@ -4,6 +4,8 @@ import (
 	"github.com/aquasecurity/trivy/pkg/iac/terraform"
 	tfcontext "github.com/aquasecurity/trivy/pkg/iac/terraform/context"
 	"github.com/zclconf/go-cty/cty"
+
+	"github.com/coder/preview/hclext"
 )
 
 // ParameterContextsEvalHook is called in a loop, so if parameters affect
@@ -22,6 +24,21 @@ func ParameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks 
 
 			if !block.GetAttribute("value").IsNil() {
 				continue // Wow a value exists?!. This feels like a bug.
+			}
+
+			countAttr, countExists := block.Attributes()["count"]
+			if countExists {
+				// Omit count = 0 values!
+				countVal := countAttr.Value()
+				if !countVal.Type().Equals(cty.Number) {
+					continue // Probably unknown
+				}
+				v, _ := countVal.AsBigFloat().Int64()
+				if v < 1 {
+					// Non-one counts are incorrect
+					// Zero counts are ignored as the blocks are omitted
+					continue
+				}
 			}
 
 			nameAttr := block.GetAttribute("name")
@@ -48,8 +65,44 @@ func ParameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks 
 			}
 
 			// Set the default value as the 'value' attribute
-			path := []string{"data"}
-			path = append(path, block.Labels()...)
+			path := []string{
+				"data",
+				"coder_parameter",
+				block.Reference().NameLabel(),
+			}
+			if countExists {
+				// Append to the existing tuple
+				existing := ctx.Get(path...)
+				if existing.IsNull() {
+					continue
+				}
+
+				if !existing.Type().IsTupleType() {
+					continue
+				}
+
+				if existing.LengthInt() > 1 {
+					// coder_parameters can only ever have a count of 0 or 1.
+					// More than that is invalid. So ignore invalid blocks.
+					continue
+				}
+
+				it := existing.ElementIterator()
+				if !it.Next() {
+					continue
+				}
+
+				_, v := it.Element()
+				merged := hclext.MergeObjects(v, cty.ObjectVal(map[string]cty.Value{
+					"value": value,
+				}))
+
+				// Since our count can only equal 1, we can safely set the
+				// value to a tuple of length 1 in all cases.
+				ctx.Set(cty.TupleVal([]cty.Value{merged}), path...)
+				continue
+			}
+
 			path = append(path, "value")
 			// The current context is in the `coder_parameter` block.
 			// Use the parent context to "export" the value
@@ -104,5 +157,6 @@ func evaluateCoderParameterDefault(b *terraform.Block) (cty.Value, bool) {
 	if diags.HasErrors() {
 		return cty.NilVal, false
 	}
+
 	return v, true
 }
