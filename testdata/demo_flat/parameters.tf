@@ -1,5 +1,6 @@
 data "coder_parameter" "team" {
-  name        = "Team"
+  name        = "team"
+  display_name = "Team"
   description = "Which team are you on?"
   type        = "string"
   default     = "fullstack"
@@ -120,7 +121,7 @@ data "docker_registry_image" "coder" {
 }
 
 data "coder_parameter" "region" {
-  name         = "Region"
+  name         = "region"
   display_name = "Region"
   description  = "What region are you in?"
   form_type    = "dropdown"

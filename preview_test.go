@@ -156,11 +156,18 @@ func Test_Extract(t *testing.T) {
 			dir:         "module",
 			expTags:     map[string]string{},
 			unknownTags: []string{},
-			input:       preview.Input{},
+			input: preview.Input{
+				PlanJSONPath: "plan.json",
+				ParameterValues: map[string]string{
+					"extra": "foobar",
+				},
+			},
 			params: map[string]assertParam{
 				"jetbrains_ide": ap().
 					optVals("CL", "GO", "IU", "PY", "WS").
 					value("GO"),
+				"extra": ap().
+					value("foobar"),
 			},
 		},
 		{
@@ -285,16 +292,28 @@ func Test_Extract(t *testing.T) {
 			dir:  "demo_flat",
 			expTags: map[string]string{
 				"cluster": "confidential",
+				"hash":    "52bb4d943694f2f5867a251780f85e5a68906787b4ffa3157e29b9ef510b1a97",
 			},
 			input: preview.Input{
-				PlanJSONPath:    "",
-				ParameterValues: map[string]string{},
+				PlanJSONPath: "plan.json",
+				ParameterValues: map[string]string{
+					"hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+				},
 				Owner: types.WorkspaceOwner{
 					Groups: []string{"admin"},
 				},
 			},
 			unknownTags: []string{},
-			params:      map[string]assertParam{},
+			params: map[string]assertParam{
+				"hash": ap().
+					value("b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"),
+				"security_level": ap(),
+				"region":         ap(),
+				"cpu":            ap(),
+				"browser":        ap(),
+				"team":           ap().optVals("frontend", "backend", "fullstack"),
+				"jetbrains_ide":  ap(),
+			},
 		},
 		{
 			name:    "count",
@@ -367,8 +386,6 @@ func Test_Extract(t *testing.T) {
 			}
 
 			dirFs := os.DirFS(filepath.Join("testdata", tc.dir))
-			//a, b := fs.ReadDir(dirFs, ".")
-			//fmt.Println(a, b)
 
 			output, diags := preview.Preview(context.Background(), tc.input, dirFs)
 			if tc.failPreview {

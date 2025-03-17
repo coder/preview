@@ -15,6 +15,8 @@ import (
 	tfjson "github.com/hashicorp/terraform-json"
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/gocty"
+
+	"github.com/coder/preview/hclext"
 )
 
 func PlanJSONHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value), error) {
@@ -31,29 +33,45 @@ func PlanJSONHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks t
 		return nil, fmt.Errorf("unable to parse plan JSON: %w", err)
 	}
 
-	var _ = plan
 	return func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value) {
+		loaded := make(map[*tfjson.StateModule]bool)
+
 		// Do not recurse to child blocks.
 		// TODO: Only load into the single parent context for the module.
+		// And do not load context for a module more than once
 		for _, block := range blocks {
+			// TODO: Maybe switch to the 'configuration' block
 			planMod := priorPlanModule(plan, block)
 			if planMod == nil {
 				continue
 			}
 
-			// TODO: Nested blocks might have an issue here with the correct context.
-			// We want the "module context", which is the parent of the top level
-			// block. Maybe there is a way to discover what that is via some
-			// var set in the context.
-			err = loadResourcesToContext(block.Context().Parent(), planMod.Resources)
+			if loaded[planMod] {
+				// No need to load this module into state again
+				continue
+			}
+
+			rootCtx := block.Context()
+			for {
+				if rootCtx.Parent() != nil {
+					rootCtx = rootCtx.Parent()
+					continue
+				}
+				break
+			}
+
+			// Load state into the context
+			err := loadResourcesToContext(rootCtx, planMod.Resources)
 			if err != nil {
 				// TODO: Somehow handle this error
 				panic(fmt.Sprintf("unable to load resources to context: %v", err))
 			}
+			loaded[planMod] = true
 		}
 	}, nil
 }
 
+// priorPlanModule returns the state data of the module a given block is in.
 func priorPlanModule(plan *tfjson.Plan, block *terraform.Block) *tfjson.StateModule {
 	if !block.InModule() {
 		return plan.PriorState.Values.RootModule
@@ -85,6 +103,22 @@ func priorPlanModule(plan *tfjson.Plan, block *terraform.Block) *tfjson.StateMod
 	return current
 }
 
+func matchingBlock(block *terraform.Block, planMod *tfjson.StateModule) *tfjson.StateResource {
+	ref := block.Reference()
+	matchKey := keyMatcher(ref.RawKey())
+
+	for _, resource := range planMod.Resources {
+		if ref.BlockType().ShortName() == string(resource.Mode) &&
+			ref.TypeLabel() == resource.Type &&
+			ref.NameLabel() == resource.Name &&
+			matchKey(resource.Index) {
+
+			return resource
+		}
+	}
+	return nil
+}
+
 func loadResourcesToContext(ctx *tfcontext.Context, resources []*tfjson.StateResource) error {
 	for _, resource := range resources {
 		if resource.Mode != "data" {
@@ -96,12 +130,35 @@ func loadResourcesToContext(ctx *tfcontext.Context, resources []*tfjson.StateRes
 			continue
 		}
 
+		path := []string{string(resource.Mode), resource.Type, resource.Name}
+
+		// Always merge with any existing values
+		existing := ctx.Get(path...)
+
 		val, err := toCtyValue(resource.AttributeValues)
 		if err != nil {
 			return fmt.Errorf("unable to determine value of resource %q: %w", resource.Address, err)
 		}
 
-		ctx.Set(val, string(resource.Mode), resource.Type, resource.Name)
+		var merged cty.Value
+		switch resource.Index.(type) {
+		case int, int32, int64, float32, float64:
+			asInt, ok := toInt(resource.Index)
+			if !ok {
+				return fmt.Errorf("unable to convert index '%v' to int", resource.Index)
+			}
+
+			if !existing.Type().IsTupleType() {
+				continue
+			}
+			merged = hclext.MergeWithTupleElement(existing, int(asInt), val)
+		case nil:
+			merged = hclext.MergeObjects(existing, val)
+		default:
+			return fmt.Errorf("unsupported index type %T", resource.Index)
+		}
+
+		ctx.Set(merged, string(resource.Mode), resource.Type, resource.Name)
 	}
 	return nil
 }
@@ -171,4 +228,52 @@ func TrivyParsePlanJSON(reader io.Reader) (*tfjson.Plan, error) {
 	plan.ToFS()
 
 	return nil, err
+}
+
+func keyMatcher(key cty.Value) func(to any) bool {
+	switch {
+	case key.Type().Equals(cty.Number):
+		idx, _ := key.AsBigFloat().Int64()
+		return func(to any) bool {
+			asInt, ok := toInt(to)
+			return ok && asInt == idx
+		}
+
+	case key.Type().Equals(cty.String):
+		// TODO: handle key strings
+	}
+
+	return func(to any) bool {
+		return true
+	}
+}
+
+func toInt(to any) (int64, bool) {
+	switch typed := to.(type) {
+	case uint:
+		return int64(typed), true
+	case uint8:
+		return int64(typed), true
+	case uint16:
+		return int64(typed), true
+	case uint32:
+		return int64(typed), true
+	case uint64:
+		return int64(typed), true
+	case int:
+		return int64(typed), true
+	case int8:
+		return int64(typed), true
+	case int16:
+		return int64(typed), true
+	case int32:
+		return int64(typed), true
+	case int64:
+		return typed, true
+	case float32:
+		return int64(typed), true
+	case float64:
+		return int64(typed), true
+	}
+	return 0, false
 }

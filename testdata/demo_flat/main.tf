@@ -22,7 +22,6 @@ data coder_workspace_owner "me" {}
 module "jetbrains_gateway" {
   count          = 1
   source         = "./jetbrains_ide"
-  version        = "1.0.28"
   agent_id       = "random"
   folder         = "/home/coder/example"
   jetbrains_ides = local.teams[data.coder_parameter.team.value].codes

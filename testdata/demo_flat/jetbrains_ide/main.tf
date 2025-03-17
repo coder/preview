@@ -253,14 +253,15 @@ locals {
     }
   }
 
-  icon          = local.jetbrains_ides[data.coder_parameter.jetbrains_ide.value].icon
-  json_data     = var.latest ? jsondecode(data.http.jetbrains_ide_versions[data.coder_parameter.jetbrains_ide.value].response_body) : {}
+  first_val = jsondecode(data.coder_parameter.jetbrains_ide.value)[0]
+  icon          = local.jetbrains_ides[local.first_val].icon
+  json_data     = var.latest ? jsondecode(data.http.jetbrains_ide_versions[local.first_val].response_body) : {}
   key           = var.latest ? keys(local.json_data)[0] : ""
-  display_name  = local.jetbrains_ides[data.coder_parameter.jetbrains_ide.value].name
-  identifier    = data.coder_parameter.jetbrains_ide.value
-  download_link = var.latest ? local.json_data[local.key][0].downloads.linux.link : local.jetbrains_ides[data.coder_parameter.jetbrains_ide.value].download_link
-  build_number  = var.latest ? local.json_data[local.key][0].build : local.jetbrains_ides[data.coder_parameter.jetbrains_ide.value].build_number
-  version       = var.latest ? local.json_data[local.key][0].version : var.jetbrains_ide_versions[data.coder_parameter.jetbrains_ide.value].version
+  display_name  = local.jetbrains_ides[local.first_val].name
+  identifier    = local.first_val
+  download_link = var.latest ? local.json_data[local.key][0].downloads.linux.link : local.jetbrains_ides[local.first_val].download_link
+  build_number  = var.latest ? local.json_data[local.key][0].build : local.jetbrains_ides[local.first_val].build_number
+  version       = var.latest ? local.json_data[local.key][0].version : var.jetbrains_ide_versions[local.first_val].version
 }
 
 data "coder_parameter" "jetbrains_ide" {

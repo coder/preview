@@ -1,0 +1,936 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.11.0-dev",
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "coder_agent.main",
+          "mode": "managed",
+          "type": "coder_agent",
+          "name": "main",
+          "provider_name": "registry.terraform.io/coder/coder",
+          "schema_version": 1,
+          "values": {
+            "arch": "amd64",
+            "auth": "token",
+            "connection_timeout": 120,
+            "dir": null,
+            "env": null,
+            "metadata": [],
+            "motd_file": null,
+            "order": null,
+            "os": "linux",
+            "resources_monitoring": [],
+            "shutdown_script": null,
+            "startup_script": null,
+            "startup_script_behavior": "non-blocking",
+            "troubleshooting_url": null
+          },
+          "sensitive_values": {
+            "display_apps": [],
+            "metadata": [],
+            "resources_monitoring": [],
+            "token": true
+          }
+        }
+      ],
+      "child_modules": [
+        {
+          "resources": [
+            {
+              "address": "module.jetbrains_gateway[0].coder_app.gateway",
+              "mode": "managed",
+              "type": "coder_app",
+              "name": "gateway",
+              "provider_name": "registry.terraform.io/coder/coder",
+              "schema_version": 1,
+              "values": {
+                "command": null,
+                "display_name": "GoLand",
+                "external": true,
+                "healthcheck": [],
+                "hidden": false,
+                "icon": "/icon/goland.svg",
+                "open_in": "slim-window",
+                "order": null,
+                "share": "owner",
+                "slug": "gateway",
+                "subdomain": null,
+                "url": "jetbrains-gateway://connect#type=coder\u0026workspace=default\u0026owner=default\u0026agent=main\u0026folder=/home/coder/example\u0026url=https://mydeployment.coder.com\u0026token=$SESSION_TOKEN\u0026ide_product_code=GO\u0026ide_build_number=243.21565.208\u0026ide_download_link=https://download.jetbrains.com/go/goland-2024.3.tar.gz"
+              },
+              "sensitive_values": {
+                "healthcheck": []
+              }
+            }
+          ],
+          "address": "module.jetbrains_gateway[0]"
+        }
+      ]
+    }
+  },
+  "resource_changes": [
+    {
+      "address": "coder_agent.main",
+      "mode": "managed",
+      "type": "coder_agent",
+      "name": "main",
+      "provider_name": "registry.terraform.io/coder/coder",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "arch": "amd64",
+          "auth": "token",
+          "connection_timeout": 120,
+          "dir": null,
+          "env": null,
+          "metadata": [],
+          "motd_file": null,
+          "order": null,
+          "os": "linux",
+          "resources_monitoring": [],
+          "shutdown_script": null,
+          "startup_script": null,
+          "startup_script_behavior": "non-blocking",
+          "troubleshooting_url": null
+        },
+        "after_unknown": {
+          "display_apps": true,
+          "id": true,
+          "init_script": true,
+          "metadata": [],
+          "resources_monitoring": [],
+          "token": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "display_apps": [],
+          "metadata": [],
+          "resources_monitoring": [],
+          "token": true
+        }
+      }
+    },
+    {
+      "address": "module.jetbrains_gateway[0].coder_app.gateway",
+      "module_address": "module.jetbrains_gateway[0]",
+      "mode": "managed",
+      "type": "coder_app",
+      "name": "gateway",
+      "provider_name": "registry.terraform.io/coder/coder",
+      "change": {
+        "actions": [
+          "create"
+        ],
+        "before": null,
+        "after": {
+          "command": null,
+          "display_name": "GoLand",
+          "external": true,
+          "healthcheck": [],
+          "hidden": false,
+          "icon": "/icon/goland.svg",
+          "open_in": "slim-window",
+          "order": null,
+          "share": "owner",
+          "slug": "gateway",
+          "subdomain": null,
+          "url": "jetbrains-gateway://connect#type=coder\u0026workspace=default\u0026owner=default\u0026agent=main\u0026folder=/home/coder/example\u0026url=https://mydeployment.coder.com\u0026token=$SESSION_TOKEN\u0026ide_product_code=GO\u0026ide_build_number=243.21565.208\u0026ide_download_link=https://download.jetbrains.com/go/goland-2024.3.tar.gz"
+        },
+        "after_unknown": {
+          "agent_id": true,
+          "healthcheck": [],
+          "id": true
+        },
+        "before_sensitive": false,
+        "after_sensitive": {
+          "healthcheck": []
+        }
+      }
+    }
+  ],
+  "prior_state": {
+    "format_version": "1.0",
+    "terraform_version": "1.11.0",
+    "values": {
+      "root_module": {
+        "resources": [
+          {
+            "address": "data.coder_parameter.extra[0]",
+            "mode": "data",
+            "type": "coder_parameter",
+            "name": "extra",
+            "index": 0,
+            "provider_name": "registry.terraform.io/coder/coder",
+            "schema_version": 0,
+            "values": {
+              "default": "52bb4d943694f2f5867a251780f85e5a68906787b4ffa3157e29b9ef510b1a97",
+              "description": "A param to throw into the mix.",
+              "display_name": "Extra Param",
+              "ephemeral": false,
+              "form_type": "input",
+              "form_type_metadata": "{}",
+              "icon": null,
+              "id": "792c6343-65bf-470a-8edb-f88d89e03cce",
+              "mutable": false,
+              "name": "extra",
+              "option": null,
+              "optional": true,
+              "order": null,
+              "type": "string",
+              "validation": [],
+              "value": "52bb4d943694f2f5867a251780f85e5a68906787b4ffa3157e29b9ef510b1a97"
+            },
+            "sensitive_values": {
+              "validation": []
+            }
+          },
+          {
+            "address": "data.coder_workspace.me",
+            "mode": "data",
+            "type": "coder_workspace",
+            "name": "me",
+            "provider_name": "registry.terraform.io/coder/coder",
+            "schema_version": 0,
+            "values": {
+              "access_port": 443,
+              "access_url": "https://mydeployment.coder.com",
+              "id": "e72512a0-61a4-4e73-9fde-b5574febdb6b",
+              "name": "default",
+              "start_count": 1,
+              "template_id": "",
+              "template_name": "",
+              "template_version": "",
+              "transition": "start"
+            },
+            "sensitive_values": {}
+          },
+          {
+            "address": "data.docker_registry_image.coder[0]",
+            "mode": "data",
+            "type": "docker_registry_image",
+            "name": "coder",
+            "index": 0,
+            "provider_name": "registry.terraform.io/kreuzwerker/docker",
+            "schema_version": 0,
+            "values": {
+              "id": "sha256:52bb4d943694f2f5867a251780f85e5a68906787b4ffa3157e29b9ef510b1a97",
+              "insecure_skip_verify": false,
+              "name": "ghcr.io/coder/coder:latest",
+              "sha256_digest": "sha256:52bb4d943694f2f5867a251780f85e5a68906787b4ffa3157e29b9ef510b1a97"
+            },
+            "sensitive_values": {}
+          },
+          {
+            "address": "data.docker_registry_image.coder[1]",
+            "mode": "data",
+            "type": "docker_registry_image",
+            "name": "coder",
+            "index": 1,
+            "provider_name": "registry.terraform.io/kreuzwerker/docker",
+            "schema_version": 0,
+            "values": {
+              "id": "sha256:52bb4d943694f2f5867a251780f85e5a68906787b4ffa3157e29b9ef510b1a97",
+              "insecure_skip_verify": false,
+              "name": "ghcr.io/coder/coder:v2.20.1",
+              "sha256_digest": "sha256:52bb4d943694f2f5867a251780f85e5a68906787b4ffa3157e29b9ef510b1a97"
+            },
+            "sensitive_values": {}
+          }
+        ],
+        "child_modules": [
+          {
+            "resources": [
+              {
+                "address": "module.jetbrains_gateway[0].data.coder_parameter.jetbrains_ide",
+                "mode": "data",
+                "type": "coder_parameter",
+                "name": "jetbrains_ide",
+                "provider_name": "registry.terraform.io/coder/coder",
+                "schema_version": 0,
+                "values": {
+                  "default": "GO",
+                  "description": null,
+                  "display_name": "JetBrains IDE",
+                  "ephemeral": false,
+                  "form_type": "radio",
+                  "form_type_metadata": "{}",
+                  "icon": "/icon/gateway.svg",
+                  "id": "5cacbcbc-adcf-46dd-bd54-6292a6797fbf",
+                  "mutable": true,
+                  "name": "jetbrains_ide",
+                  "option": [
+                    {
+                      "description": "",
+                      "icon": "/icon/clion.svg",
+                      "name": "CLion",
+                      "value": "CL"
+                    },
+                    {
+                      "description": "",
+                      "icon": "/icon/goland.svg",
+                      "name": "GoLand",
+                      "value": "GO"
+                    },
+                    {
+                      "description": "",
+                      "icon": "/icon/intellij.svg",
+                      "name": "IntelliJ IDEA Ultimate",
+                      "value": "IU"
+                    },
+                    {
+                      "description": "",
+                      "icon": "/icon/pycharm.svg",
+                      "name": "PyCharm Professional",
+                      "value": "PY"
+                    },
+                    {
+                      "description": "",
+                      "icon": "/icon/webstorm.svg",
+                      "name": "WebStorm",
+                      "value": "WS"
+                    }
+                  ],
+                  "optional": true,
+                  "order": null,
+                  "type": "string",
+                  "validation": [],
+                  "value": "GO"
+                },
+                "sensitive_values": {
+                  "option": [
+                    {},
+                    {},
+                    {},
+                    {},
+                    {}
+                  ],
+                  "validation": []
+                }
+              },
+              {
+                "address": "module.jetbrains_gateway[0].data.coder_workspace.me",
+                "mode": "data",
+                "type": "coder_workspace",
+                "name": "me",
+                "provider_name": "registry.terraform.io/coder/coder",
+                "schema_version": 0,
+                "values": {
+                  "access_port": 443,
+                  "access_url": "https://mydeployment.coder.com",
+                  "id": "9ed609ac-6f79-4ec7-92c1-bea8820bd8da",
+                  "name": "default",
+                  "start_count": 1,
+                  "template_id": "",
+                  "template_name": "",
+                  "template_version": "",
+                  "transition": "start"
+                },
+                "sensitive_values": {}
+              },
+              {
+                "address": "module.jetbrains_gateway[0].data.coder_workspace_owner.me",
+                "mode": "data",
+                "type": "coder_workspace_owner",
+                "name": "me",
+                "provider_name": "registry.terraform.io/coder/coder",
+                "schema_version": 0,
+                "values": {
+                  "email": "default@example.com",
+                  "full_name": "default",
+                  "groups": [],
+                  "id": "e7cbf8de-4290-43a3-bfa1-c25447e3b666",
+                  "login_type": null,
+                  "name": "default",
+                  "oidc_access_token": "",
+                  "session_token": "",
+                  "ssh_private_key": "",
+                  "ssh_public_key": ""
+                },
+                "sensitive_values": {
+                  "groups": [],
+                  "ssh_private_key": true
+                }
+              }
+            ],
+            "address": "module.jetbrains_gateway[0]"
+          }
+        ]
+      }
+    }
+  },
+  "configuration": {
+    "provider_config": {
+      "coder": {
+        "name": "coder",
+        "full_name": "registry.terraform.io/coder/coder"
+      },
+      "docker": {
+        "name": "docker",
+        "full_name": "registry.terraform.io/kreuzwerker/docker",
+        "version_constraint": "3.0.2"
+      },
+      "module.jetbrains_gateway:http": {
+        "name": "http",
+        "full_name": "registry.terraform.io/hashicorp/http",
+        "version_constraint": "\u003e= 3.0.0",
+        "module_address": "module.jetbrains_gateway"
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "coder_agent.main",
+          "mode": "managed",
+          "type": "coder_agent",
+          "name": "main",
+          "provider_config_key": "coder",
+          "expressions": {
+            "arch": {
+              "constant_value": "amd64"
+            },
+            "os": {
+              "constant_value": "linux"
+            }
+          },
+          "schema_version": 1
+        },
+        {
+          "address": "data.coder_parameter.extra",
+          "mode": "data",
+          "type": "coder_parameter",
+          "name": "extra",
+          "provider_config_key": "coder",
+          "expressions": {
+            "default": {
+              "references": [
+                "data.docker_registry_image.coder[1].sha256_digest",
+                "data.docker_registry_image.coder[1]",
+                "data.docker_registry_image.coder"
+              ]
+            },
+            "description": {
+              "constant_value": "A param to throw into the mix."
+            },
+            "display_name": {
+              "constant_value": "Extra Param"
+            },
+            "name": {
+              "constant_value": "extra"
+            },
+            "type": {
+              "constant_value": "string"
+            }
+          },
+          "schema_version": 0,
+          "count_expression": {
+            "constant_value": 1
+          }
+        },
+        {
+          "address": "data.coder_workspace.me",
+          "mode": "data",
+          "type": "coder_workspace",
+          "name": "me",
+          "provider_config_key": "coder",
+          "schema_version": 0
+        },
+        {
+          "address": "data.docker_registry_image.coder",
+          "mode": "data",
+          "type": "docker_registry_image",
+          "name": "coder",
+          "provider_config_key": "docker",
+          "expressions": {
+            "name": {
+              "references": [
+                "count.index"
+              ]
+            }
+          },
+          "schema_version": 0,
+          "count_expression": {
+            "constant_value": 2
+          }
+        }
+      ],
+      "module_calls": {
+        "jetbrains_gateway": {
+          "source": "registry.coder.com/modules/jetbrains-gateway/coder",
+          "expressions": {
+            "agent_id": {
+              "references": [
+                "coder_agent.main.id",
+                "coder_agent.main"
+              ]
+            },
+            "agent_name": {
+              "constant_value": "main"
+            },
+            "default": {
+              "constant_value": "GO"
+            },
+            "folder": {
+              "constant_value": "/home/coder/example"
+            },
+            "jetbrains_ides": {
+              "constant_value": [
+                "CL",
+                "GO",
+                "IU",
+                "PY",
+                "WS"
+              ]
+            }
+          },
+          "count_expression": {
+            "constant_value": 1
+          },
+          "module": {
+            "outputs": {
+              "build_number": {
+                "expression": {
+                  "references": [
+                    "local.build_number"
+                  ]
+                }
+              },
+              "display_name": {
+                "expression": {
+                  "references": [
+                    "local.display_name"
+                  ]
+                }
+              },
+              "download_link": {
+                "expression": {
+                  "references": [
+                    "local.download_link"
+                  ]
+                }
+              },
+              "icon": {
+                "expression": {
+                  "references": [
+                    "local.icon"
+                  ]
+                }
+              },
+              "identifier": {
+                "expression": {
+                  "references": [
+                    "local.identifier"
+                  ]
+                }
+              },
+              "url": {
+                "expression": {
+                  "references": [
+                    "coder_app.gateway.url",
+                    "coder_app.gateway"
+                  ]
+                }
+              },
+              "version": {
+                "expression": {
+                  "references": [
+                    "local.version"
+                  ]
+                }
+              }
+            },
+            "resources": [
+              {
+                "address": "coder_app.gateway",
+                "mode": "managed",
+                "type": "coder_app",
+                "name": "gateway",
+                "provider_config_key": "coder",
+                "expressions": {
+                  "agent_id": {
+                    "references": [
+                      "var.agent_id"
+                    ]
+                  },
+                  "display_name": {
+                    "references": [
+                      "local.display_name"
+                    ]
+                  },
+                  "external": {
+                    "constant_value": true
+                  },
+                  "icon": {
+                    "references": [
+                      "local.icon"
+                    ]
+                  },
+                  "order": {
+                    "references": [
+                      "var.order"
+                    ]
+                  },
+                  "slug": {
+                    "references": [
+                      "var.slug"
+                    ]
+                  },
+                  "url": {
+                    "references": [
+                      "data.coder_workspace.me.name",
+                      "data.coder_workspace.me",
+                      "data.coder_workspace_owner.me.name",
+                      "data.coder_workspace_owner.me",
+                      "var.agent_name",
+                      "var.folder",
+                      "data.coder_workspace.me.access_url",
+                      "data.coder_workspace.me",
+                      "data.coder_parameter.jetbrains_ide.value",
+                      "data.coder_parameter.jetbrains_ide",
+                      "local.build_number",
+                      "local.download_link"
+                    ]
+                  }
+                },
+                "schema_version": 1
+              },
+              {
+                "address": "data.coder_parameter.jetbrains_ide",
+                "mode": "data",
+                "type": "coder_parameter",
+                "name": "jetbrains_ide",
+                "provider_config_key": "coder",
+                "expressions": {
+                  "default": {
+                    "references": [
+                      "var.default",
+                      "var.jetbrains_ides[0]",
+                      "var.jetbrains_ides",
+                      "var.default"
+                    ]
+                  },
+                  "display_name": {
+                    "constant_value": "JetBrains IDE"
+                  },
+                  "icon": {
+                    "constant_value": "/icon/gateway.svg"
+                  },
+                  "mutable": {
+                    "constant_value": true
+                  },
+                  "name": {
+                    "constant_value": "jetbrains_ide"
+                  },
+                  "order": {
+                    "references": [
+                      "var.coder_parameter_order"
+                    ]
+                  },
+                  "type": {
+                    "constant_value": "string"
+                  }
+                },
+                "schema_version": 0
+              },
+              {
+                "address": "data.coder_workspace.me",
+                "mode": "data",
+                "type": "coder_workspace",
+                "name": "me",
+                "provider_config_key": "coder",
+                "schema_version": 0
+              },
+              {
+                "address": "data.coder_workspace_owner.me",
+                "mode": "data",
+                "type": "coder_workspace_owner",
+                "name": "me",
+                "provider_config_key": "coder",
+                "schema_version": 0
+              },
+              {
+                "address": "data.http.jetbrains_ide_versions",
+                "mode": "data",
+                "type": "http",
+                "name": "jetbrains_ide_versions",
+                "provider_config_key": "module.jetbrains_gateway:http",
+                "expressions": {
+                  "url": {
+                    "references": [
+                      "var.releases_base_link",
+                      "each.key",
+                      "var.channel"
+                    ]
+                  }
+                },
+                "schema_version": 0,
+                "for_each_expression": {
+                  "references": [
+                    "var.latest",
+                    "var.jetbrains_ides"
+                  ]
+                }
+              }
+            ],
+            "variables": {
+              "agent_id": {
+                "description": "The ID of a Coder agent."
+              },
+              "agent_name": {
+                "description": "Agent name."
+              },
+              "channel": {
+                "default": "release",
+                "description": "JetBrains IDE release channel. Valid values are release and eap."
+              },
+              "coder_parameter_order": {
+                "default": null,
+                "description": "The order determines the position of a template parameter in the UI/CLI presentation. The lowest order is shown first and parameters with equal order are sorted by name (ascending order)."
+              },
+              "default": {
+                "default": "",
+                "description": "Default IDE"
+              },
+              "download_base_link": {
+                "default": "https://download.jetbrains.com"
+              },
+              "folder": {
+                "description": "The directory to open in the IDE. e.g. /home/coder/project"
+              },
+              "jetbrains_ide_versions": {
+                "default": {
+                  "CL": {
+                    "build_number": "243.21565.238",
+                    "version": "2024.1"
+                  },
+                  "GO": {
+                    "build_number": "243.21565.208",
+                    "version": "2024.3"
+                  },
+                  "IU": {
+                    "build_number": "243.21565.193",
+                    "version": "2024.3"
+                  },
+                  "PS": {
+                    "build_number": "243.21565.202",
+                    "version": "2024.3"
+                  },
+                  "PY": {
+                    "build_number": "243.21565.199",
+                    "version": "2024.3"
+                  },
+                  "RD": {
+                    "build_number": "243.21565.191",
+                    "version": "2024.3"
+                  },
+                  "RM": {
+                    "build_number": "243.21565.197",
+                    "version": "2024.3"
+                  },
+                  "RR": {
+                    "build_number": "243.22562.230",
+                    "version": "2024.3"
+                  },
+                  "WS": {
+                    "build_number": "243.21565.180",
+                    "version": "2024.3"
+                  }
+                },
+                "description": "The set of versions for each jetbrains IDE"
+              },
+              "jetbrains_ides": {
+                "default": [
+                  "IU",
+                  "PS",
+                  "WS",
+                  "PY",
+                  "CL",
+                  "GO",
+                  "RM",
+                  "RD",
+                  "RR"
+                ],
+                "description": "The list of IDE product codes."
+              },
+              "latest": {
+                "default": false,
+                "description": "Whether to fetch the latest version of the IDE."
+              },
+              "order": {
+                "default": null,
+                "description": "The order determines the position of app in the UI presentation. The lowest order is shown first and apps with equal order are sorted by name (ascending order)."
+              },
+              "releases_base_link": {
+                "default": "https://data.services.jetbrains.com"
+              },
+              "slug": {
+                "default": "gateway",
+                "description": "The slug for the coder_app. Allows resuing the module with the same template."
+              }
+            }
+          },
+          "version_constraint": "1.0.27"
+        }
+      }
+    }
+  },
+  "relevant_attributes": [
+    {
+      "resource": "module.jetbrains_gateway[0].data.coder_workspace.me",
+      "attribute": [
+        "access_url"
+      ]
+    },
+    {
+      "resource": "module.jetbrains_gateway[0].data.coder_parameter.jetbrains_ide",
+      "attribute": [
+        "value"
+      ]
+    },
+    {
+      "resource": "module.jetbrains_gateway[0].coder_app.gateway",
+      "attribute": [
+        "url"
+      ]
+    },
+    {
+      "resource": "module.jetbrains_gateway[0].data.http.jetbrains_ide_versions",
+      "attribute": []
+    },
+    {
+      "resource": "coder_agent.main",
+      "attribute": [
+        "id"
+      ]
+    },
+    {
+      "resource": "module.jetbrains_gateway[0].data.coder_workspace.me",
+      "attribute": [
+        "name"
+      ]
+    },
+    {
+      "resource": "module.jetbrains_gateway[0].data.coder_workspace_owner.me",
+      "attribute": [
+        "name"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "address": {
+        "kind": "var",
+        "module": "module.jetbrains_gateway",
+        "name": "channel",
+        "to_display": "module.jetbrains_gateway.var.channel"
+      },
+      "status": "pass",
+      "instances": [
+        {
+          "address": {
+            "module": "module.jetbrains_gateway[0]",
+            "to_display": "module.jetbrains_gateway[0].var.channel"
+          },
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "address": {
+        "kind": "var",
+        "module": "module.jetbrains_gateway",
+        "name": "download_base_link",
+        "to_display": "module.jetbrains_gateway.var.download_base_link"
+      },
+      "status": "pass",
+      "instances": [
+        {
+          "address": {
+            "module": "module.jetbrains_gateway[0]",
+            "to_display": "module.jetbrains_gateway[0].var.download_base_link"
+          },
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "address": {
+        "kind": "var",
+        "module": "module.jetbrains_gateway",
+        "name": "folder",
+        "to_display": "module.jetbrains_gateway.var.folder"
+      },
+      "status": "pass",
+      "instances": [
+        {
+          "address": {
+            "module": "module.jetbrains_gateway[0]",
+            "to_display": "module.jetbrains_gateway[0].var.folder"
+          },
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "address": {
+        "kind": "var",
+        "module": "module.jetbrains_gateway",
+        "name": "jetbrains_ide_versions",
+        "to_display": "module.jetbrains_gateway.var.jetbrains_ide_versions"
+      },
+      "status": "pass",
+      "instances": [
+        {
+          "address": {
+            "module": "module.jetbrains_gateway[0]",
+            "to_display": "module.jetbrains_gateway[0].var.jetbrains_ide_versions"
+          },
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "address": {
+        "kind": "var",
+        "module": "module.jetbrains_gateway",
+        "name": "jetbrains_ides",
+        "to_display": "module.jetbrains_gateway.var.jetbrains_ides"
+      },
+      "status": "pass",
+      "instances": [
+        {
+          "address": {
+            "module": "module.jetbrains_gateway[0]",
+            "to_display": "module.jetbrains_gateway[0].var.jetbrains_ides"
+          },
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "address": {
+        "kind": "var",
+        "module": "module.jetbrains_gateway",
+        "name": "releases_base_link",
+        "to_display": "module.jetbrains_gateway.var.releases_base_link"
+      },
+      "status": "pass",
+      "instances": [
+        {
+          "address": {
+            "module": "module.jetbrains_gateway[0]",
+            "to_display": "module.jetbrains_gateway[0].var.releases_base_link"
+          },
+          "status": "pass"
+        }
+      ]
+    }
+  ],
+  "timestamp": "2025-03-17T17:35:20Z",
+  "applyable": true,
+  "complete": true,
+  "errored": false
+}
