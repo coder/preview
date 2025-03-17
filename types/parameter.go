@@ -45,17 +45,18 @@ type Parameter struct {
 }
 
 type ParameterData struct {
-	Name         string                     `json:"name"`
-	DisplayName  string                     `json:"display_name"`
-	Description  string                     `json:"description"`
-	Type         ParameterType              `json:"type"`
-	FormType     provider.ParameterFormType `json:"form_type"`
-	Mutable      bool                       `json:"mutable"`
-	DefaultValue HCLString                  `json:"default_value"`
-	Icon         string                     `json:"icon"`
-	Options      []*ParameterOption         `json:"options"`
-	Validations  []*ParameterValidation     `json:"validations"`
-	Required     bool                       `json:"required"`
+	Name             string                     `json:"name"`
+	DisplayName      string                     `json:"display_name"`
+	Description      string                     `json:"description"`
+	Type             ParameterType              `json:"type"`
+	FormType         provider.ParameterFormType `json:"form_type"`
+	FormTypeMetadata any                        `json:"form_type_metadata"`
+	Mutable          bool                       `json:"mutable"`
+	DefaultValue     HCLString                  `json:"default_value"`
+	Icon             string                     `json:"icon"`
+	Options          []*ParameterOption         `json:"options"`
+	Validations      []*ParameterValidation     `json:"validations"`
+	Required         bool                       `json:"required"`
 	// legacy_variable_name was removed (= 14)
 	Order     int64 `json:"order"`
 	Ephemeral bool  `json:"ephemeral"`

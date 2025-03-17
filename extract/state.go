@@ -1,6 +1,7 @@
 package extract
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -52,22 +53,29 @@ func ParameterFromState(block *tfjson.StateResource) (types.Parameter, error) {
 		return types.Parameter{}, fmt.Errorf("convert param validations: %w", err)
 	}
 
+	ftmeta := st.optionalString("form_type_metadata")
+	var formTypeMeta any
+	if ftmeta != "" {
+		_ = json.Unmarshal([]byte(ftmeta), &formTypeMeta)
+	}
+
 	param := types.Parameter{
 		Value: types.StringLiteral(st.string("value")),
 		ParameterData: types.ParameterData{
-			Name:         st.string("name"),
-			Description:  st.optionalString("description"),
-			Type:         types.ParameterType(st.optionalString("type")),
-			FormType:     provider.ParameterFormType(st.optionalString("form_type")),
-			Mutable:      st.optionalBool("mutable"),
-			DefaultValue: types.StringLiteral(st.optionalString("default")),
-			Icon:         st.optionalString("icon"),
-			Options:      options,
-			Validations:  validations,
-			Required:     st.optionalBool("required"),
-			DisplayName:  st.optionalString("display_name"),
-			Order:        st.optionalInteger("order"),
-			Ephemeral:    st.optionalBool("ephemeral"),
+			Name:             st.string("name"),
+			Description:      st.optionalString("description"),
+			Type:             types.ParameterType(st.optionalString("type")),
+			FormType:         provider.ParameterFormType(st.optionalString("form_type")),
+			FormTypeMetadata: formTypeMeta,
+			Mutable:          st.optionalBool("mutable"),
+			DefaultValue:     types.StringLiteral(st.optionalString("default")),
+			Icon:             st.optionalString("icon"),
+			Options:          options,
+			Validations:      validations,
+			Required:         st.optionalBool("required"),
+			DisplayName:      st.optionalString("display_name"),
+			Order:            st.optionalInteger("order"),
+			Ephemeral:        st.optionalBool("ephemeral"),
 		},
 	}
 

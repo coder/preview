@@ -1,6 +1,7 @@
 package extract
 
 import (
+	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
@@ -55,14 +56,21 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 		def = types.ToHCLString(block, defAttr)
 	}
 
+	ftmeta := optionalString(block, "form_type_metadata")
+	formTypeMeta := make(map[string]any)
+	if ftmeta != "" {
+		_ = json.Unmarshal([]byte(ftmeta), &formTypeMeta)
+	}
+
 	p := types.Parameter{
 		Value: pVal,
 		ParameterData: types.ParameterData{
-			Name:        pName,
-			Description: optionalString(block, "description"),
-			Type:        pType,
-			FormType:    formType,
-			Mutable:     optionalBoolean(block, "mutable"),
+			Name:             pName,
+			Description:      optionalString(block, "description"),
+			Type:             pType,
+			FormType:         formType,
+			FormTypeMetadata: ftmeta,
+			Mutable:          optionalBoolean(block, "mutable"),
 			// Default value is always written as a string, then converted
 			// to the correct type.
 			DefaultValue: def,

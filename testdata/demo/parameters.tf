@@ -64,10 +64,18 @@ data "coder_parameter" "cpu" {
   display_name = "CPU"
   description  = "The number of CPU cores"
   type         = "number"
+  form_type    = "slider"
   default      = "2"
   icon         = "/icon/memory.svg"
   mutable      = true
   order        = 20
+
+  form_type_metadata = jsonencode({
+    "minumum" = 1
+    "budget"  = 2
+    "performance" = module.base.security_level == "high" ? 4 : 8
+  })
+
 
   validation {
     min = 1
