@@ -101,7 +101,8 @@ data "coder_workspace_tags" "test" {
 // Advanced admin parameter
 data "coder_parameter" "image_hash" {
   count       = local.isAdmin ? 1 : 0
-  name        = "Image Hash"
+  name        = "hash"
+  display_name = "Image Hash"
   description = "Override the hash of the image to use. Only available to admins."
   // Value can get stale
   default     = trimprefix(data.docker_registry_image.coder.sha256_digest, "sha256:")
