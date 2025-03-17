@@ -25,7 +25,8 @@ export function useWebSocket<T>(url: string, testdata: string) {
           console.log("Received message:", data);
           setMessage(data);
         } catch (err) {
-          console.error("Invalid JSON from server:", event.data);
+          console.error("Invalid JSON from server: ", event.data);
+          console.error("Error: ", err);
         }
       };
 
@@ -51,7 +52,6 @@ export function useWebSocket<T>(url: string, testdata: string) {
     setMessage(null);
     setConnectionStatus('connecting');
     
-    // Create new connection after a small delay to ensure cleanup completes
     const createConnection = () => {
       urlRef.current = url;
       connectWebSocket();

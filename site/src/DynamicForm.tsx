@@ -239,21 +239,13 @@ export function DynamicForm() {
         <Controller
             name={param.name}
             control={methods.control}
-            render={({ field }) => {
-              const { debounced } = useDebouncedFunction(
-                (e: React.ChangeEvent<HTMLInputElement>) => field.onChange(e),
-                1000
-              );
-
-              return (
-                <Input
-                  onChange={debounced}
-                  className="w-[300px]"
-                  type={mapParamTypeToInputType(param.type)}
-                  defaultValue={param.default_value}
-                />
-              );
-            }}
+            render={({ field }) => (
+              <DebouncedInput
+                field={field}
+                type={mapParamTypeToInputType(param.type)}
+                defaultValue={param.default_value}
+              />
+            )}
           />
         {renderDiagnostics(param.diagnostics)}
       </div>
@@ -270,6 +262,26 @@ export function DynamicForm() {
           </div>
         ))}
       </div>
+    );
+  };
+
+  const DebouncedInput = ({ field, type, defaultValue }: { 
+    field: { onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }, 
+    type: string, 
+    defaultValue?: string 
+  }) => {
+    const { debounced } = useDebouncedFunction(
+      (e: React.ChangeEvent<HTMLInputElement>) => field.onChange(e),
+      2000
+    );
+
+    return (
+      <Input
+        onChange={debounced}
+        className="w-[300px]"
+        type={type}
+        defaultValue={defaultValue}
+      />
     );
   };
 
