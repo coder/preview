@@ -12,6 +12,7 @@ import { Input } from "./components/Input/Input";
 import { Switch } from "./components/Switch/Switch";
 import { useUsers } from './hooks/useUsers';
 import { useDirectories } from './hooks/useDirectories';
+import { useDebouncedFunction } from './hooks/debounce';
 
 export function DynamicForm() {
   const serverAddress = "localhost:8100";
@@ -45,6 +46,11 @@ export function DynamicForm() {
   } = useDirectories(serverAddress, urlTestdata);
   
   const handleTestdataChange = (value: string) => {
+    reset({});
+    setPrevValues({});
+    setResponse(null);
+    setCurrentId(0);
+    
     const params = new URLSearchParams(window.location.search);
     params.set('testdata', value);
     const newUrl = `${window.location.pathname}?${params.toString()}`;
@@ -52,7 +58,6 @@ export function DynamicForm() {
     setUrlTestdata(value);
     setPlan("");
     setUser("");
-    setResponse(null);
   };
   
   const { 
@@ -234,14 +239,21 @@ export function DynamicForm() {
         <Controller
             name={param.name}
             control={methods.control}
-            render={({ field }) => (
-              <Input
-                onChange={field.onChange}
-                className="w-[300px]"
-                type={mapParamTypeToInputType(param.type)}
-                defaultValue={param.default_value}
-              />
-            )}
+            render={({ field }) => {
+              const { debounced } = useDebouncedFunction(
+                (e: React.ChangeEvent<HTMLInputElement>) => field.onChange(e),
+                1000
+              );
+
+              return (
+                <Input
+                  onChange={debounced}
+                  className="w-[300px]"
+                  type={mapParamTypeToInputType(param.type)}
+                  defaultValue={param.default_value}
+                />
+              );
+            }}
           />
         {renderDiagnostics(param.diagnostics)}
       </div>
