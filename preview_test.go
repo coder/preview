@@ -306,7 +306,11 @@ func Test_Extract(t *testing.T) {
 				Owner:           types.WorkspaceOwner{},
 			},
 			unknownTags: []string{},
-			params:      map[string]assertParam{},
+			params: map[string]assertParam{
+				"ref": ap().value("Index 2").
+					optVals("Index 0", "Index 1", "Index 2"),
+				"ref_count": ap().value("Index 2"),
+			},
 		},
 		{
 			name:    "defexpression",
