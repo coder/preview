@@ -24,3 +24,9 @@ Currently, a branch of the coder terraform provider is required.
 ```
 
 Now you are using the right terraform provider.
+
+To run preview:
+1. `cd site`
+2. `pnpm install`
+3. `cd ..`
+4. `go run ./cmd/preview/main.go web --pnpm=site`
