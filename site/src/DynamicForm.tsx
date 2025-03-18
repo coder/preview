@@ -15,7 +15,8 @@ import { useUsers } from './hooks/useUsers';
 import { useDirectories } from './hooks/useDirectories';
 import { useDebouncedFunction } from './hooks/debounce';
 import { CollapsibleSummary } from "./components/CollapsibleSummary/CollapsibleSummary";
-import ReactJson from 'react-json-view'
+import { Slider } from "./components/ui/slider";
+import ReactJson from 'react-json-view';
 
 export function DynamicForm() {
   const serverAddress = "localhost:8100";
@@ -229,6 +230,32 @@ export function DynamicForm() {
                 )}
               />
               {renderDiagnostics(param.diagnostics)}
+            </div>
+          )
+        case "slider":
+          return (
+            <div key={param.name} className="flex flex-col gap-2 items-center">
+              <div className="flex items-center justify-between gap-2">
+                <label>
+                  {param.display_name || param.name}
+                  {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+                </label>
+                <output className="text-sm font-medium tabular-nums">{param.value}</output>
+              </div>
+              {param.description && <div className="text-sm">{param.description}</div>}
+              <Controller
+                name={param.name}
+                control={methods.control}
+                render={({ field }) => (
+                  <div className="w-[300px]">
+                      <Slider defaultValue={field.value ? [Number(field.value)] : [0]} max={param.validations[0].validation_max || undefined} min={param.validations[0].validation_min || undefined} step={1}                       
+                      onValueChange={(value) => {
+                        console.log("value", value[0].toString());
+                        field.onChange(value[0].toString());
+                      }}/>
+                  </div>
+                )}
+              />
             </div>
           )
       }
