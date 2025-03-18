@@ -14,6 +14,8 @@ import { Switch } from "./components/Switch/Switch";
 import { useUsers } from './hooks/useUsers';
 import { useDirectories } from './hooks/useDirectories';
 import { useDebouncedFunction } from './hooks/debounce';
+import { CollapsibleSummary } from "./components/CollapsibleSummary/CollapsibleSummary";
+import ReactJson from 'react-json-view'
 
 export function DynamicForm() {
   const serverAddress = "localhost:8100";
@@ -413,6 +415,12 @@ export function DynamicForm() {
           {sortedParams && sortedParams.map((param) => renderParameter(param))}
         </form>
       </FormProvider>
+
+      <CollapsibleSummary label="Server Response JSON">
+        <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-900 text-left">
+          {serverResponse && <ReactJson src={serverResponse} />}
+        </div>
+      </CollapsibleSummary>
     </div>
   );
 }
