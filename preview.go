@@ -11,6 +11,7 @@ import (
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraform/parser"
 	"github.com/aquasecurity/trivy/pkg/log"
 	"github.com/hashicorp/hcl/v2"
+	"github.com/zclconf/go-cty/cty"
 
 	"github.com/coder/preview/types"
 )
@@ -22,6 +23,7 @@ type Input struct {
 }
 
 type Output struct {
+	ModuleOutput  cty.Value
 	Parameters    []types.Parameter
 	WorkspaceTags types.TagBlocks
 	Files         map[string]*hcl.File
@@ -99,12 +101,11 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 		}
 	}
 
-	var _ = outputs
-
 	diags := make(hcl.Diagnostics, 0)
 	rp, rpDiags := RichParameters(modules)
 	tags, tagDiags := WorkspaceTags(modules, p.Files())
 	return &Output{
+		ModuleOutput:  outputs,
 		Parameters:    rp,
 		WorkspaceTags: tags,
 		Files:         p.Files(),

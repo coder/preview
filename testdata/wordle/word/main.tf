@@ -21,8 +21,8 @@ variable "correct" {
   type = string
 }
 
-// The pattern for showing the previous correct letters.
-variable "pattern" {
+// The previous word
+variable "previous" {
   type = string
 }
 
@@ -32,10 +32,46 @@ variable "default" {
   default = ""
 }
 
+output "value" {
+  value = data.coder_parameter.word[0].value
+}
+
+locals {
+  matching = join("", [
+    for i in range(0, length(var.correct)) : (
+      substr(var.previous, i, 1) == substr(var.correct, i, 1) ? "#" : "_"
+    )
+  ])
+
+  // unmatchedLetters are letters that are not exact matches from the
+  // previous input.
+  unmatchedLetters = [
+    for i in range(0, length(var.correct)) : (
+      substr(var.previous, i, 1)
+    ) if substr(var.previous, i, 1) != substr(var.correct, i, 1)
+  ]
+
+  // remainingLetters are letters in the correct word that still exist to be
+  // guessed.
+  remainingLetters = [
+    for i in range(0, length(var.correct)) : (
+    substr(var.correct, i, 1)
+    ) if substr(var.previous, i, 1) != substr(var.correct, i, 1)
+  ]
+
+  // letterExists are misplaced letters that exist in the correct word.
+  letterExists = [
+    for l in local.unmatchedLetters : (
+      l
+    ) if contains(local.remainingLetters, l)
+  ]
+}
+
 data "coder_parameter" "word" {
+  count        = length(var.previous) == 5 ? 1 : 0
   name         = local.names[var.index]
-  display_name = "${local.capitalized} word ${module.checker.valid}"
-  description  = var.pattern
+  display_name = "--> ${local.matching} <-- with ${join("", local.letterExists)}"
+  description = local.matching
   type         = "string"
   order        = var.index + 10
   default      = var.default
@@ -46,17 +82,4 @@ data "coder_parameter" "word" {
   }
 }
 
-module "checker" {
-  source = "../checker"
-  input = data.coder_parameter.word.value
-  correct = var.correct
-}
 
-output "result" {
-  value = module.checker.result
-}
-
-output "valid" {
-  value = module.checker.valid
-  # value = length(data.coder_parameter.word.value) == 5
-}

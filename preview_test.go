@@ -271,21 +271,32 @@ func Test_Extract(t *testing.T) {
 			params: map[string]assertParam{},
 		},
 		{
-			skip: "Broken until https://github.com/aquasecurity/trivy/pull/8479 fixed",
 			name: "demo",
 			dir:  "demo",
 			expTags: map[string]string{
 				"cluster": "confidential",
+				"hash":    "52bb4d943694f2f5867a251780f85e5a68906787b4ffa3157e29b9ef510b1a97",
 			},
 			input: preview.Input{
-				PlanJSONPath:    "",
-				ParameterValues: map[string]string{},
+				PlanJSONPath: "plan.json",
+				ParameterValues: map[string]string{
+					"hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+				},
 				Owner: types.WorkspaceOwner{
 					Groups: []string{"admin"},
 				},
 			},
 			unknownTags: []string{},
-			params:      map[string]assertParam{},
+			params: map[string]assertParam{
+				"hash": ap().
+					value("b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"),
+				"security_level": ap(),
+				"region":         ap(),
+				"cpu":            ap(),
+				"browser":        ap(),
+				"team":           ap().optVals("frontend", "backend", "fullstack"),
+				"jetbrains_ide":  ap(),
+			},
 		},
 		{
 			name: "demo_flat",
@@ -378,14 +389,24 @@ func Test_Extract(t *testing.T) {
 			input: preview.Input{
 				PlanJSONPath: "",
 				ParameterValues: map[string]string{
-					"first": "curse",
+					"first": "curs",
 				},
 				Owner: types.WorkspaceOwner{},
 			},
 			unknownTags: []string{},
 			params: map[string]assertParam{
-				"first": ap().value("curse"),
+				"first": ap().value("curs"),
 			},
+		},
+		{
+			name:    "submodcount",
+			dir:     "submodcount",
+			expTags: map[string]string{},
+			input: preview.Input{
+				ParameterValues: map[string]string{},
+			},
+			unknownTags: []string{},
+			params:      map[string]assertParam{},
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

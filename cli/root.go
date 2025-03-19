@@ -1,12 +1,15 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsyntax"
+	ctyjson "github.com/zclconf/go-cty/cty/json"
 
 	"github.com/coder/preview"
 	"github.com/coder/preview/cli/clidisplay"
@@ -101,6 +104,14 @@ func (r *RootCmd) Root() *serpent.Command {
 			}
 
 			clidisplay.Parameters(os.Stdout, output.Parameters, output.Files)
+
+			if !output.ModuleOutput.IsNull() && !(output.ModuleOutput.Type().IsObjectType() && output.ModuleOutput.LengthInt() == 0) {
+				fmt.Println("Module output")
+				data, _ := ctyjson.Marshal(output.ModuleOutput, output.ModuleOutput.Type())
+				var buf bytes.Buffer
+				_ = json.Indent(&buf, data, "", "  ")
+				fmt.Println(buf.String())
+			}
 
 			return nil
 		},

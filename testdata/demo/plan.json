@@ -55,25 +55,9 @@
       "provider_name": "registry.terraform.io/coder/coder",
       "change": {
         "actions": [
-          "delete",
           "create"
         ],
-        "before": {
-          "agent_id": "random",
-          "command": null,
-          "display_name": "CLion",
-          "external": true,
-          "healthcheck": [],
-          "hidden": false,
-          "icon": "/icon/clion.svg",
-          "id": "76e2cda2-81e8-4b9d-a539-5bad5289ff26",
-          "open_in": "slim-window",
-          "order": 11,
-          "share": "owner",
-          "slug": "gateway",
-          "subdomain": null,
-          "url": "jetbrains-gateway://connect#type=coder\u0026workspace=default\u0026owner=default\u0026folder=/home/coder/example\u0026url=https://mydeployment.coder.com\u0026token=$SESSION_TOKEN\u0026ide_product_code=CL\u0026ide_build_number=243.21565.238\u0026ide_download_link=https://download.jetbrains.com/cpp/CLion-2024.1.tar.gz"
-        },
+        "before": null,
         "after": {
           "agent_id": "random",
           "command": null,
@@ -93,27 +77,19 @@
           "healthcheck": [],
           "id": true
         },
-        "before_sensitive": {
-          "healthcheck": []
-        },
+        "before_sensitive": false,
         "after_sensitive": {
           "healthcheck": []
-        },
-        "replace_paths": [
-          [
-            "order"
-          ]
-        ]
-      },
-      "action_reason": "replace_because_cannot_update"
+        }
+      }
     }
   ],
   "output_changes": {
     "test": {
       "actions": [
-        "no-op"
+        "create"
       ],
-      "before": "us-pittsburgh",
+      "before": null,
       "after": "us-pittsburgh",
       "after_unknown": false,
       "before_sensitive": false,
@@ -146,8 +122,10 @@
               "description": "Which browser do you prefer?",
               "display_name": null,
               "ephemeral": false,
+              "form_type": "radio",
+              "form_type_metadata": "{}",
               "icon": null,
-              "id": "b35f5fbe-14f0-48b0-94fa-a1913a40da78",
+              "id": "5e27a5d3-52ef-41ba-9c6b-cc4cdb1c98ff",
               "mutable": false,
               "name": "browser",
               "option": [
@@ -211,8 +189,10 @@
               "description": "The number of CPU cores",
               "display_name": "CPU",
               "ephemeral": false,
+              "form_type": "slider",
+              "form_type_metadata": "{\"budget\":2,\"minumum\":1,\"performance\":4}",
               "icon": "/icon/memory.svg",
-              "id": "e3d940c1-e9f4-49ae-a28a-f6005bde0dee",
+              "id": "6e2e551e-b126-490a-a061-08504848bdb5",
               "mutable": true,
               "name": "cpu",
               "option": null,
@@ -250,8 +230,10 @@
               "description": "What region are you in?",
               "display_name": "Region",
               "ephemeral": false,
+              "form_type": "radio",
+              "form_type_metadata": "{}",
               "icon": "/icon/memory.svg",
-              "id": "1dacfe2f-e6c6-4936-9354-345fce3956e7",
+              "id": "c60ab269-96a7-42a7-9aaa-d9a6f0f60ecd",
               "mutable": false,
               "name": "Region",
               "option": [
@@ -315,8 +297,10 @@
               "description": "Which team are you on?",
               "display_name": null,
               "ephemeral": false,
+              "form_type": "radio",
+              "form_type_metadata": "{}",
               "icon": null,
-              "id": "92c31873-3652-470e-9f74-c8a6ffd4d4bb",
+              "id": "09c65d3c-f116-49a0-855c-6675c4aa1c21",
               "mutable": false,
               "name": "Team",
               "option": [
@@ -377,7 +361,7 @@
               "email": "default@example.com",
               "full_name": "default",
               "groups": [],
-              "id": "f12ad145-a343-45e0-991f-8d06b83c396c",
+              "id": "1b4ed8c1-2ef1-407e-9d1d-303039ab8b28",
               "login_type": null,
               "name": "default",
               "oidc_access_token": "",
@@ -391,6 +375,23 @@
             }
           },
           {
+            "address": "data.coder_workspace_tags.test",
+            "mode": "data",
+            "type": "coder_workspace_tags",
+            "name": "test",
+            "provider_name": "registry.terraform.io/coder/coder",
+            "schema_version": 0,
+            "values": {
+              "id": "d2da4389-2e3c-423f-a6f8-80669c431496",
+              "tags": {
+                "hash": "52bb4d943694f2f5867a251780f85e5a68906787b4ffa3157e29b9ef510b1a97"
+              }
+            },
+            "sensitive_values": {
+              "tags": {}
+            }
+          },
+          {
             "address": "data.docker_registry_image.coder",
             "mode": "data",
             "type": "docker_registry_image",
@@ -398,10 +399,10 @@
             "provider_name": "registry.terraform.io/kreuzwerker/docker",
             "schema_version": 0,
             "values": {
-              "id": "sha256:141d112217ea44f85a0319822be6499e03f37aa9f8ea2f04b21e6a2dcb5b859b",
+              "id": "sha256:52bb4d943694f2f5867a251780f85e5a68906787b4ffa3157e29b9ef510b1a97",
               "insecure_skip_verify": false,
               "name": "ghcr.io/coder/coder:latest",
-              "sha256_digest": "sha256:141d112217ea44f85a0319822be6499e03f37aa9f8ea2f04b21e6a2dcb5b859b"
+              "sha256_digest": "sha256:52bb4d943694f2f5867a251780f85e5a68906787b4ffa3157e29b9ef510b1a97"
             },
             "sensitive_values": {}
           }
@@ -423,7 +424,7 @@
                       "email": "default@example.com",
                       "full_name": "default",
                       "groups": [],
-                      "id": "6b29baa0-f6d8-4084-acc5-b00f8ad00d4f",
+                      "id": "3cb6aa48-2e5b-4d4e-aa6d-4c4e700e604a",
                       "login_type": null,
                       "name": "default",
                       "oidc_access_token": "",
@@ -444,7 +445,7 @@
                     "provider_name": "registry.terraform.io/coder/coder",
                     "schema_version": 0,
                     "values": {
-                      "id": "e0e7ea9b-c818-4234-8e6f-6fc2eaef186d",
+                      "id": "4a502427-9d35-48c0-bd7c-de3254abcda6",
                       "tags": {
                         "cluster": "confidential"
                       }
@@ -472,8 +473,10 @@
                   "description": null,
                   "display_name": "JetBrains IDE",
                   "ephemeral": false,
+                  "form_type": "radio",
+                  "form_type_metadata": "{}",
                   "icon": "/icon/gateway.svg",
-                  "id": "7aacc742-fb55-4c09-bf82-425dea8b608b",
+                  "id": "a56f76ad-7626-4a22-b7b4-d0dac5c6e93a",
                   "mutable": true,
                   "name": "jetbrains_ide",
                   "option": [
@@ -542,7 +545,7 @@
                 "values": {
                   "access_port": 443,
                   "access_url": "https://mydeployment.coder.com",
-                  "id": "267863ad-7f53-44a5-8f8c-2a4eda5015d7",
+                  "id": "546f9540-8441-4d72-8e12-d07be0eb5204",
                   "name": "default",
                   "start_count": 1,
                   "template_id": "",
@@ -563,7 +566,7 @@
                   "email": "default@example.com",
                   "full_name": "default",
                   "groups": [],
-                  "id": "a8bd308b-de31-48b9-8bf1-28842ea5857c",
+                  "id": "afca4d0e-f277-4464-81cc-da761323ce85",
                   "login_type": null,
                   "name": "default",
                   "oidc_access_token": "",
@@ -575,39 +578,6 @@
                   "groups": [],
                   "ssh_private_key": true
                 }
-              },
-              {
-                "address": "module.jetbrains_gateway[0].coder_app.gateway",
-                "mode": "managed",
-                "type": "coder_app",
-                "name": "gateway",
-                "provider_name": "registry.terraform.io/coder/coder",
-                "schema_version": 1,
-                "values": {
-                  "agent_id": "random",
-                  "command": null,
-                  "display_name": "CLion",
-                  "external": true,
-                  "healthcheck": [],
-                  "hidden": false,
-                  "icon": "/icon/clion.svg",
-                  "id": "76e2cda2-81e8-4b9d-a539-5bad5289ff26",
-                  "open_in": "slim-window",
-                  "order": 11,
-                  "share": "owner",
-                  "slug": "gateway",
-                  "subdomain": null,
-                  "url": "jetbrains-gateway://connect#type=coder\u0026workspace=default\u0026owner=default\u0026folder=/home/coder/example\u0026url=https://mydeployment.coder.com\u0026token=$SESSION_TOKEN\u0026ide_product_code=CL\u0026ide_build_number=243.21565.238\u0026ide_download_link=https://download.jetbrains.com/cpp/CLion-2024.1.tar.gz"
-                },
-                "sensitive_values": {
-                  "healthcheck": []
-                },
-                "depends_on": [
-                  "module.jetbrains_gateway.data.coder_parameter.jetbrains_ide",
-                  "module.jetbrains_gateway.data.coder_workspace.me",
-                  "module.jetbrains_gateway.data.coder_workspace_owner.me",
-                  "module.jetbrains_gateway.data.http.jetbrains_ide_versions"
-                ]
               }
             ],
             "address": "module.jetbrains_gateway[0]"
@@ -735,6 +705,15 @@
             },
             "display_name": {
               "constant_value": "CPU"
+            },
+            "form_type": {
+              "constant_value": "slider"
+            },
+            "form_type_metadata": {
+              "references": [
+                "module.base.security_level",
+                "module.base"
+              ]
             },
             "icon": {
               "constant_value": "/icon/memory.svg"
@@ -884,6 +863,22 @@
           "type": "coder_workspace_owner",
           "name": "me",
           "provider_config_key": "coder",
+          "schema_version": 0
+        },
+        {
+          "address": "data.coder_workspace_tags.test",
+          "mode": "data",
+          "type": "coder_workspace_tags",
+          "name": "test",
+          "provider_config_key": "coder",
+          "expressions": {
+            "tags": {
+              "references": [
+                "data.docker_registry_image.coder.sha256_digest",
+                "data.docker_registry_image.coder"
+              ]
+            }
+          },
           "schema_version": 0
         },
         {
@@ -1351,28 +1346,14 @@
   },
   "relevant_attributes": [
     {
-      "resource": "data.coder_parameter.team",
-      "attribute": [
-        "value"
-      ]
-    },
-    {
-      "resource": "module.jetbrains_gateway[0].data.coder_workspace.me",
-      "attribute": [
-        "name"
-      ]
-    },
-    {
       "resource": "module.jetbrains_gateway[0].data.coder_workspace.me",
       "attribute": [
         "access_url"
       ]
     },
     {
-      "resource": "module.jetbrains_gateway[0].coder_app.gateway",
-      "attribute": [
-        "url"
-      ]
+      "resource": "module.jetbrains_gateway[0].data.http.jetbrains_ide_versions",
+      "attribute": []
     },
     {
       "resource": "module.base.data.coder_parameter.security_level[0]",
@@ -1384,6 +1365,12 @@
       "resource": "module.base.module.deploys.data.coder_workspace_owner.me",
       "attribute": [
         "groups"
+      ]
+    },
+    {
+      "resource": "module.jetbrains_gateway[0].data.coder_workspace.me",
+      "attribute": [
+        "name"
       ]
     },
     {
@@ -1399,8 +1386,22 @@
       ]
     },
     {
-      "resource": "module.jetbrains_gateway[0].data.http.jetbrains_ide_versions",
-      "attribute": []
+      "resource": "module.jetbrains_gateway[0].coder_app.gateway",
+      "attribute": [
+        "url"
+      ]
+    },
+    {
+      "resource": "data.coder_workspace_owner.me",
+      "attribute": [
+        "groups"
+      ]
+    },
+    {
+      "resource": "data.coder_parameter.team",
+      "attribute": [
+        "value"
+      ]
     }
   ],
   "checks": [
@@ -1513,7 +1514,7 @@
       ]
     }
   ],
-  "timestamp": "2025-03-04T16:24:27Z",
+  "timestamp": "2025-03-19T18:13:40Z",
   "applyable": true,
   "complete": true,
   "errored": false

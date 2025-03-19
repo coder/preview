@@ -1,5 +1,6 @@
 data "coder_parameter" "team" {
-  name        = "Team"
+  name        = "team"
+  display_name = "Team"
   description = "Which team are you on?"
   type        = "string"
   default     = "fullstack"
@@ -96,7 +97,8 @@ data "coder_workspace_tags" "test" {
 // Advanced admin parameter
 data "coder_parameter" "image_hash" {
   count       = local.isAdmin ? 1 : 0
-  name        = "Image Hash"
+  name = "hash"
+  display_name        = "Image Hash"
   description = "Override the hash of the image to use. Only available to admins."
   // Value can get stale
   default     = trimprefix(data.docker_registry_image.coder.sha256_digest, "sha256:")
@@ -113,7 +115,7 @@ data "docker_registry_image" "coder" {
 }
 
 data "coder_parameter" "region" {
-  name         = "Region"
+  name         = "region"
   display_name = "Region"
   description  = "What region are you in?"
   default      = local.default_region

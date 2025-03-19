@@ -18,26 +18,25 @@ module "one" {
   source = "./word"
   index = 0
   correct = local.correct
-  pattern = "."
+  previous = "     "
+  default = "curse"
 }
 
 module "two" {
-  count = module.one.valid ? 1 : 0
   source = "./word"
   index = 1
   correct = local.correct
-  pattern = module.one.result
+  previous = module.one.value
 }
 
 data "coder_parameter" "dump" {
   name = "dump"
-  display_name = "${module.one.valid}"
+  display_name = "test"
   description = "Dump the state"
   type = "string"
   order = 100
   default = ""
 }
-
 
 
 #
