@@ -13,10 +13,11 @@ import { Input } from "./components/Input/Input";
 import { Switch } from "./components/Switch/Switch";
 import { useUsers } from './hooks/useUsers';
 import { useDirectories } from './hooks/useDirectories';
-import { useDebouncedFunction } from './hooks/debounce';
 import { CollapsibleSummary } from "./components/CollapsibleSummary/CollapsibleSummary";
 import { Slider } from "./components/ui/slider";
 import ReactJson from 'react-json-view';
+import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group"
+import { Label } from "./components/Label/Label";
 
 export function DynamicForm() {
   const serverAddress = "localhost:8100";
@@ -43,8 +44,6 @@ export function DynamicForm() {
 
   const { 
     directories, 
-    // testdata, 
-    // setTestdata, 
     isLoading, 
     fetchError 
   } = useDirectories(serverAddress, urlTestdata);
@@ -134,6 +133,8 @@ export function DynamicForm() {
   // Track previous values to detect changes
   const [prevValues, setPrevValues] = useState<Record<string, string>>({});
 
+  const [debouncedTimer, setDebouncedTimer] = useState<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     if (!response) return;
     
@@ -144,20 +145,36 @@ export function DynamicForm() {
       key => watchedValues[key] !== prevValues[key]
     );
     if (hasChanged) {
-      setCurrentId(prevId => {
-        const newId = prevId + 1;
-        const request: Request = {
-          id: newId,
-          inputs: watchedValues
-        };
-        console.log("request", request);
-        sendMessage(request);
-        return newId;
-      });
-      
+      if (debouncedTimer) {
+        clearTimeout(debouncedTimer);
+      }
+
+      const timer = setTimeout(() => {
+        setCurrentId(prevId => {
+          const newId = prevId + 1;
+          const request: Request = {
+            id: newId,
+            inputs: watchedValues
+          };
+          console.log("request", request);
+          sendMessage(request);
+          return newId;
+        });
+      }, 250);
+
+      setDebouncedTimer(timer);
       setPrevValues({...watchedValues});
     }
-  }, [watchedValues, response, sendMessage, prevValues]);
+  }, [watchedValues, response, sendMessage, prevValues, debouncedTimer]);
+
+  // Clean up the timer when component unmounts
+  useEffect(() => {
+    return () => {
+      if (debouncedTimer) {
+        clearTimeout(debouncedTimer);
+      }
+    };
+  }, [debouncedTimer]);
 
   const renderParameter = (param: Parameter) => {
     const controlType = param.form_type;
@@ -177,7 +194,7 @@ export function DynamicForm() {
                 render={({ field }) => (
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={param.value}
+                    defaultValue={param.default_value}
                   >
                     <SelectTrigger className="w-[300px]">
                       <SelectValue placeholder={param.description} />
@@ -219,11 +236,18 @@ export function DynamicForm() {
                         const values = selectedOptions.map(opt => opt.value).join(',');
                         field.onChange(values);
                       }}
-                      defaultOptions={param.options?.map(opt => ({
+                      options={param.options?.map(opt => ({
                         value: opt?.value || '',
                         label: opt?.name || '',
                         disabled: false
                       })) || []}
+                      // defaultOptions={param.default_value ? 
+                      //   param.default_value.replace(/[[\]"]/g, '').split(',').map(value => ({
+                      //     value,
+                      //     label: param.options?.find(opt => opt?.value === value)?.name || value,
+                      //     disabled: false
+                      //   })) 
+                      //   : []}
                       emptyIndicator={<p className="text-sm">No results found</p>}
                     />
                   </div>
@@ -248,11 +272,43 @@ export function DynamicForm() {
                 control={methods.control}
                 render={({ field }) => (
                   <div className="w-[300px]">
-                      <Slider defaultValue={field.value ? [Number(field.value)] : [0]} max={param.validations[0].validation_max || undefined} min={param.validations[0].validation_min || undefined} step={1}                       
+                      <Slider defaultValue={param.default_value ? [Number(param.default_value)] : [0]} max={param.validations[0].validation_max || undefined} min={param.validations[0].validation_min || undefined} step={1}                       
                       onValueChange={(value) => {
                         console.log("value", value[0].toString());
                         field.onChange(value[0].toString());
                       }}/>
+                  </div>
+                )}
+              />
+            </div>
+          )
+        case "radio":
+          return (
+            <div key={param.name} className="flex flex-col gap-2 items-center">
+              <div className="flex items-center justify-between gap-2">
+                <label>
+                  {param.display_name || param.name}
+                  {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+                </label>
+                <output className="text-sm font-medium tabular-nums">{param.value}</output>
+              </div>
+              {param.description && <div className="text-sm">{param.description}</div>}
+              <Controller
+                name={param.name}
+                control={methods.control}
+                render={({ field }) => (
+                  <div className="w-[300px]">
+                    <RadioGroup defaultValue={param.default_value} onValueChange={field.onChange}>
+                    {(param.options || []).map((option, idx) => {
+                          if (!option) return null;
+                          return (
+                            <div key={idx} className="flex items-center space-x-2">
+                            <RadioGroupItem value={option.value} id={option.value} />
+                              <Label htmlFor={option.value}>{option.name}</Label>
+                            </div>
+                          );
+                        })}
+                    </RadioGroup>
                   </div>
                 )}
               />
@@ -311,9 +367,13 @@ export function DynamicForm() {
             name={param.name}
             control={methods.control}
             render={({ field }) => (
-              <DebouncedInput
-                field={field}
+              <Input
+                onChange={(e) => {
+                  field.onChange(e);
+                }}
+                className="w-[300px]"
                 type={mapParamTypeToInputType(param.type)}
+                value={field.value}
                 defaultValue={param.default_value}
               />
             )}
@@ -333,26 +393,6 @@ export function DynamicForm() {
           </div>
         ))}
       </div>
-    );
-  };
-
-  const DebouncedInput = ({ field, type, defaultValue }: { 
-    field: { onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }, 
-    type: string, 
-    defaultValue?: string 
-  }) => {
-    const { debounced } = useDebouncedFunction(
-      (e: React.ChangeEvent<HTMLInputElement>) => field.onChange(e),
-      2000
-    );
-
-    return (
-      <Input
-        onChange={debounced}
-        className="w-[300px]"
-        type={type}
-        defaultValue={defaultValue}
-      />
     );
   };
 
