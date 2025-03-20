@@ -142,4 +142,4 @@ require (
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
 )
 
-replace github.com/aquasecurity/trivy => /home/steven/go/src/github.com/aquasecurity/trivy
+replace github.com/aquasecurity/trivy => github.com/emyrk/trivy v0.0.0-20250320162119-5a4161c52765
