@@ -237,7 +237,7 @@ export function DynamicForm() {
                       }}
                       onChange={(selectedOptions) => {
                         const values = selectedOptions.map(opt => opt.value).join(',');
-                        field.onChange(JSON.stringify(values));
+                        field.onChange(JSON.stringify(values.split(',')));
                       }}
                       options={param.options?.map(opt => ({
                         value: opt?.value?.value || '',
