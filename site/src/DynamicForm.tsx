@@ -19,6 +19,7 @@ import { Slider } from "./components/ui/slider";
 import ReactJson from 'react-json-view';
 import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group"
 import { Label } from "./components/Label/Label";
+import { Checkbox } from "./components/Checkbox/Checkbox";
 
 export function DynamicForm() {
   const serverAddress = "localhost:8100";
@@ -322,28 +323,49 @@ export function DynamicForm() {
           case "switch":
             return (
               <div key={param.name} className="flex flex-col gap-2 items-center">
-              <div className="flex items-center justify-between gap-2">
-                <label>
-                  {param.display_name || param.name}
-                  {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
-                </label>
+                <div className="flex items-center justify-between gap-2">
+                  <label>
+                    {param.display_name || param.name}
+                    {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+                  </label>
+                </div>
+                {param.description && <div className="text-sm">{param.description}</div>}
+                <Controller
+                  name={param.name}
+                  control={methods.control}
+                  render={({ field }) => (
+                    <div className="w-[300px]">
+                      <Switch 
+                        checked={Boolean(field.value === "true")} 
+                        onCheckedChange={(checked) => field.onChange(checked.toString())} 
+                        disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled} 
+                      />
+                    </div>
+                  )}
+                />
               </div>
-              {param.description && <div className="text-sm">{param.description}</div>}
-              <Controller
-                name={param.name}
-                control={methods.control}
-                render={({ field }) => (
-                  <div className="w-[300px]">
-                    <Switch 
-                      checked={Boolean(field.value === "true")} 
-                      onCheckedChange={(checked) => field.onChange(checked.toString())} 
-                      disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled} 
-                    />
-                  </div>
-                )}
-              />
-            </div>
             )
+            case "checkbox":
+              return (
+                <div key={param.name} className="flex flex-col gap-2 items-center">
+                <div className="flex items-center justify-between gap-2">
+                  <label>
+                    {param.display_name || param.name}
+                    {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+                  </label>
+                </div>
+                {param.description && <div className="text-sm">{param.description}</div>}
+                <Controller
+                  name={param.name}
+                  control={methods.control}
+                  render={({ field }) => (
+                    <div className="w-[300px]">
+                      <Checkbox checked={Boolean(field.value === "true")} onCheckedChange={(checked) => field.onChange(checked.toString())} disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled} />
+                    </div>
+                  )}
+                />
+              </div>
+              )
       }
     }
 
