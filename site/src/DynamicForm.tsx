@@ -296,7 +296,6 @@ export function DynamicForm() {
                   {param.display_name || param.name}
                   {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
                 </label>
-                <output className="text-sm font-medium tabular-nums">{parameterValue(param.value)}</output>
               </div>
               {param.description && <div className="text-sm">{param.description}</div>}
               <Controller
@@ -320,6 +319,31 @@ export function DynamicForm() {
               />
             </div>
           )
+          case "switch":
+            return (
+              <div key={param.name} className="flex flex-col gap-2 items-center">
+              <div className="flex items-center justify-between gap-2">
+                <label>
+                  {param.display_name || param.name}
+                  {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+                </label>
+              </div>
+              {param.description && <div className="text-sm">{param.description}</div>}
+              <Controller
+                name={param.name}
+                control={methods.control}
+                render={({ field }) => (
+                  <div className="w-[300px]">
+                    <Switch 
+                      checked={Boolean(field.value === "true")} 
+                      onCheckedChange={(checked) => field.onChange(checked.toString())} 
+                      disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled} 
+                    />
+                  </div>
+                )}
+              />
+            </div>
+            )
       }
     }
 
