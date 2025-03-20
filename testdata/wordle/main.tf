@@ -42,6 +42,9 @@ data "coder_parameter" "letter_bank" {
   order = 9
   default = join("", local.remaining)
   form_type = "input"
+  form_type_metadata = jsonencode({
+    disabled = true
+  })
   # count = 0
 }
 
