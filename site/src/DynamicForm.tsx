@@ -6,7 +6,8 @@ import {
   Response,
   Parameter,
   Request,
-  Diagnostics
+  Diagnostics,
+  NullHCLString
     } from "./types/preview";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem } from "./components/Select/Select";
 import { Input } from "./components/Input/Input";
@@ -48,6 +49,10 @@ export function DynamicForm() {
     fetchError 
   } = useDirectories(serverAddress, urlTestdata);
   
+  const parameterValue = (value: NullHCLString) => {
+    return value.valid ? value.value : "";
+  }
+
   const handleTestdataChange = (value: string) => {
     reset({});
     setPrevValues({});
@@ -113,9 +118,7 @@ export function DynamicForm() {
     if (response?.parameters) {
       const defaultValues: Record<string, string> = {};
       response.parameters.forEach((param) => {
-        // If the server-sent param.Value is empty, we can fall back to `default_value`
-        defaultValues[param.name] =
-          param.value.value || param.default_value.value || "";
+        defaultValues[param.name] = parameterValue(param.value);
       });
 
       // Use RHF's `reset` to update the entire form
@@ -194,7 +197,7 @@ export function DynamicForm() {
                 render={({ field }) => (
                   <Select
                     onValueChange={field.onChange}
-                    defaultValue={param.default_value.value}
+                    defaultValue={parameterValue(param.default_value)}
                   >
                     <SelectTrigger className="w-[300px]">
                       <SelectValue placeholder={param.description} />
@@ -204,7 +207,7 @@ export function DynamicForm() {
                         {(param.options || []).map((option, idx) => {
                           if (!option) return null;
                           return (
-                            <SelectItem key={idx} value={option.value.value}>{option.name}</SelectItem>
+                            <SelectItem key={idx} value={parameterValue(option.value)}>{option.name}</SelectItem>
                           );
                         })}
                       </SelectGroup>
@@ -234,7 +237,7 @@ export function DynamicForm() {
                       }}
                       onChange={(selectedOptions) => {
                         const values = selectedOptions.map(opt => opt.value).join(',');
-                        field.onChange(values);
+                        field.onChange(JSON.stringify(values));
                       }}
                       options={param.options?.map(opt => ({
                         value: opt?.value?.value || '',
@@ -264,7 +267,7 @@ export function DynamicForm() {
                   {param.display_name || param.name}
                   {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
                 </label>
-                <output className="text-sm font-medium tabular-nums">{param.value.value}</output>
+                <output className="text-sm font-medium tabular-nums">{parameterValue(param.value)}</output>
               </div>
               {param.description && <div className="text-sm">{param.description}</div>}
               <Controller
@@ -272,9 +275,8 @@ export function DynamicForm() {
                 control={methods.control}
                 render={({ field }) => (
                   <div className="w-[300px]">
-                      <Slider defaultValue={param.default_value ? [Number(param.default_value)] : [0]} max={param.validations[0].validation_max || undefined} min={param.validations[0].validation_min || undefined} step={1}                       
+                      <Slider defaultValue={param?.default_value?.value ? [Number(param.default_value.value)] : [0]} max={param.validations[0].validation_max || undefined} min={param.validations[0].validation_min || undefined} step={1}                       
                       onValueChange={(value) => {
-                        console.log("value", value[0].toString());
                         field.onChange(value[0].toString());
                       }}/>
                   </div>
@@ -290,7 +292,7 @@ export function DynamicForm() {
                   {param.display_name || param.name}
                   {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
                 </label>
-                <output className="text-sm font-medium tabular-nums">{param.value.value}</output>
+                <output className="text-sm font-medium tabular-nums">{parameterValue(param.value)}</output>
               </div>
               {param.description && <div className="text-sm">{param.description}</div>}
               <Controller
@@ -298,13 +300,13 @@ export function DynamicForm() {
                 control={methods.control}
                 render={({ field }) => (
                   <div className="w-[300px]">
-                    <RadioGroup defaultValue={param.default_value.value} onValueChange={field.onChange}>
+                    <RadioGroup defaultValue={parameterValue(param.default_value)} onValueChange={field.onChange}>
                     {(param.options || []).map((option, idx) => {
                           if (!option) return null;
                           return (
                             <div key={idx} className="flex items-center space-x-2">
-                            <RadioGroupItem value={option.value.value} id={option.value.value} />
-                              <Label htmlFor={option.value.value}>{option.name}</Label>
+                            <RadioGroupItem value={parameterValue(option.value)} id={parameterValue(option.value)} />
+                              <Label htmlFor={parameterValue(option.value)}>{option.name}</Label>
                             </div>
                           );
                         })}
@@ -333,7 +335,7 @@ export function DynamicForm() {
             render={({ field }) => (
               <Select
                 onValueChange={field.onChange}
-                defaultValue={param.value.value}
+                defaultValue={parameterValue(param.value)}
               >
                 <SelectTrigger className="w-[300px]">
                   <SelectValue placeholder={param.description} />
@@ -343,7 +345,7 @@ export function DynamicForm() {
                     {(param.options || []).map((option, idx) => {
                       if (!option) return null;
                       return (
-                        <SelectItem key={idx} value={option.value.value}>{option.name}</SelectItem>
+                        <SelectItem key={idx} value={parameterValue(option.value)}>{option.name}</SelectItem>
                       );
                     })}
                   </SelectGroup>
@@ -374,7 +376,7 @@ export function DynamicForm() {
                 className="w-[300px]"
                 type={mapParamTypeToInputType(param.type)}
                 value={field.value}
-                defaultValue={param.default_value.value}
+                defaultValue={parameterValue(param.default_value)}
               />
             )}
           />
