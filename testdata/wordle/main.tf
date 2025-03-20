@@ -19,7 +19,6 @@ module "one" {
   index = 0
   correct = local.correct
   previous = "     "
-  default = "curse"
 }
 
 module "two" {
@@ -29,15 +28,38 @@ module "two" {
   previous = module.one.value
 }
 
-data "coder_parameter" "dump" {
-  name = "dump"
-  display_name = "test"
-  description = "Dump the state"
-  type = "string"
-  order = 100
-  default = ""
+module "three" {
+  source = "./word"
+  index = 2
+  correct = local.correct
+  previous = module.two.value
 }
+#
+# module "four" {
+#   source = "./word"
+#   index = 3
+#   correct = local.correct
+#   previous = module.three.value
+# }
+#
+# module "five" {
+#   source = "./word"
+#   index = 4
+#   correct = local.correct
+#   previous = module.four.value
+# }
+#
+# module "six" {
+#   source = "./word"
+#   index = 5
+#   correct = local.correct
+#   previous = module.five.value
+# }
 
+
+output "debug" {
+  value = module.two.debug
+}
 
 #
 # module "word_one" {

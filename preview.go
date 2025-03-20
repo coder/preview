@@ -104,6 +104,10 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 	diags := make(hcl.Diagnostics, 0)
 	rp, rpDiags := RichParameters(modules)
 	tags, tagDiags := WorkspaceTags(modules, p.Files())
+
+	// Add warnings
+	diags = diags.Extend(warnings(modules))
+
 	return &Output{
 		ModuleOutput:  outputs,
 		Parameters:    rp,

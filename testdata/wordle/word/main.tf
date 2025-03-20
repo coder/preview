@@ -33,16 +33,10 @@ variable "default" {
 }
 
 output "value" {
-  value = data.coder_parameter.word[0].value
+  value = lower(data.coder_parameter.word[0].value)
 }
 
 locals {
-  matching = join("", [
-    for i in range(0, length(var.correct)) : (
-      substr(var.previous, i, 1) == substr(var.correct, i, 1) ? "#" : "_"
-    )
-  ])
-
   // unmatchedLetters are letters that are not exact matches from the
   // previous input.
   unmatchedLetters = [
@@ -65,21 +59,42 @@ locals {
       l
     ) if contains(local.remainingLetters, l)
   ]
+
+  matching = join("", [
+    for i in range(0, length(var.correct)) : (
+      substr(var.previous, i, 1) == substr(var.correct, i, 1) ?
+        upper(substr(var.correct, i, 1)) :
+            contains(local.letterExists, substr(var.previous, i, 1)) ?
+              lower(substr(var.previous, i, 1)) :
+                "_"
+    )
+  ])
 }
 
 data "coder_parameter" "word" {
   count        = length(var.previous) == 5 ? 1 : 0
   name         = local.names[var.index]
-  display_name = "--> ${local.matching} <-- with ${join("", local.letterExists)}"
-  description = local.matching
+  display_name = var.index == 0 ? "Take a guess what the 5 letter word might be!" : "${var.index}: --> ${local.matching} <--"
+  description  = var.index == 0 ? "Additional guesses will appear.": "Capital letters are an exact match, lowercase are letters that are out of place."
   type         = "string"
   order        = var.index + 10
   default      = var.default
 
   validation {
-    regex = "^[a-zA-Z]{5}$"
+    regex = "^[a-z]{5}$"
     error = "You must enter a 5 letter word."
   }
 }
 
 
+
+output "debug" {
+  value = {
+    "correct" = var.correct
+    "previous" = var.previous
+    "unmatchedLetters" = local.unmatchedLetters
+    "remainingLetters" = local.remainingLetters
+    "letterExists" = local.letterExists
+    "matching" = local.matching
+  }
+}
