@@ -2,6 +2,7 @@ package preview_test
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -16,6 +17,14 @@ import (
 
 func Test_Extract(t *testing.T) {
 	t.Parallel()
+
+	jsonencode := func(v interface{}) string {
+		b, err := json.Marshal(v)
+		if err != nil {
+			panic(err)
+		}
+		return string(b)
+	}
 
 	for _, tc := range []struct {
 		skip        string
@@ -400,6 +409,20 @@ func Test_Extract(t *testing.T) {
 				"two":   ap().value("snake"),
 				"three": ap(),
 			},
+		},
+		{
+			name:    "connections",
+			dir:     "connections",
+			expTags: map[string]string{},
+			input: preview.Input{
+				PlanJSONPath: "",
+				ParameterValues: map[string]string{
+					"yellow": jsonencode([]string{}),
+				},
+				Owner: types.WorkspaceOwner{},
+			},
+			unknownTags: []string{},
+			params:      map[string]assertParam{},
 		},
 		{
 			name:    "submodcount",

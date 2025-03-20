@@ -9,7 +9,7 @@ require (
 	github.com/aquasecurity/trivy v0.58.2
 	github.com/coder/guts v1.0.2-0.20250227211802-139809366a22
 	github.com/coder/serpent v0.10.0
-	github.com/coder/terraform-provider-coder/v2 v2.2.1-0.20250317152424-16ab5102775e
+	github.com/coder/terraform-provider-coder/v2 v2.2.1-0.20250320160506-90c9d74d3be2
 	github.com/coder/websocket v1.8.13
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/hashicorp/go-version v1.7.0
@@ -142,4 +142,4 @@ require (
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
 )
 
-replace github.com/aquasecurity/trivy => github.com/emyrk/trivy v0.0.0-20250319180840-c56ab499011d
+replace github.com/aquasecurity/trivy => /home/steven/go/src/github.com/aquasecurity/trivy

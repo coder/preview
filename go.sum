@@ -718,8 +718,8 @@ github.com/coder/pretty v0.0.0-20230908205945-e89ba86370e0 h1:3A0ES21Ke+FxEM8CXx
 github.com/coder/pretty v0.0.0-20230908205945-e89ba86370e0/go.mod h1:5UuS2Ts+nTToAMeOjNlnHFkPahrtDkmpydBen/3wgZc=
 github.com/coder/serpent v0.10.0 h1:ofVk9FJXSek+SmL3yVE3GoArP83M+1tX+H7S4t8BSuM=
 github.com/coder/serpent v0.10.0/go.mod h1:cZFW6/fP+kE9nd/oRkEHJpG6sXCtQ+AX7WMMEHv0Y3Q=
-github.com/coder/terraform-provider-coder/v2 v2.2.1-0.20250317152424-16ab5102775e h1:CW8AyXdqeGRk6wE1L9py5jFbJrlGBwrUNbyb+26NrFU=
-github.com/coder/terraform-provider-coder/v2 v2.2.1-0.20250317152424-16ab5102775e/go.mod h1:X28s3rz+aEM5PkBKvk3xcUrQFO2eNPjzRChUg9wb70U=
+github.com/coder/terraform-provider-coder/v2 v2.2.1-0.20250320160506-90c9d74d3be2 h1:uKg+PvSQRsGdDQQNO5zKRZFjybb/izmmHp+HR0sjdCI=
+github.com/coder/terraform-provider-coder/v2 v2.2.1-0.20250320160506-90c9d74d3be2/go.mod h1:X28s3rz+aEM5PkBKvk3xcUrQFO2eNPjzRChUg9wb70U=
 github.com/coder/websocket v1.8.13 h1:f3QZdXy7uGVz+4uCJy2nTZyM0yTBj8yANEHhqlXZ9FE=
 github.com/coder/websocket v1.8.13/go.mod h1:LNVeNrXQZfe5qhS9ALED3uA+l5pPqvwXg3CKoDBB2gs=
 github.com/containerd/log v0.1.0 h1:TCJt7ioM2cr/tfR8GPbGf9/VRAX8D2B4PjzCpfX540I=
@@ -751,8 +751,6 @@ github.com/dop251/goja v0.0.0-20241024094426-79f3a7efcdbd/go.mod h1:MxLav0peU43G
 github.com/dustin/go-humanize v1.0.0/go.mod h1:HtrtbFcZ19U5GC7JDqmcUSB87Iq5E25KnS6fMYU6eOk=
 github.com/emirpasic/gods v1.18.1 h1:FXtiHYKDGKCW2KzwZKx0iC0PQmdlorYgdFG9jPXJ1Bc=
 github.com/emirpasic/gods v1.18.1/go.mod h1:8tpGGwCnJ5H4r6BWwaV6OrWmMoPhUl5jm/FMNAnJvWQ=
-github.com/emyrk/trivy v0.0.0-20250319180840-c56ab499011d h1:Dx8N/+CQ8Riri5dF6+yhNlguH95rRfzzfuBgwkHhgT4=
-github.com/emyrk/trivy v0.0.0-20250319180840-c56ab499011d/go.mod h1:QqQijstmQF9wfPij09KE96MLfbFGtfC21dG299ty+Fc=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=

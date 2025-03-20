@@ -2,14 +2,17 @@ package clidisplay
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
+	"slices"
 	"strings"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/jedib0t/go-pretty/v6/table"
 
 	"github.com/coder/preview/types"
+	"github.com/coder/terraform-provider-coder/v2/provider"
 )
 
 func WorkspaceTags(writer io.Writer, tags types.TagBlocks) hcl.Diagnostics {
@@ -59,6 +62,10 @@ func Parameters(writer io.Writer, params []types.Parameter, files map[string]*hc
 	tableWriter.AppendHeader(row)
 	for _, p := range params {
 		strVal := p.Value.AsString()
+		selections := []string{strVal}
+		if p.FormType == provider.ParameterFormTypeMultiSelect {
+			_ = json.Unmarshal([]byte(strVal), &selections)
+		}
 		//value := p.Value.Value
 		//
 		//if value.IsNull() {
@@ -72,7 +79,7 @@ func Parameters(writer io.Writer, params []types.Parameter, files map[string]*hc
 		//}
 
 		tableWriter.AppendRow(table.Row{
-			fmt.Sprintf("(%s) %s: %s\n%s", p.DisplayName, p.Name, p.Description, formatOptions(strVal, p.Options)),
+			fmt.Sprintf("(%s) %s: %s\n%s", p.DisplayName, p.Name, p.Description, formatOptions(selections, p.Options)),
 		})
 
 		if hcl.Diagnostics(p.Diagnostics).HasErrors() {
@@ -87,7 +94,7 @@ func Parameters(writer io.Writer, params []types.Parameter, files map[string]*hc
 	_, _ = fmt.Fprintln(writer, tableWriter.Render())
 }
 
-func formatOptions(selected string, options []*types.ParameterOption) string {
+func formatOptions(selected []string, options []*types.ParameterOption) string {
 	var str strings.Builder
 	sep := ""
 	found := false
@@ -95,7 +102,7 @@ func formatOptions(selected string, options []*types.ParameterOption) string {
 	for _, opt := range options {
 		str.WriteString(sep)
 		prefix := "[ ]"
-		if opt.Value.AsString() == selected {
+		if slices.Contains(selected, opt.Value.AsString()) {
 			prefix = "[X]"
 			found = true
 		}

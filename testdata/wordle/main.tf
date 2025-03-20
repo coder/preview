@@ -28,6 +28,13 @@ locals {
     toset(local.alphabet),
     local.remove_letters
   )
+
+  won = data.coder_parameter.one.value == local.correct ||
+    data.coder_parameter.two.value == local.correct ||
+    data.coder_parameter.three.value == local.correct ||
+    data.coder_parameter.four.value == local.correct ||
+    data.coder_parameter.five.value == local.correct ||
+    data.coder_parameter.six.value == local.correct
 }
 
 output "unmatched" {
