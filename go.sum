@@ -712,8 +712,8 @@ github.com/cncf/xds/go v0.0.0-20230105202645-06c439db220b/go.mod h1:eXthEFrGJvWH
 github.com/cncf/xds/go v0.0.0-20230607035331-e9ce68804cb4/go.mod h1:eXthEFrGJvWHgFFCl3hGmgk+/aYT6PnTQLykKQRLhEs=
 github.com/cncf/xds/go v0.0.0-20240905190251-b4127c9b8d78 h1:QVw89YDxXxEe+l8gU8ETbOasdwEV+avkR75ZzsVV9WI=
 github.com/cncf/xds/go v0.0.0-20240905190251-b4127c9b8d78/go.mod h1:W+zGtBO5Y1IgJhy4+A9GOqVhqLpfZi+vwmdNXUehLA8=
-github.com/coder/guts v1.0.2-0.20250227211802-139809366a22 h1:CACzZc2r5oQj8JKlqiBrMq/MVI7YHqbNndmHJg92B0A=
-github.com/coder/guts v1.0.2-0.20250227211802-139809366a22/go.mod h1:5ducjpIPvmGOcQVigCcXyPFqrH5xeGlZ6c9qPfE1cU4=
+github.com/coder/guts v1.1.0 h1:EACEds9o4nwFjynDWsw1mvls0Xg91e74vBrqwz8BcGY=
+github.com/coder/guts v1.1.0/go.mod h1:31NO4z6MVTOD4WaCLqE/hUAHGgNok9sRbuMc/LZFopI=
 github.com/coder/pretty v0.0.0-20230908205945-e89ba86370e0 h1:3A0ES21Ke+FxEM8CXx9n47SZOKOpgSE1bbJzlE4qPVs=
 github.com/coder/pretty v0.0.0-20230908205945-e89ba86370e0/go.mod h1:5UuS2Ts+nTToAMeOjNlnHFkPahrtDkmpydBen/3wgZc=
 github.com/coder/serpent v0.10.0 h1:ofVk9FJXSek+SmL3yVE3GoArP83M+1tX+H7S4t8BSuM=
