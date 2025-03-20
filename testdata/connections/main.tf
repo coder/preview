@@ -20,40 +20,25 @@ locals {
 
   used_words = setunion(
     [],
-    jsondecode(data.coder_parameter.yellow.value),
-    jsondecode(data.coder_parameter.green.value),
+    # jsondecode(data.coder_parameter.yellow.value),
+    # jsondecode(data.coder_parameter.green.value),
   )
 
   available_words = setsubtract(toset(local.word_bank), toset(local.used_words))
 }
 
-data "coder_parameter" "yellow" {
-  name = "yellow"
+data "coder_parameter" "rows" {
+  for_each = ["yellow", "green", "blue", "purple"]
+  name = each.value
+  # name = "rows"
   display_name = "Row"
   type = "list(string)"
   form_type = "multi-select"
-  # default = "[]"
+  default = "[]"
 
   dynamic "option" {
     # for_each = tolist(setsubtract(toset(local.word_bank), toset(local.used_words)))
-    for_each = local.word_bank
-    content {
-      name = option.value
-      value = option.value
-    }
-  }
-}
-
-data "coder_parameter" "green" {
-  name = "green"
-  display_name = "Row"
-  type = "list(string)"
-  form_type = "multi-select"
-  # default = "[]"
-
-  dynamic "option" {
-    # for_each = tolist(setsubtract(toset(local.word_bank), toset(local.used_words)))
-    for_each = local.word_bank
+    for_each = local.available_words
     content {
       name = option.value
       value = option.value
