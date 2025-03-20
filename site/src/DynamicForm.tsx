@@ -198,6 +198,7 @@ export function DynamicForm() {
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={parameterValue(param.default_value)}
+                    disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
                   >
                     <SelectTrigger className="w-[300px]">
                       <SelectValue placeholder={param.description} />
@@ -252,6 +253,7 @@ export function DynamicForm() {
                       //   })) 
                       //   : []}
                       emptyIndicator={<p className="text-sm">No results found</p>}
+                      disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
                     />
                   </div>
                 )}
@@ -278,7 +280,9 @@ export function DynamicForm() {
                       <Slider defaultValue={param?.default_value?.value ? [Number(param.default_value.value)] : [0]} max={param.validations[0].validation_max || undefined} min={param.validations[0].validation_min || undefined} step={1}                       
                       onValueChange={(value) => {
                         field.onChange(value[0].toString());
-                      }}/>
+                      }}
+                      disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
+                      />
                   </div>
                 )}
               />
@@ -300,7 +304,7 @@ export function DynamicForm() {
                 control={methods.control}
                 render={({ field }) => (
                   <div className="w-[300px]">
-                    <RadioGroup defaultValue={parameterValue(param.default_value)} onValueChange={field.onChange}>
+                    <RadioGroup defaultValue={parameterValue(param.default_value)} onValueChange={field.onChange} disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}>
                     {(param.options || []).map((option, idx) => {
                           if (!option) return null;
                           return (
@@ -336,6 +340,7 @@ export function DynamicForm() {
               <Select
                 onValueChange={field.onChange}
                 defaultValue={parameterValue(param.value)}
+                disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
               >
                 <SelectTrigger className="w-[300px]">
                   <SelectValue placeholder={param.description} />
@@ -377,6 +382,7 @@ export function DynamicForm() {
                 type={mapParamTypeToInputType(param.type)}
                 value={field.value}
                 defaultValue={parameterValue(param.default_value)}
+                disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
               />
             )}
           />
