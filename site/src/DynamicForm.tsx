@@ -20,6 +20,7 @@ import ReactJson from 'react-json-view';
 import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group"
 import { Label } from "./components/Label/Label";
 import { Checkbox } from "./components/Checkbox/Checkbox";
+import { Textarea } from "./components/Textarea/Textarea";
 
 export function DynamicForm() {
   const serverAddress = "localhost:8100";
@@ -366,6 +367,31 @@ export function DynamicForm() {
                 />
               </div>
               )
+              case "textarea":
+                return (
+                  <div key={param.name} className="flex flex-col gap-2 items-center">
+                  <div className="flex items-center justify-between gap-2">
+                    <label>
+                      {param.display_name || param.name}
+                      {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+                    </label>
+                  </div>
+                  {param.description && <div className="text-sm">{param.description}</div>}
+                  <Controller
+                  name={param.name}
+                  control={methods.control}
+                  render={({ field }) => (
+                    <div className="w-[300px]">
+                      <Textarea
+                        value={field.value}
+                        onChange={(e) => field.onChange(e)}
+                        disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
+                      />
+                    </div>
+                  )}
+                />
+                </div>
+                )
       }
     }
 

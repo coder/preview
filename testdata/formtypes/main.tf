@@ -79,13 +79,23 @@ data "coder_parameter" "string_without_opts" {
   icon         = "/emojis/0031-fe0f-20e3.png"
 }
 
+data "coder_parameter" "textarea_without_opts" {
+  name         = "textarea"
+  display_name = "String"
+  description  = "Textarea"
+  type         = "string"
+  form_type    = "textarea"
+  order        = 4
+  icon         = "/emojis/0031-fe0f-20e3.png"
+}
+
 data "coder_parameter" "bool_with_opts" {
   // should be 'radio'
   name         = "bool_with_opts"
   display_name = "Bool"
   description  = "Bool with options"
   type         = "bool"
-  order        = 4
+  order        = 5
   icon         = "/emojis/0031-fe0f-20e3.png"
   default      = false
 
@@ -108,7 +118,7 @@ data "coder_parameter" "bool_without_opts" {
   display_name = "Bool"
   description  = "Bool without options"
   type         = "bool"
-  order        = 5
+  order        = 6
   icon         = "/emojis/0031-fe0f-20e3.png"
   default      = false
 }
@@ -119,7 +129,7 @@ data "coder_parameter" "bool_without_opts_switch" {
   description  = "Bool without options, but it is a switch"
   type         = "bool"
   form_type    = "switch"
-  order        = 6
+  order        = 7
   icon         = "/emojis/0031-fe0f-20e3.png"
   default      = false
 }
@@ -130,7 +140,7 @@ data "coder_parameter" "list_string_options" {
   display_name = "List(String)"
   description  = "list(string) with options"
   type         = "list(string)"
-  order        = 7
+  order        = 8
   icon         = "/emojis/0031-fe0f-20e3.png"
   default      = jsonencode(["purple", "blue", "green", "red", "orange"])
 
@@ -159,7 +169,7 @@ data "coder_parameter" "list_string_without_options" {
   display_name = "List(String)"
   description  = "list(string) with options"
   type         = "list(string)"
-  order        = 8
+  order        = 9
   icon         = "/emojis/0031-fe0f-20e3.png"
   default      = jsonencode(["purple", "blue", "green", "red", "orange"])
   // You could send jsonencode(["airplane", "car", "school"])
@@ -172,7 +182,7 @@ data "coder_parameter" "list_string_multi_select_options" {
   description  = "list(string) with options"
   type         = "list(string)"
   form_type    = "multi-select"
-  order        = 8
+  order        = 10
   icon         = "/emojis/0031-fe0f-20e3.png"
   default      = jsonencode(["blue", "green", "red"])
 
