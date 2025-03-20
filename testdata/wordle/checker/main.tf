@@ -13,7 +13,7 @@ locals {
   // previous input.
   unmatchedLetters = [
     for i in range(0, length(var.correct)) : (
-    substr(var.previous, i, 1)
+      substr(var.previous, i, 1)
     ) if substr(var.previous, i, 1) != substr(var.correct, i, 1)
   ]
 
@@ -32,6 +32,12 @@ locals {
     ) if contains(local.remainingLetters, l)
   ]
 
+  letterNotExists = [
+    for l in local.unmatchedLetters : (
+    l
+    ) if !contains(local.remainingLetters, l)
+  ]
+
   matching = join("", [
     for i in range(0, length(var.correct)) : (
       substr(var.previous, i, 1) == substr(var.correct, i, 1) ?
@@ -45,6 +51,10 @@ locals {
 
 output "matching" {
   value = local.matching
+}
+
+output "unmatching" {
+  value = local.letterNotExists
 }
 
 output "debug" {

@@ -9,11 +9,28 @@ terraform {
 locals {
   correct = "lasso" // March 17, 2025
   validation = {
-    regex = "^[\\sa-zA-Z]{5}$"
+    regex = "^(?:[A-Za-z]{5})?$"
     error = "You must enter a 5 letter word."
   }
 
   description = "Capital letters are an exact match, lowercase are letters that are out of place."
+  alphabet = split("", "abcdefghijklmnopqrstuvwxyz")
+  remaining = setsubtract(toset(local.alphabet), toset(module.check_one.unmatching))
+}
+
+output "unmatched" {
+  value = toset(module.check_one.unmatching)
+}
+
+data "coder_parameter" "letter_bank" {
+  name = "letter_bank"
+  display_name = "Letter bank"
+  description = "Remaining available letters."
+  type = "string"
+  order = 9
+  default = join("", local.remaining)
+  form_type = "input"
+  # count = 0
 }
 
 data "coder_parameter" "one" {
@@ -22,7 +39,7 @@ data "coder_parameter" "one" {
   description = "Additional guesses will appear once you input a valid 5 letter word."
   type = "string"
   order = 11
-  default = "     "
+  default = ""
 
   validation {
     regex = local.validation.regex
@@ -44,7 +61,7 @@ data "coder_parameter" "two" {
   description = local.description
   type = "string"
   order = 12
-  default = "     "
+  default = ""
 
   validation {
     regex = local.validation.regex
@@ -73,7 +90,7 @@ data "coder_parameter" "three" {
   description = local.description
   type = "string"
   order = 13
-  default = "     "
+  default = ""
 
   validation {
     regex = local.validation.regex
@@ -95,7 +112,7 @@ data "coder_parameter" "four" {
   description = local.description
   type = "string"
   order = 14
-  default = "     "
+  default = ""
 
   validation {
     regex = local.validation.regex
@@ -117,7 +134,7 @@ data "coder_parameter" "five" {
   description = local.description
   type = "string"
   order = 15
-  default = "     "
+  default = ""
 
   validation {
     regex = local.validation.regex
@@ -139,7 +156,7 @@ data "coder_parameter" "six" {
   description = local.description
   type = "string"
   order = 16
-  default = "     "
+  default = ""
 
   validation {
     regex = local.validation.regex
