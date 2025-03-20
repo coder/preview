@@ -243,6 +243,7 @@ func ParameterValidationFromBlock(block *terraform.Block) (types.ParameterValida
 		Min:       nullableInteger(block, "min"),
 		Max:       nullableInteger(block, "max"),
 		Monotonic: nullableString(block, "monotonic"),
+		Invalid:   nullableBoolean(block, "invalid"),
 	}
 
 	return p, diags
@@ -341,6 +342,20 @@ func optionalBoolean(block *terraform.Block, key string) bool {
 	}
 
 	return val.True()
+}
+
+func nullableBoolean(block *terraform.Block, key string) *bool {
+	attr := block.GetAttribute(key)
+	if attr == nil || attr.IsNil() {
+		return nil
+	}
+	val := attr.Value()
+	if val.Type() != cty.Bool {
+		return nil
+	}
+
+	b := val.True()
+	return &b
 }
 
 func nullableInteger(block *terraform.Block, key string) *int64 {

@@ -73,6 +73,7 @@ type ParameterValidation struct {
 	Min       *int64  `json:"validation_min"`
 	Max       *int64  `json:"validation_max"`
 	Monotonic *string `json:"validation_monotonic"`
+	Invalid   *bool   `json:"validation_invalid"`
 }
 
 // Valid takes the type of the value and the value itself and returns an error
@@ -88,6 +89,7 @@ func (v ParameterValidation) Valid(typ, value string) error {
 		Monotonic:   orZero(v.Monotonic),
 		Regex:       orZero(v.Regex),
 		Error:       v.Error,
+		Invalid:     orZero(v.Invalid),
 	}).Valid(typ, value)
 }
 

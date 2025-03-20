@@ -96,10 +96,10 @@ data "coder_parameter" "rows" {
     }
   }
 
-  validation {
-    error = "Hey!"
-    invalid = length(data.coder_parameter.rows[each.value].value) > 4
-  }
+  # validation {
+  #   error = "Hey! ${length(data.coder_parameter.rows[each.value].value)}"
+  #   invalid = true
+  # }
 }
 
 
