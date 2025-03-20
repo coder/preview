@@ -118,6 +118,7 @@ func (r *RootCmd) Root() *serpent.Command {
 	}
 	cmd.AddSubcommands(r.TerraformPlan())
 	cmd.AddSubcommands(r.WebsocketServer())
+	cmd.AddSubcommands(r.SetEnv())
 	return cmd
 }
 
