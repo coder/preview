@@ -26,21 +26,6 @@ func ParameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks 
 				continue // Wow a value exists?!. This feels like a bug.
 			}
 
-			countAttr, countExists := block.Attributes()["count"]
-			if countExists {
-				// Omit count = 0 values!
-				countVal := countAttr.Value()
-				if !countVal.Type().Equals(cty.Number) {
-					continue // Probably unknown
-				}
-				v, _ := countVal.AsBigFloat().Int64()
-				if v < 1 {
-					// Non-one counts are incorrect
-					// Zero counts are ignored as the blocks are omitted
-					continue
-				}
-			}
-
 			nameAttr := block.GetAttribute("name")
 			nameVal := nameAttr.Value()
 			if !nameVal.Type().Equals(cty.String) {
@@ -64,52 +49,179 @@ func ParameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks 
 				}
 			}
 
-			// Set the default value as the 'value' attribute
 			path := []string{
 				"data",
 				"coder_parameter",
 				block.Reference().NameLabel(),
 			}
-			if countExists {
-				// Append to the existing tuple
-				existing := ctx.Get(path...)
-				if existing.IsNull() {
-					continue
-				}
-
-				if !existing.Type().IsTupleType() {
-					continue
-				}
-
-				if existing.LengthInt() > 1 {
-					// coder_parameters can only ever have a count of 0 or 1.
-					// More than that is invalid. So ignore invalid blocks.
-					continue
-				}
-
-				it := existing.ElementIterator()
-				if !it.Next() {
-					continue
-				}
-
-				_, v := it.Element()
-				merged := hclext.MergeObjects(v, cty.ObjectVal(map[string]cty.Value{
-					"value": value,
-				}))
-
-				// Since our count can only equal 1, we can safely set the
-				// value to a tuple of length 1 in all cases.
-				ctx.Set(cty.TupleVal([]cty.Value{merged}), path...)
+			existing := ctx.Get(path...)
+			obj, ok := mergeParamInstanceValues(block, existing, value)
+			if !ok {
 				continue
 			}
-
-			path = append(path, "value")
-			// The current context is in the `coder_parameter` block.
-			// Use the parent context to "export" the value
-			ctx.Set(value, path...)
+			ctx.Set(obj, path...)
+			//
+			//ref := block.Reference()
+			//refKey := ref.RawKey()
+			//
+			//fmt.Println(refKey)
+			//
+			//countAttr, countExists := block.Attributes()["count"]
+			//if countExists {
+			//	// Omit count = 0 values!
+			//	countVal := countAttr.Value()
+			//	if !countVal.Type().Equals(cty.Number) {
+			//		continue // Probably unknown
+			//	}
+			//	v, _ := countVal.AsBigFloat().Int64()
+			//	if v < 1 {
+			//		// Non-one counts are incorrect
+			//		// Zero counts are ignored as the blocks are omitted
+			//		continue
+			//	}
+			//}
+			//
+			//nameAttr := block.GetAttribute("name")
+			//nameVal := nameAttr.Value()
+			//if !nameVal.Type().Equals(cty.String) {
+			//	continue // Ignore the errors at this point
+			//}
+			//
+			//// Set the default value as the 'value' attribute
+			//path := []string{
+			//	"data",
+			//	"coder_parameter",
+			//	block.Reference().NameLabel(),
+			//}
+			//if countExists {
+			//	// Append to the existing tuple
+			//	existing := ctx.Get(path...)
+			//	if existing.IsNull() {
+			//		continue
+			//	}
+			//
+			//	if !existing.Type().IsTupleType() {
+			//		continue
+			//	}
+			//
+			//	if existing.LengthInt() > 1 {
+			//		// coder_parameters can only ever have a count of 0 or 1.
+			//		// More than that is invalid. So ignore invalid blocks.
+			//		continue
+			//	}
+			//
+			//	it := existing.ElementIterator()
+			//	if !it.Next() {
+			//		continue
+			//	}
+			//
+			//	_, v := it.Element()
+			//	merged := hclext.MergeObjects(v, cty.ObjectVal(map[string]cty.Value{
+			//		"value": value,
+			//	}))
+			//
+			//	// Since our count can only equal 1, we can safely set the
+			//	// value to a tuple of length 1 in all cases.
+			//	ctx.Set(cty.TupleVal([]cty.Value{merged}), path...)
+			//	continue
+			//}
+			//
+			//path = append(path, "value")
+			//// The current context is in the `coder_parameter` block.
+			//// Use the parent context to "export" the value
+			//ctx.Set(value, path...)
 			//block.Context().Parent().Set(value, path...)
 		}
 	}
+}
+
+func mergeParamInstanceValues(b *terraform.Block, existing cty.Value, value cty.Value) (cty.Value, bool) {
+	if existing.IsNull() {
+		return existing, false
+	}
+
+	ref := b.Reference()
+	key := ref.RawKey()
+
+	switch {
+	case key.Type().Equals(cty.Number) && b.GetAttribute("count") != nil:
+		if !existing.Type().IsTupleType() {
+			return existing, false
+		}
+
+		idx, _ := key.AsBigFloat().Int64()
+		elem := existing.Index(key)
+		if elem.IsNull() || !elem.IsKnown() {
+			return existing, false
+		}
+
+		obj, ok := setObjectField(elem, "value", value)
+		if !ok {
+			return existing, false
+		}
+
+		return hclext.InsertTupleElement(existing, int(idx), obj), true
+	case isForEachKey(key) && b.GetAttribute("for_each") != nil:
+		keyStr := ref.Key()
+		if !existing.Type().IsObjectType() {
+			return existing, false
+		}
+
+		if !existing.CanIterateElements() {
+			return existing, false
+		}
+
+		instances := existing.AsValueMap()
+		if instances == nil {
+			return existing, false
+		}
+
+		instance, ok := instances[keyStr]
+		if !ok {
+			return existing, false
+		}
+
+		instance, ok = setObjectField(instance, "value", value)
+		if !ok {
+			return existing, false
+		}
+
+		instances[keyStr] = instance
+		return cty.ObjectVal(instances), true
+
+	default:
+		obj, ok := setObjectField(existing, "value", value)
+		if !ok {
+			return existing, false
+		}
+		return obj, true
+	}
+}
+
+func setObjectField(object cty.Value, field string, value cty.Value) (cty.Value, bool) {
+	if object.IsNull() {
+		return object, false
+	}
+
+	if !object.Type().IsObjectType() {
+		return object, false
+	}
+
+	if !object.CanIterateElements() {
+		return object, false
+	}
+
+	instances := object.AsValueMap()
+	if instances == nil {
+		return object, false
+	}
+
+	instances[field] = value
+	return cty.ObjectVal(instances), true
+}
+
+func isForEachKey(key cty.Value) bool {
+	return key.Type().Equals(cty.Number) || key.Type().Equals(cty.String)
 }
 
 func evaluateCoderParameterDefault(b *terraform.Block) (cty.Value, bool) {
