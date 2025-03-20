@@ -15,9 +15,15 @@ export interface FriendlyDiagnostic {
     readonly detail: string;
 }
 
+// From types/value.go
+export interface NullHCLString {
+    readonly value: string;
+    readonly valid: boolean;
+}
+
 // From types/parameter.go
 export interface Parameter extends ParameterData {
-    readonly value: string;
+    readonly value: NullHCLString;
     readonly diagnostics: Diagnostics;
 }
 
@@ -32,7 +38,7 @@ export interface ParameterData {
     // empty interface{} type, falling back to unknown
     readonly form_type_metadata: unknown;
     readonly mutable: boolean;
-    readonly default_value: string;
+    readonly default_value: NullHCLString;
     readonly icon: string;
     readonly options: readonly (ParameterOption)[];
     readonly validations: readonly (ParameterValidation)[];
@@ -45,7 +51,7 @@ export interface ParameterData {
 export interface ParameterOption {
     readonly name: string;
     readonly description: string;
-    readonly value: string;
+    readonly value: NullHCLString;
     readonly icon: string;
 }
 

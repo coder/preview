@@ -9,6 +9,11 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
+type NullHCLString struct {
+	Value string `json:"value"`
+	Valid bool   `json:"valid"`
+}
+
 // @typescript-ignore HCLString
 type HCLString struct {
 	Value cty.Value
@@ -36,16 +41,23 @@ func ToHCLString(block *terraform.Block, attr *terraform.Attribute) HCLString {
 }
 
 func (s HCLString) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.AsString())
+	return json.Marshal(NullHCLString{
+		Value: s.AsString(),
+		Valid: s.Valid() && s.Value.IsKnown(),
+	})
 }
 
 func (s *HCLString) UnmarshalJSON(data []byte) error {
-	var str string
-	if err := json.Unmarshal(data, &str); err != nil {
+	var reduced NullHCLString
+	if err := json.Unmarshal(data, &reduced); err != nil {
 		return err
 	}
+	if reduced.Valid {
+		*s = StringLiteral(reduced.Value)
+	} else {
+		s.Value = cty.NilVal
+	}
 
-	*s = StringLiteral(str)
 	return nil
 }
 
