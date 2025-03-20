@@ -389,13 +389,16 @@ func Test_Extract(t *testing.T) {
 			input: preview.Input{
 				PlanJSONPath: "",
 				ParameterValues: map[string]string{
-					"first": "curs",
+					"one": "curse",
+					"two": "snake",
 				},
 				Owner: types.WorkspaceOwner{},
 			},
 			unknownTags: []string{},
 			params: map[string]assertParam{
-				"first": ap().value("curs"),
+				"one":   ap().value("curse"),
+				"two":   ap().value("snake"),
+				"three": ap(),
 			},
 		},
 		{

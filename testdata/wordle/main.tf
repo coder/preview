@@ -9,57 +9,144 @@ terraform {
 locals {
   correct = "lasso" // March 17, 2025
   validation = {
-    regex = "^[a-zA-Z]{5}$"
+    regex = "^[\\sa-zA-Z]{5}$"
     error = "You must enter a 5 letter word."
+  }
+
+  description = "Capital letters are an exact match, lowercase are letters that are out of place."
+}
+
+data "coder_parameter" "one" {
+  name = "one"
+  display_name = "Take a guess what the 5 letter word might be!"
+  description = "Additional guesses will appear once you input a valid 5 letter word."
+  type = "string"
+  order = 11
+  default = "     "
+
+  validation {
+    regex = local.validation.regex
+    error = local.validation.error
   }
 }
 
-module "one" {
-  source = "./word"
-  index = 0
+module "check_one" {
+  source = "./checker"
   correct = local.correct
-  previous = "     "
+  previous = data.coder_parameter.one.value
 }
 
-module "two" {
-  source = "./word"
-  index = 1
-  correct = local.correct
-  previous = module.one.value
+data "coder_parameter" "two" {
+  # count = length(data.coder_parameter.one.value) == 5 ? 1 : 0
+  count = 1
+  name = "two"
+  display_name = module.check_one.matching
+  description = local.description
+  type = "string"
+  order = 12
+  default = "     "
+
+  validation {
+    regex = local.validation.regex
+    error = local.validation.error
+  }
 }
 
-module "three" {
-  source = "./word"
-  index = 2
+module "check_two" {
+  source = "./checker"
   correct = local.correct
-  previous = module.two.value
+  previous = data.coder_parameter.two[0].value
 }
-#
-# module "four" {
-#   source = "./word"
-#   index = 3
-#   correct = local.correct
-#   previous = module.three.value
-# }
-#
-# module "five" {
-#   source = "./word"
-#   index = 4
-#   correct = local.correct
-#   previous = module.four.value
-# }
-#
-# module "six" {
-#   source = "./word"
-#   index = 5
-#   correct = local.correct
-#   previous = module.five.value
-# }
-
 
 output "debug" {
-  value = module.two.debug
+  value = {
+    "two": length(try(data.coder_parameter.two[0].value, ""))
+    "two_d": module.check_two.debug
+  }
 }
+
+data "coder_parameter" "three" {
+  # count = length(try(data.coder_parameter.two[0].value, "")) == 5 ? 1 : 0
+  count = 1
+  name = "three"
+  display_name = module.check_two.matching
+  description = local.description
+  type = "string"
+  order = 13
+  default = "     "
+
+  validation {
+    regex = local.validation.regex
+    error = local.validation.error
+  }
+}
+
+module "check_three" {
+  source = "./checker"
+  correct = local.correct
+  previous = data.coder_parameter.three[0].value
+}
+
+data "coder_parameter" "four" {
+  # count = length(try(data.coder_parameter.three[0].value, "")) == 5 ? 1 : 0
+  count = 1
+  name = "four"
+  display_name = module.check_three.matching
+  description = local.description
+  type = "string"
+  order = 14
+  default = "     "
+
+  validation {
+    regex = local.validation.regex
+    error = local.validation.error
+  }
+}
+
+module "check_four" {
+  source = "./checker"
+  correct = local.correct
+  previous = data.coder_parameter.four[0].value
+}
+
+data "coder_parameter" "five" {
+  # count = length(try(data.coder_parameter.four[0].value, "")) == 5 ? 1 : 0
+  count = 1
+  name = "five"
+  display_name = module.check_four.matching
+  description = local.description
+  type = "string"
+  order = 15
+  default = "     "
+
+  validation {
+    regex = local.validation.regex
+    error = local.validation.error
+  }
+}
+
+module "check_five" {
+  source = "./checker"
+  correct = local.correct
+  previous = data.coder_parameter.five[0].value
+}
+
+data "coder_parameter" "six" {
+  # count = length(try(data.coder_parameter.five[0].value, "")) == 5 ? 1 : 0
+  count = 1
+  name = "six"
+  display_name = module.check_five.matching
+  description = local.description
+  type = "string"
+  order = 16
+  default = "     "
+
+  validation {
+    regex = local.validation.regex
+    error = local.validation.error
+  }
+}
+
 
 #
 # module "word_one" {
