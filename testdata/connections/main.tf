@@ -20,15 +20,17 @@ locals {
 
   used_words = setunion(
     [],
-    # jsondecode(data.coder_parameter.yellow.value),
-    # jsondecode(data.coder_parameter.green.value),
+    jsondecode(data.coder_parameter.rows["yellow"].value),
+    jsondecode(data.coder_parameter.rows["green"].value),
+    jsondecode(data.coder_parameter.rows["blue"].value),
+    jsondecode(data.coder_parameter.rows["purple"].value),
   )
 
   available_words = setsubtract(toset(local.word_bank), toset(local.used_words))
 }
 
 data "coder_parameter" "rows" {
-  for_each = ["yellow", "green", "blue", "purple"]
+  for_each = toset(["yellow", "green", "blue", "purple"])
   name = each.value
   # name = "rows"
   display_name = "Row"
@@ -55,6 +57,6 @@ output "used" {
 }
 
 output "yellow" {
-  value = data.coder_parameter.yellow.value
+  value = data.coder_parameter.rows["yellow"].value
 }
 
