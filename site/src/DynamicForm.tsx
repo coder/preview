@@ -21,7 +21,7 @@ import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group"
 import { Label } from "./components/Label/Label";
 import { Checkbox } from "./components/Checkbox/Checkbox";
 import { Textarea } from "./components/Textarea/Textarea";
-
+import { Badge } from "./components/Badge/Badge";
 export function DynamicForm() {
   const serverAddress = "localhost:8100";
   const [user, setUser] = useState<string>("");
@@ -189,8 +189,9 @@ export function DynamicForm() {
           return  (
             <div key={param.name} className="flex flex-col gap-2 items-center">
               <label>
-                {param.display_name || param.name}
                 {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+                <span className="mr-2">{param.display_name || param.name}</span>
+                {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
               </label>
               {param.description && <div className="text-sm">{param.description}</div>}
               <Controller
@@ -225,8 +226,9 @@ export function DynamicForm() {
           return (
             <div key={param.name} className="flex flex-col gap-2 items-center">
               <label>
-                {param.display_name || param.name}
                 {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+                <span className="mr-2">{param.display_name || param.name}</span>
+                {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
               </label>
               {param.description && <div className="text-sm">{param.description}</div>}
               <Controller
@@ -268,8 +270,9 @@ export function DynamicForm() {
             <div key={param.name} className="flex flex-col gap-2 items-center">
               <div className="flex items-center justify-between gap-2">
                 <label>
-                  {param.display_name || param.name}
                   {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+                  <span className="mr-2">{param.display_name || param.name}</span>
+                  {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
                 </label>
                 <output className="text-sm font-medium tabular-nums">{parameterValue(param.value)}</output>
               </div>
@@ -295,8 +298,9 @@ export function DynamicForm() {
             <div key={param.name} className="flex flex-col gap-2 items-center">
               <div className="flex items-center justify-between gap-2">
                 <label>
-                  {param.display_name || param.name}
                   {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+                  <span className="mr-2">{param.display_name || param.name}</span>
+                  {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
                 </label>
               </div>
               {param.description && <div className="text-sm">{param.description}</div>}
@@ -326,8 +330,9 @@ export function DynamicForm() {
               <div key={param.name} className="flex flex-col gap-2 items-center">
                 <div className="flex items-center justify-between gap-2">
                   <label>
-                    {param.display_name || param.name}
                     {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+                    <span className="mr-2">{param.display_name || param.name}</span>
+                    {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
                   </label>
                 </div>
                 {param.description && <div className="text-sm">{param.description}</div>}
@@ -351,8 +356,9 @@ export function DynamicForm() {
                 <div key={param.name} className="flex flex-col gap-2 items-center">
                 <div className="flex items-center justify-between gap-2">
                   <label>
-                    {param.display_name || param.name}
                     {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+                    <span className="mr-2">{param.display_name || param.name}</span>
+                    {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
                   </label>
                 </div>
                 {param.description && <div className="text-sm">{param.description}</div>}
@@ -372,8 +378,9 @@ export function DynamicForm() {
                   <div key={param.name} className="flex flex-col gap-2 items-center">
                   <div className="flex items-center justify-between gap-2">
                     <label>
-                      {param.display_name || param.name}
                       {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+                      <span className="mr-2">{param.display_name || param.name}</span>
+                      {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
                     </label>
                   </div>
                   {param.description && <div className="text-sm">{param.description}</div>}
@@ -452,7 +459,6 @@ export function DynamicForm() {
                 }}
                 className="w-[300px]"
                 type={mapParamTypeToInputType(param.type)}
-                // value={field.value}
                 defaultValue={parameterValue(param.default_value)}
                 disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
               />

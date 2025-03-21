@@ -14,10 +14,10 @@ module.exports = {
 				"icon-xs": "0.875rem",
 			},
 			fontSize: {
-				"2xs": ["0.625rem", "0.875rem"],
-				xs: ["0.75rem", "1.125rem"],
-				sm: ["0.875rem", "1.5rem"],
-				"3xl": ["2rem", "2.5rem"],
+				"2xs": ["0.625rem", { lineHeight: "0.875rem" }],
+				xs: ["0.75rem", { lineHeight: "1.125rem" }],
+				sm: ["0.875rem", { lineHeight: "1.5rem" }],
+				"3xl": ["2rem", { lineHeight: "2.5rem" }],
 			},
 			borderRadius: {
 				lg: "var(--radius)",
