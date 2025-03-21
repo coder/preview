@@ -452,7 +452,7 @@ export function DynamicForm() {
                 }}
                 className="w-[300px]"
                 type={mapParamTypeToInputType(param.type)}
-                value={field.value}
+                // value={field.value}
                 defaultValue={parameterValue(param.default_value)}
                 disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
               />
