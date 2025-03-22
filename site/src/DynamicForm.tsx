@@ -571,7 +571,7 @@ export function DynamicForm() {
 
       <CollapsibleSummary label="Server Response JSON">
         <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-900 text-left">
-          {serverResponse && <ReactJson src={serverResponse} />}
+          {serverResponse && <ReactJson src={serverResponse} theme="twilight" />}
         </div>
       </CollapsibleSummary>
     </div>

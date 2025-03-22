@@ -128,7 +128,7 @@
   --surface-grey: oklch(0.116 0.003 240);
   --surface-orange: oklch(0.167 0.095 13);
   --surface-sky: oklch(0.201 0.095 204);
-  --border-default: oklch(0.201 0.003 240);
+  --border-default: hsla(240, 4%, 16%, 1);
   --border-success: oklch(0.455 0.127 142);
   --border-destructive: oklch(0.748 0.191 25);
   --border-warning: oklch(0.831 0.157 80);
@@ -207,4 +207,13 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-surface-primary text-content-primary;
+  }
 }
