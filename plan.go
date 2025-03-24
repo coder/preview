@@ -1,6 +1,7 @@
 package preview
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -20,15 +21,20 @@ import (
 )
 
 func PlanJSONHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value), error) {
-	if input.PlanJSONPath == "" {
-		return func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value) {}, nil
-	}
-	file, err := dfs.Open(input.PlanJSONPath)
-	if err != nil {
-		return nil, fmt.Errorf("unable to open plan JSON file: %w", err)
+	var contents io.Reader = bytes.NewReader(input.PlanJSON)
+	if len(input.PlanJSON) == 0 {
+		if input.PlanJSONPath == "" {
+			return func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value) {}, nil
+		}
+
+		var err error
+		contents, err = dfs.Open(input.PlanJSONPath)
+		if err != nil {
+			return nil, fmt.Errorf("unable to open plan JSON file: %w", err)
+		}
 	}
 
-	plan, err := ParsePlanJSON(file)
+	plan, err := ParsePlanJSON(contents)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse plan JSON: %w", err)
 	}
