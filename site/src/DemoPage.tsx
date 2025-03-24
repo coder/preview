@@ -22,7 +22,7 @@ export function DemoPage() {
         </div>
 
         {/* General Section */}
-        <div className="grid grid-cols-[320px_1fr] gap-28">
+        <div className="grid grid-cols-[280px_1fr] gap-28">
           <div>
             <h2 className="text-xl mb-2 text-left">General</h2>
             <p className="text-content-secondary text-sm text-left">
@@ -60,7 +60,7 @@ export function DemoPage() {
         </div>
 
         {/* External Authentication Section */}
-        <div className="grid grid-cols-[320px_1fr] gap-6 gap-28">
+        <div className="grid grid-cols-[280px_1fr] gap-6 gap-28">
           <div>
             <h2 className="text-xl mb-2 text-left">External Authentication</h2>
             <p className="text-content-secondary text-sm text-left">
@@ -79,7 +79,7 @@ export function DemoPage() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-[320px_1fr] gap-6 gap-28">
+        <div className="grid grid-cols-[280px_1fr] gap-6 gap-28">
           <div>
             <h2 className="text-xl mb-2 text-left">Parameters</h2>
             <p className="text-content-secondary text-sm text-left">
@@ -87,8 +87,7 @@ export function DemoPage() {
             Please note that immutable parameters cannot be modified once the workspace is created.
             </p>
           </div>
-        
-            <DynamicForm />
+          <DynamicForm />
         </div>
       </div>
     </div>

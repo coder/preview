@@ -22,6 +22,7 @@ import { Label } from "./components/Label/Label";
 import { Checkbox } from "./components/Checkbox/Checkbox";
 import { Textarea } from "./components/Textarea/Textarea";
 import { Badge } from "./components/Badge/Badge";
+import { Button } from "./components/Button/Button";
 
 export function DynamicForm() {
   const serverAddress = "localhost:8100";
@@ -280,7 +281,9 @@ export function DynamicForm() {
                   <span className="mr-2">{param.display_name || param.name}</span>
                   {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
                 </label>
-                <output className="text-sm font-medium tabular-nums">{parameterValue(param.value)}</output>
+                <div className="bg-surface-secondary rounded-md px-2">
+                  <output className="text-sm font-medium tabular-nums">{parameterValue(param.value)}</output>
+                </div>
               </div>
               {param.description && <div className="text-content-secondary text-sm">{param.description}</div>}
               <Controller
@@ -520,6 +523,14 @@ export function DynamicForm() {
       <FormProvider {...methods}>
         <form className="flex flex-col gap-10">
           {sortedParams && sortedParams.map((param) => renderParameter(param))}
+          <div className="flex flex-row gap-4 justify-end mt-10">
+            <Button variant="outline">
+              Cancel
+            </Button>
+            <Button >
+              Create workspace
+            </Button>
+          </div>
         </form>
       </FormProvider>
 
