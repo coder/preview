@@ -89,6 +89,7 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 	optBlocks := block.GetBlocks("option")
 
 	optionType, newFormType, err := provider.ValidateFormType(string(p.Type), len(optBlocks), p.FormType)
+	var _ = optionType // TODO: Should we enforce this anywhere?
 	if err != nil {
 		diags = diags.Append(&hcl.Diagnostic{
 			Severity: hcl.DiagError,
@@ -100,7 +101,6 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 		// Parameter cannot be used
 		p.FormType = provider.ParameterFormTypeError
 	} else {
-		p.Type = types.ParameterType(optionType)
 		p.FormType = newFormType
 	}
 
