@@ -297,6 +297,7 @@ export function DynamicForm() {
                   </div>
                 )}
               />
+              {renderDiagnostics(param.diagnostics)}
             </div>
           )
         case "radio":
@@ -322,6 +323,7 @@ export function DynamicForm() {
                   </div>
                 )}
               />
+              {renderDiagnostics(param.diagnostics)}
             </div>
           )
           case "switch":
@@ -341,6 +343,7 @@ export function DynamicForm() {
                     </div>
                   )}
                 />
+                {renderDiagnostics(param.diagnostics)}
               </div>
             )
             case "checkbox":
@@ -356,6 +359,7 @@ export function DynamicForm() {
                     </div>
                   )}
                 />
+                {renderDiagnostics(param.diagnostics)}
               </div>
               )
               case "textarea":
@@ -375,34 +379,43 @@ export function DynamicForm() {
                         </div>
                       )}
                     />
+                    {renderDiagnostics(param.diagnostics)}
                 </div>
+                )
+              case "input":
+                return (
+                  <div key={param.name} className="flex flex-col gap-2 text-left">
+                    <ParamInfo param={param} />
+                    <Controller
+                      name={param.name}
+                      control={methods.control}
+                      render={({ field }) => (
+                        <Input
+                          onChange={(e) => {
+                            field.onChange(e);
+                          }}
+                          type={mapParamTypeToInputType(param.type)}
+                          defaultValue={parameterValue(param.default_value)}
+                          disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
+                        />
+                      )}
+                    />
+                    {renderDiagnostics(param.diagnostics)}
+                  </div>
+                )
+              case "tag-select":
+                return (
+                  <div key={param.name} className="flex flex-col gap-2 text-left">
+                    <ParamInfo param={param} />
+                    {param.form_type} Not implemented
+                  </div>
                 )
       }
     }
 
-    const label = param.display_name || param.name;
-
     return (
       <div key={param.name} className="flex flex-col gap-2 text-left">
-        <label>
-          {label}
-          {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
-        </label>
-        {param.description && <div className="text-content-secondary text-sm text-left">{param.description}</div>}
-        <Controller
-            name={param.name}
-            control={methods.control}
-            render={({ field }) => (
-              <Input
-                onChange={(e) => {
-                  field.onChange(e);
-                }}
-                type={mapParamTypeToInputType(param.type)}
-                defaultValue={parameterValue(param.default_value)}
-                disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
-              />
-            )}
-          />
+        <p style={{ color: "red" }}>form_type is required</p>
         {renderDiagnostics(param.diagnostics)}
       </div>
     );

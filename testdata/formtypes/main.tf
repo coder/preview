@@ -164,11 +164,11 @@ data "coder_parameter" "list_string_options" {
 }
 
 data "coder_parameter" "list_string_without_options" {
-  // should be tag-select
   name         = "list_string_without_options"
   display_name = "List(String)"
   description  = "list(string) with options"
   type         = "list(string)"
+  form_type    = "tag-select"
   order        = 9
   icon         = "/emojis/0031-fe0f-20e3.png"
   default      = jsonencode(["purple", "blue", "green", "red", "orange"])
