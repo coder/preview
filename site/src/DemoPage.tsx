@@ -10,10 +10,10 @@ export function DemoPage() {
     <div className="min-h-screen flex justify-center">
       <div className="flex flex-col gap-20 p-6 w-full max-w-5xl">
         {/* Header Section */}
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3">
           <div className="w-8 h-8">🏅</div>
           <div>
-            <h1 className="text-2xl font-semibold">Write Coder on Coder</h1>
+            <h1 className="text-2xl">Write Coder on Coder</h1>
             <p className="text-content-secondary text-left">New workspace</p>
           </div>
           <Button variant="outline" className="ml-auto">
