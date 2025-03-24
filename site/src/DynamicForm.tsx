@@ -189,7 +189,7 @@ export function DynamicForm() {
       <div className="mb-2">
         <Label>
           {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
-          <span className="mr-2">{param.display_name || param.name}</span>
+          <span className="mr-4 text-base">{param.display_name || param.name}</span>
           {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
         </Label>
         {param.description && <div className="text-content-secondary text-sm text-left">{param.description}</div>}
