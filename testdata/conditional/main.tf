@@ -71,3 +71,23 @@ data "coder_parameter" "compute" {
     }
   }
 }
+
+data coder_workspace_owner "me" {}
+locals {
+  isAdmin = contains(data.coder_workspace_owner.me.groups, "admin")
+}
+
+data "coder_parameter" "image_hash" {
+  count       = local.isAdmin ? 1 : 0
+  name = "hash"
+  display_name        = "Image Hash"
+  description = "Override the hash of the image to use. Only available to admins."
+  // Value can get stale
+  default     = "e64c69d84d5f910b5cd4fc7bc01a67a6436865787b429e7e60ebaeb4e7dd1b44"
+  order       = 3
+
+  validation {
+    regex = "^[a-f0-9A-F]{64}$"
+    error = "The image hash must be a 64-character hexadecimal string."
+  }
+}

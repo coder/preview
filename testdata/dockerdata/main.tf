@@ -12,29 +12,36 @@ terraform {
   }
 }
 
-data "coder_parameter" "example" {
-  name        = "Example"
+locals {
+  empty_hash  = "0000000000000000000000000000000000000000000000000000000000000000"
+  ubuntu_hash = try(trimprefix(data.docker_registry_image.ubuntu.sha256_digest, "sha256:"), local.empty_hash)
+  centos_hash = try(trimprefix(data.docker_registry_image.centos.sha256_digest, "sha256:"), local.empty_hash)
+}
+
+data "coder_parameter" "os" {
+  name = "os"
+  display_name = "Choose your operating system"
   description = "An example parameter that has no purpose."
   type        = "string"
-  default     = trimprefix(data.docker_registry_image.ubuntu.sha256_digest, "sha256:")
+  default     = local.ubuntu_hash
 
   option {
-    name = "Ubuntu"
+    name = "Ubuntu (${substr(local.ubuntu_hash, 0, 6)}...${substr(local.ubuntu_hash, 58, 64)})"
     description = data.docker_registry_image.ubuntu.name
-    value = trimprefix(data.docker_registry_image.ubuntu.sha256_digest, "sha256:")
+    value = local.ubuntu_hash
   }
 
   option {
-    name = "Centos"
+    name = "Centos (${substr(local.centos_hash, 0, 6)}...${substr(local.centos_hash, 58, 64)})"
     description = data.docker_registry_image.centos.name
-    value = trimprefix(data.docker_registry_image.centos.sha256_digest, "sha256:")
+    value = local.centos_hash
   }
 }
 
 data "coder_workspace_tags" "custom_workspace_tags" {
   tags = {
-    "foo" = data.docker_registry_image.ubuntu.sha256_digest
-    "bar" = data.docker_registry_image.centos.sha256_digest
+    "ubuntu" = local.ubuntu_hash
+    "centos" = local.centos_hash
     "qux" = "quux"
   }
 }
