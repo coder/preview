@@ -16,7 +16,7 @@ locals {
 
   solved = [for diff in local.diff : diff.connection if diff.distance == 0]
   one_away = [for diff in local.diff : diff.connection if diff.distance == 1]
-  description = length(local.one_away) == 1 ? "One away..." : (
+  description = length(local.one_away) == 1 && length(var.guess) == 4 ? "One away..." : (
       length(local.solved) == 1 ? "Solved!" : (
       "Select 4 words that share a common connection."
     )
