@@ -135,7 +135,7 @@ data "coder_parameter" "boolean_format" {
   display_name = "How do you want to format the options of the next parameter?"
   description  = "The next parameter supports boolean values."
   type         = "string"
-  form_type    = "radio"
+  form_type    = "dropdown"
   order        = 30
   default      = "radio"
 
@@ -204,7 +204,7 @@ data "coder_parameter" "list_format" {
   display_name = "How do you want to format the options of the next parameter?"
   description  = "The next parameter supports lists of values."
   type         = "string"
-  form_type    = "radio"
+  form_type    = "dropdown"
   order        = 40
   default      = "multi-select"
 
@@ -312,5 +312,32 @@ data "coder_parameter" "list" {
       description = option.value.description
       icon        = option.value.icon
     }
+  }
+}
+
+data "coder_parameter" "like_it" {
+  name         = "like_it"
+  display_name = "Did you like this demo?"
+  description  = "Please check!"
+  type         = "bool"
+  form_type    = "checkbox"
+  order        = 50
+  default      = false
+}
+
+data "coder_parameter" "satisfaction" {
+  count = data.coder_parameter.like_it.value ? 1 : 0
+  name         = "satisfaction"
+  display_name = "Please rate your satisfaction."
+  description  = ""
+  type         = "number"
+  form_type    = "slider"
+  order        = 51
+  default      = 85
+
+  validation {
+    min   = 0
+    max   = 100
+    error = "Value {value} is not between {min} and {max}"
   }
 }
