@@ -56,10 +56,12 @@ module "checker" {
 
 data "coder_parameter" display {
   name = "display"
-  display_name = local.solved ? "Workspace name" : join(", ", local.available_words)
-  description = local.solved ? "Congrats, you won! What is your workspace name?" : "Remaining words"
-  type = "string"
-  default = local.solved ? "" : "Keep guessing!"
+  display_name = local.solved ? "Congrats, you won! You may now hit the switch!" : join(", ", local.available_words)
+  description = local.solved ? "Hitting the switch enables workspace creation." : "Remaining words are above, you cannot use this switch until you solve the puzzle!"
+  type = "bool"
+  form_type = "switch"
+  default = local.solved ? false : true
+  # default = local.solved ? "" : "Keep guessing!"
 
   form_type_metadata = jsonencode({
     disabled = !local.solved
