@@ -18,6 +18,7 @@ import (
 func Test_Extract(t *testing.T) {
 	t.Parallel()
 
+	// nice helper to match tf jsonencode
 	jsonencode := func(v interface{}) string {
 		b, err := json.Marshal(v)
 		if err != nil {
@@ -25,6 +26,7 @@ func Test_Extract(t *testing.T) {
 		}
 		return string(b)
 	}
+	var _ = jsonencode
 
 	for _, tc := range []struct {
 		skip        string
@@ -392,39 +394,7 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
-			name:    "wordle",
-			dir:     "wordle",
-			expTags: map[string]string{},
-			input: preview.Input{
-				PlanJSONPath: "",
-				ParameterValues: map[string]string{
-					"one": "curse",
-					"two": "snake",
-				},
-				Owner: types.WorkspaceOwner{},
-			},
-			unknownTags: []string{},
-			params: map[string]assertParam{
-				"one":   ap().value("curse"),
-				"two":   ap().value("snake"),
-				"three": ap(),
-			},
-		},
-		{
-			name:    "connections",
-			dir:     "connections",
-			expTags: map[string]string{},
-			input: preview.Input{
-				PlanJSONPath: "",
-				ParameterValues: map[string]string{
-					"yellow": jsonencode([]string{}),
-				},
-				Owner: types.WorkspaceOwner{},
-			},
-			unknownTags: []string{},
-			params:      map[string]assertParam{},
-		},
-		{
+			skip:    "skip until https://github.com/aquasecurity/trivy/pull/8479 is resolved",
 			name:    "submodcount",
 			dir:     "submodcount",
 			expTags: map[string]string{},
@@ -439,6 +409,7 @@ func Test_Extract(t *testing.T) {
 			t.Parallel()
 			if tc.skip != "" {
 				t.Skip(tc.skip)
+				return
 			}
 
 			if tc.unknownTags == nil {

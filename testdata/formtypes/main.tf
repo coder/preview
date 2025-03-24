@@ -37,6 +37,7 @@ data "coder_parameter" "string_opts_default" {
   type         = "string"
   order        = 1
   icon         = "/emojis/0031-fe0f-20e3.png"
+  default      = local.string_opts[0].value
 
   dynamic "option" {
     for_each = local.string_opts
@@ -57,6 +58,7 @@ data "coder_parameter" "string_opts_dropdown" {
   form_type    = "dropdown"
   order        = 2
   icon         = "/emojis/0031-fe0f-20e3.png"
+  default      = local.string_opts[0].value
 
   dynamic "option" {
     for_each = local.string_opts
@@ -77,6 +79,7 @@ data "coder_parameter" "string_without_opts" {
   type         = "string"
   order        = 3
   icon         = "/emojis/0031-fe0f-20e3.png"
+  default      = "something random"
 }
 
 data "coder_parameter" "textarea_without_opts" {
@@ -87,6 +90,10 @@ data "coder_parameter" "textarea_without_opts" {
   form_type    = "textarea"
   order        = 4
   icon         = "/emojis/0031-fe0f-20e3.png"
+  default = <<EOT
+hello
+world
+EOT
 }
 
 data "coder_parameter" "bool_with_opts" {
