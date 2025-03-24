@@ -22,22 +22,25 @@ import { Label } from "./components/Label/Label";
 import { Checkbox } from "./components/Checkbox/Checkbox";
 import { Textarea } from "./components/Textarea/Textarea";
 import { Badge } from "./components/Badge/Badge";
+
 export function DynamicForm() {
   const serverAddress = "localhost:8100";
   const [user, setUser] = useState<string>("");
   const [plan, setPlan] = useState<string>("");
   const [urlTestdata, setUrlTestdata] = useState<string>("");
+  const [testcontrols, setTestcontrols] = useState<boolean>(false);
 
-  // Function to read URL parameters and update state
   const updateStateFromURL = () => {
     const params = new URLSearchParams(window.location.search);
     const testdataParam = params.get('testdata') ?? "conditional";
+    const testcontrolsParam = params.get('testcontrols');
     const planParam = params.get('plan');
     const userParam = params.get('user');
 
     setUrlTestdata(testdataParam);
     if (userParam) setUser(userParam);
     if (planParam) setPlan(planParam);
+    if (testcontrolsParam) setTestcontrols(testcontrolsParam === "true");
   };
 
   // Read URL parameters on component mount
@@ -181,19 +184,27 @@ export function DynamicForm() {
     };
   }, [debouncedTimer]);
 
+  const ParamInfo = ({ param }: { param: Parameter }) => {
+    return (
+      <div className="mb-2">
+        <Label>
+          {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
+          <span className="mr-2">{param.display_name || param.name}</span>
+          {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
+        </Label>
+        {param.description && <div className="text-content-secondary text-sm text-left">{param.description}</div>}
+      </div>
+    )
+  }
+
   const renderParameter = (param: Parameter) => {
     const controlType = param.form_type;
     if (controlType) {
       switch (controlType) {
         case "dropdown":
           return  (
-            <div key={param.name} className="flex flex-col gap-2 items-center">
-              <label>
-                {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
-                <span className="mr-2">{param.display_name || param.name}</span>
-                {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
-              </label>
-              {param.description && <div className="text-sm">{param.description}</div>}
+            <div key={param.name} className="flex flex-col gap-2 text-left">
+              <ParamInfo param={param} />
               <Controller
                 name={param.name}
                 control={methods.control}
@@ -203,7 +214,7 @@ export function DynamicForm() {
                     defaultValue={parameterValue(param.default_value)}
                     disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
                   >
-                    <SelectTrigger className="w-[300px]">
+                    <SelectTrigger>
                       <SelectValue placeholder={param.description} />
                     </SelectTrigger>
                     <SelectContent>
@@ -224,18 +235,13 @@ export function DynamicForm() {
         )
         case "multi-select":
           return (
-            <div key={param.name} className="flex flex-col gap-2 items-center">
-              <label>
-                {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
-                <span className="mr-2">{param.display_name || param.name}</span>
-                {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
-              </label>
-              {param.description && <div className="text-sm">{param.description}</div>}
+            <div key={param.name} className="flex flex-col gap-2 w-full text-left">
+              <ParamInfo param={param} />
               <Controller
                 name={param.name}
                 control={methods.control}
                 render={({ field }) => (
-                  <div className="w-[300px]">
+                  <div>
                     <MultipleSelector
                       commandProps={{
                         label: "Select frameworks",
@@ -267,8 +273,8 @@ export function DynamicForm() {
           )
         case "slider":
           return (
-            <div key={param.name} className="flex flex-col gap-2 items-center">
-              <div className="flex items-center justify-between gap-2">
+            <div key={param.name} className="flex flex-col gap-2 width-fit text-left">
+              <div className="flex gap-2">
                 <label>
                   {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
                   <span className="mr-2">{param.display_name || param.name}</span>
@@ -276,12 +282,12 @@ export function DynamicForm() {
                 </label>
                 <output className="text-sm font-medium tabular-nums">{parameterValue(param.value)}</output>
               </div>
-              {param.description && <div className="text-sm">{param.description}</div>}
+              {param.description && <div className="text-content-secondary text-sm">{param.description}</div>}
               <Controller
                 name={param.name}
                 control={methods.control}
                 render={({ field }) => (
-                  <div className="w-[300px]">
+                  <div>
                       <Slider defaultValue={param?.default_value?.value ? [Number(param.default_value.value)] : [0]} max={param.validations[0].validation_max || undefined} min={param.validations[0].validation_min || undefined} step={1}                       
                       onValueChange={(value) => {
                         field.onChange(value[0].toString());
@@ -295,20 +301,13 @@ export function DynamicForm() {
           )
         case "radio":
           return (
-            <div key={param.name} className="flex flex-col gap-2 items-center">
-              <div className="flex items-center justify-between gap-2">
-                <label>
-                  {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
-                  <span className="mr-2">{param.display_name || param.name}</span>
-                  {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
-                </label>
-              </div>
-              {param.description && <div className="text-sm">{param.description}</div>}
+            <div key={param.name} className="flex flex-col gap-2 text-left">
+              <ParamInfo param={param} />
               <Controller
                 name={param.name}
                 control={methods.control}
                 render={({ field }) => (
-                  <div className="w-[300px]">
+                  <div>
                     <RadioGroup defaultValue={parameterValue(param.default_value)} onValueChange={field.onChange} disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}>
                     {(param.options || []).map((option, idx) => {
                           if (!option) return null;
@@ -327,20 +326,13 @@ export function DynamicForm() {
           )
           case "switch":
             return (
-              <div key={param.name} className="flex flex-col gap-2 items-center">
-                <div className="flex items-center justify-between gap-2">
-                  <label>
-                    {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
-                    <span className="mr-2">{param.display_name || param.name}</span>
-                    {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
-                  </label>
-                </div>
-                {param.description && <div className="text-sm">{param.description}</div>}
+              <div key={param.name} className="flex flex-col gap-2 text-left">
+                <ParamInfo param={param} />
                 <Controller
                   name={param.name}
                   control={methods.control}
                   render={({ field }) => (
-                    <div className="w-[300px]">
+                    <div>
                       <Switch 
                         checked={Boolean(field.value === "true")} 
                         onCheckedChange={(checked) => field.onChange(checked.toString())} 
@@ -353,20 +345,13 @@ export function DynamicForm() {
             )
             case "checkbox":
               return (
-                <div key={param.name} className="flex flex-col gap-2 items-center">
-                <div className="flex items-center justify-between gap-2">
-                  <label>
-                    {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
-                    <span className="mr-2">{param.display_name || param.name}</span>
-                    {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
-                  </label>
-                </div>
-                {param.description && <div className="text-sm">{param.description}</div>}
+                <div key={param.name} className="flex flex-col gap-2 text-left">
+                <ParamInfo param={param} />
                 <Controller
                   name={param.name}
                   control={methods.control}
                   render={({ field }) => (
-                    <div className="w-[300px]">
+                    <div>
                       <Checkbox checked={Boolean(field.value === "true")} onCheckedChange={(checked) => field.onChange(checked.toString())} disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled} />
                     </div>
                   )}
@@ -375,28 +360,21 @@ export function DynamicForm() {
               )
               case "textarea":
                 return (
-                  <div key={param.name} className="flex flex-col gap-2 items-center">
-                  <div className="flex items-center justify-between gap-2">
-                    <label>
-                      {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
-                      <span className="mr-2">{param.display_name || param.name}</span>
-                      {!param.mutable && <Badge variant="warning" size="sm">Immutable</Badge>}
-                    </label>
-                  </div>
-                  {param.description && <div className="text-sm">{param.description}</div>}
-                  <Controller
-                  name={param.name}
-                  control={methods.control}
-                  render={({ field }) => (
-                    <div className="w-[300px]">
-                      <Textarea
-                        value={field.value}
-                        onChange={(e) => field.onChange(e)}
-                        disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
-                      />
-                    </div>
-                  )}
-                />
+                  <div key={param.name} className="flex flex-col gap-2 text-left fit">
+                    <ParamInfo param={param} />
+                    <Controller
+                      name={param.name}
+                      control={methods.control}
+                      render={({ field }) => (
+                        <div>
+                          <Textarea
+                            value={field.value}
+                            onChange={(e) => field.onChange(e)}
+                            disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
+                          />
+                        </div>
+                      )}
+                    />
                 </div>
                 )
       }
@@ -404,51 +382,13 @@ export function DynamicForm() {
 
     const label = param.display_name || param.name;
 
-    if (param.options && param.options.some((opt) => opt !== null)) {
-      return (
-        <div key={param.name} className="flex flex-col gap-2 items-center">
-          <label>
-            {label}
-            {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
-          </label>
-          {param.description && <div className="text-sm">{param.description}</div>}
-          <Controller
-            name={param.name}
-            control={methods.control}
-            render={({ field }) => (
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={parameterValue(param.value)}
-                disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
-              >
-                <SelectTrigger className="w-[300px]">
-                  <SelectValue placeholder={param.description} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    {(param.options || []).map((option, idx) => {
-                      if (!option) return null;
-                      return (
-                        <SelectItem key={idx} value={parameterValue(option.value)}>{option.name}</SelectItem>
-                      );
-                    })}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {renderDiagnostics(param.diagnostics)}
-        </div>
-      );
-    }
-
     return (
-      <div key={param.name} className="flex flex-col gap-2 items-center">
+      <div key={param.name} className="flex flex-col gap-2 text-left">
         <label>
           {label}
           {param.icon && <img src={param.icon} alt="" style={{ marginLeft: 6 }} />}
         </label>
-        {param.description && <div style={{ fontSize: "0.8rem" }}>{param.description}</div>}
+        {param.description && <div className="text-content-secondary text-sm text-left">{param.description}</div>}
         <Controller
             name={param.name}
             control={methods.control}
@@ -457,7 +397,6 @@ export function DynamicForm() {
                 onChange={(e) => {
                   field.onChange(e);
                 }}
-                className="w-[300px]"
                 type={mapParamTypeToInputType(param.type)}
                 defaultValue={parameterValue(param.default_value)}
                 disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
@@ -510,70 +449,74 @@ export function DynamicForm() {
   const sortedParams = response.parameters ? [...response.parameters].sort((a, b) => a.order - b.order) : [];
 
   return (
-    <div className="flex flex-col gap-12">
-      <div className="flex flex-row gap-4">
-          <Select
-            onValueChange={handleTestdataChange}
-            value={urlTestdata}
-          >
-            <SelectTrigger className="w-fit">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                {directories.map((name, idx) => {
-                  return (
-                    <SelectItem key={idx} value={name}>{name}</SelectItem>
-                  );
-                })}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-
-          {Object.keys(users).length > 0 && (
+    <div className="flex flex-col">
+      {testcontrols &&
+        <div className="flex flex-row gap-4 mb-12">
             <Select
-                onValueChange={(value) => {
-                  setUser(value);
-                }}
-              value={user}
+              onValueChange={handleTestdataChange}
+              value={urlTestdata}
             >
               <SelectTrigger className="w-fit">
-                <SelectValue placeholder="Select user" />
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  {Object.keys(users).map((username, idx) => {
+                  {directories.map((name, idx) => {
                     return (
-                      <SelectItem key={idx} value={username}>{username}</SelectItem>
+                      <SelectItem key={idx} value={name}>{name}</SelectItem>
                     );
                   })}
                 </SelectGroup>
               </SelectContent>
             </Select>
-          )}
 
-          <span className="flex flex-row gap-2 items-center">
-            Use Plan
-            <Switch
-              checked={plan !== ""}
-              onCheckedChange={() => setPlan(plan !== "" ? "" : "plan.json")}
-						/>
-          </span>
-      </div>
+            {Object.keys(users).length > 0 && (
+              <Select
+                  onValueChange={(value) => {
+                    setUser(value);
+                  }}
+                value={user}
+              >
+                <SelectTrigger className="w-fit">
+                  <SelectValue placeholder="Select user" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {Object.keys(users).map((username, idx) => {
+                      return (
+                        <SelectItem key={idx} value={username}>{username}</SelectItem>
+                      );
+                    })}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            )}
+
+            <span className="flex flex-row gap-2 items-center">
+              Use Plan
+              <Switch
+                checked={plan !== ""}
+                onCheckedChange={() => setPlan(plan !== "" ? "" : "plan.json")}
+              />
+            </span>
+        </div>
+      }
+
+      {response.diagnostics && renderDiagnostics(response.diagnostics)}
 
       <FormProvider {...methods}>
-        <form className="flex flex-col gap-4">
-          {response.diagnostics && renderDiagnostics(response.diagnostics)}
-
+        <form className="flex flex-col gap-10">
           {sortedParams && sortedParams.map((param) => renderParameter(param))}
         </form>
       </FormProvider>
 
-      <CollapsibleSummary label="Server Response JSON">
-        <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-900 text-left">
-          {serverResponse && <ReactJson src={serverResponse} theme="twilight" />}
-        </div>
-      </CollapsibleSummary>
+      {testcontrols &&
+        <CollapsibleSummary className="mt-12" label="Server Response JSON">
+          <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-900 text-left">
+            {serverResponse && <ReactJson src={serverResponse} theme="twilight" />}
+          </div>
+        </CollapsibleSummary>
+      }
     </div>
   );
 }

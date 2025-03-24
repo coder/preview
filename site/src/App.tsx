@@ -1,11 +1,11 @@
 import './App.css'
-import { DynamicForm } from './DynamicForm'
+import { DemoPage } from './DemoPage'
 import { ThemeProvider } from "./components/theme-provider"
 
 function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <DynamicForm />
+      <DemoPage />
     </ThemeProvider>
   );
 }

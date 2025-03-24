@@ -16,7 +16,7 @@ function Command({ className, ...props }: React.ComponentProps<typeof CommandPri
     <CommandPrimitive
       data-slot="command"
       className={cn(
-        "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md",
+        "bg-surface-primary text-content-primary flex h-full w-full flex-col overflow-hidden rounded-md",
         className,
       )}
       {...props}
@@ -134,7 +134,7 @@ function CommandShortcut({ className, ...props }: React.ComponentProps<"span">) 
     <kbd
       data-slot="command-shortcut"
       className={cn(
-        "bg-background text-muted-foreground/70 ms-auto -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium",
+        "bg-surface-primary text-content-disabled ms-auto -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium",
         className,
       )}
       {...props}
