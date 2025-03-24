@@ -9,59 +9,77 @@ terraform {
 locals {
   string_opts = [
     {
-      name        = "one"
-      value       = "one"
+      name        = "Alpha"
+      value       = "alpha-value"
       description = "This is option one"
       icon        = "/emojis/0031-fe0f-20e3.png"
     },
     {
-      name        = "two"
-      value       = "two"
+      name        = "Bravo"
+      value       = "bravo-value"
       description = "This is option two"
       icon        = "/emojis/0032-fe0f-20e3.png"
     },
     {
-      name        = "three"
-      value       = "three"
+      name        = "Charlie"
+      value       = "charlie-value"
       description = "This is option three"
       icon        = "/emojis/0033-fe0f-20e3.png"
     }
   ]
 }
 
-data "coder_parameter" "string_opts_default" {
-  // should be 'radio'
-  name         = "string_opts"
-  display_name = "String"
-  description  = "String with options"
-  type         = "string"
-  order        = 1
-  icon         = "/emojis/0031-fe0f-20e3.png"
-  default      = local.string_opts[0].value
 
-  dynamic "option" {
-    for_each = local.string_opts
-    content {
-      name        = option.value.name
-      value       = option.value.value
-      description = option.value.description
-      icon        = option.value.icon
-    }
-  }
-}
-
-data "coder_parameter" "string_opts_dropdown" {
-  name         = "string_opts_default"
-  display_name = "String"
-  description  = "String with options and default"
+data "coder_parameter" "single_select" {
+  name         = "single_select"
+  display_name = "How do you want to format the options of the next parameter?"
+  description  = "The next parameter supports a single value."
   type         = "string"
   form_type    = "dropdown"
-  order        = 2
+  order        = 10
+  default      = "radio"
+
+  option {
+    name        = "Radio Selector"
+    value       = "radio"
+    description = "Radio selections."
+    icon        = "/emojis/0031-fe0f-20e3.png"
+  }
+
+  option {
+    name        = "Dropdown Selector"
+    value       = "dropdown"
+    description = "Dropdown selections."
+    icon        = "/emojis/0031-fe0f-20e3.png"
+  }
+
+  option {
+    name        = "Raw Input"
+    value       = "input"
+    description = "Input whatever you want."
+    icon        = "/emojis/0031-fe0f-20e3.png"
+  }
+
+  option {
+    name        = "Multiline input"
+    value       = "textarea"
+    description = "A larger text area."
+    icon        = "/emojis/0031-fe0f-20e3.png"
+  }
+}
+
+data "coder_parameter" "single" {
+  name         = "single"
+  display_name = "Selecting a single value from a list of options."
+  description  = "Change the formatting of this parameter with the param above."
+  type         = "string"
+  order        = 11
   icon         = "/emojis/0031-fe0f-20e3.png"
   default      = local.string_opts[0].value
+  form_type    = data.coder_parameter.single_select.value
 
   dynamic "option" {
-    for_each = local.string_opts
+    for_each = data.coder_parameter.single_select.value == "input" || data.coder_parameter.single_select.value == "textarea" ? [] : local.string_opts
     content {
       name        = option.value.name
       value       = option.value.value
@@ -71,158 +89,228 @@ data "coder_parameter" "string_opts_dropdown" {
   }
 }
 
-data "coder_parameter" "string_without_opts" {
-  // should be 'input'
-  name         = "string_without_opts"
-  display_name = "String"
-  description  = "String without options"
+data "coder_parameter" "number_format" {
+  name         = "number_format"
+  display_name = "How do you want to format the options of the next parameter?"
+  description  = "The next parameter supports numerical values."
   type         = "string"
-  order        = 3
-  icon         = "/emojis/0031-fe0f-20e3.png"
-  default      = "something random"
+  form_type    = "dropdown"
+  order        = 20
+  default      = "input"
+
+  option {
+    name        = "Slider"
+    value       = "slider"
+    description = "Slider."
+    icon        = "/emojis/0031-fe0f-20e3.png"
+  }
+
+  option {
+    name        = "Raw input"
+    value       = "input"
+    description = "Type in a number."
+    icon        = "/emojis/0031-fe0f-20e3.png"
+  }
 }
 
-data "coder_parameter" "textarea_without_opts" {
-  name         = "textarea"
-  display_name = "String"
-  description  = "Textarea"
+data "coder_parameter" "number" {
+  name         = "number"
+  display_name = "What is your favorite number?"
+  description  = "Change the formatting of this parameter with the param above."
+  type         = "number"
+  order        = 21
+  icon         = "/emojis/0031-fe0f-20e3.png"
+  default      = 7
+  form_type    = data.coder_parameter.number_format.value
+
+  validation {
+    min   = 0
+    max   = 100
+    error = "Value {value} is not between {min} and {max}"
+  }
+}
+
+data "coder_parameter" "boolean_format" {
+  name         = "boolean_format"
+  display_name = "How do you want to format the options of the next parameter?"
+  description  = "The next parameter supports boolean values."
   type         = "string"
-  form_type    = "textarea"
-  order        = 4
-  icon         = "/emojis/0031-fe0f-20e3.png"
-  default = <<EOT
-hello
-world
-EOT
+  form_type    = "radio"
+  order        = 30
+  default      = "radio"
+
+  option {
+    name        = "Radio"
+    value       = "radio"
+    description = "Radio."
+    icon        = "/emojis/0031-fe0f-20e3.png"
+  }
+
+  option {
+    name        = "Switch"
+    value       = "switch"
+    description = "Switch."
+    icon        = "/emojis/0031-fe0f-20e3.png"
+  }
+
+  option {
+    name        = "Checkbox"
+    value       = "checkbox"
+    description = "Checkbox."
+    icon        = "/emojis/0031-fe0f-20e3.png"
+  }
 }
 
-data "coder_parameter" "bool_with_opts" {
-  // should be 'radio'
-  name         = "bool_with_opts"
-  display_name = "Bool"
-  description  = "Bool with options"
+locals {
+  boolean_opts = [
+    {
+      name        = "Yes"
+      value       = true
+      description = "Yes, I agree to the terms."
+      icon        = "/emojis/0031-fe0f-20e3.png"
+    },
+    {
+      name        = "No"
+      value       = false
+      description = "No, I do not agree to the terms."
+      icon        = "/emojis/0032-fe0f-20e3.png"
+    }
+  ]
+}
+
+data "coder_parameter" "boolean" {
+  name         = "boolean"
+  display_name = "Do you agree with me?"
+  description  = "Selecting true is the best choice."
   type         = "bool"
-  order        = 5
+  order        = 31
   icon         = "/emojis/0031-fe0f-20e3.png"
-  default      = false
+  default      = true
+  form_type    = data.coder_parameter.boolean_format.value
+
+  dynamic "option" {
+    for_each = data.coder_parameter.boolean_format.value == "radio" ? local.boolean_opts : []
+    content {
+      name        = option.value.name
+      value       = option.value.value
+      description = option.value.description
+      icon        = option.value.icon
+    }
+  }
+}
+
+data "coder_parameter" "list_format" {
+  name         = "list_format"
+  display_name = "How do you want to format the options of the next parameter?"
+  description  = "The next parameter supports lists of values."
+  type         = "string"
+  form_type    = "radio"
+  order        = 40
+  default      = "multi-select"
+
 
   option {
-    name        = "Yes"
-    value       = true
-    description = "Yes, I agree to the terms."
+    name        = "Multi-Select"
+    value       = "multi-select"
+    description = "Select multiple."
+    icon        = "/emojis/0031-fe0f-20e3.png"
   }
 
   option {
-    name        = "No"
-    value       = false
-    description = "No, I do not agree to the terms."
+    name        = "Radio"
+    value       = "radio"
+    description = "Radio."
+    icon        = "/emojis/0031-fe0f-20e3.png"
+  }
+
+  option {
+    name        = "Tag Select"
+    value       = "tag-select"
+    description = "Tag select."
+    icon        = "/emojis/0031-fe0f-20e3.png"
   }
 }
 
-data "coder_parameter" "bool_without_opts" {
-  // should be 'checkbox'
-  name         = "bool_without_opts"
-  display_name = "Bool"
-  description  = "Bool without options"
-  type         = "bool"
-  order        = 6
-  icon         = "/emojis/0031-fe0f-20e3.png"
-  default      = false
+locals {
+  radio_list_opts = [
+    {
+      name        = "None"
+      value       = jsonencode([])
+      description = "Red related colors."
+      icon        = "/emojis/0031-fe0f-20e3.png"
+    },
+    {
+      name        = "Reds"
+      value       = jsonencode(["red"])
+      description = "Red related colors."
+      icon        = "/emojis/0031-fe0f-20e3.png"
+    },
+    {
+      name = "Blue & Green"
+      value = jsonencode(["blue", "green"])
+      description = "Blue and green related colors."
+      icon = "/emojis/0031-fe0f-20e3.png"
+    }
+  ]
+  list_color_opts = [
+    {
+      name        = "Red"
+      value       = "red"
+      description = "The color of blood."
+      icon        = "/emojis/0031-fe0f-20e3.png"
+    },
+    {
+      name        = "Orange"
+      value       = "orange"
+      description = "The color of oranges."
+      icon        = "/emojis/0032-fe0f-20e3.png"
+    },
+    {
+      name        = "Yellow"
+      value       = "yellow"
+      description = "The color of the sun."
+      icon        = "/emojis/0033-fe0f-20e3.png"
+    },
+    {
+      name        = "Green"
+      value       = "green"
+      description = "The color of grass."
+      icon        = "/emojis/0034-fe0f-20e3.png"
+    },
+    {
+      name        = "Blue"
+      value       = "blue"
+      description = "The color of the sky."
+      icon        = "/emojis/0035-fe0f-20e3.png"
+    },
+    {
+      name        = "Purple"
+      value       = "purple"
+      description = "The color of royalty."
+      icon        = "/emojis/0036-fe0f-20e3.png"
+    }
+  ]
 }
 
-data "coder_parameter" "bool_without_opts_switch" {
-  name         = "bool_without_opts_switch"
-  display_name = "Bool"
-  description  = "Bool without options, but it is a switch"
-  type         = "bool"
-  form_type    = "switch"
-  order        = 7
-  icon         = "/emojis/0031-fe0f-20e3.png"
-  default      = false
-}
-
-data "coder_parameter" "list_string_options" {
-  // should be radio
-  name         = "list_string_options"
-  display_name = "List(String)"
-  description  = "list(string) with options"
+data "coder_parameter" "list" {
+  name         = "list"
+  display_name = "What colors are the best?"
+  description  = "Select a few if you want."
   type         = "list(string)"
-  order        = 8
+  order        = 41
   icon         = "/emojis/0031-fe0f-20e3.png"
-  default      = jsonencode(["purple", "blue", "green", "red", "orange"])
+  default      = jsonencode(["blue", "green"])
+  form_type    = data.coder_parameter.list_format.value
 
-  option {
-    name        = "All"
-    description = "All the colors"
-    value       = jsonencode(["purple", "blue", "green", "red", "orange"])
-  }
-
-  option {
-    name        = "Bluish Colors"
-    description = "Colors that are kinda blue"
-    value       = jsonencode(["purple", "blue"])
-  }
-
-  option {
-    name        = "Redish Colors"
-    description = "Colors that are kinda red"
-    value       = jsonencode(["red", "orange"])
+  dynamic "option" {
+    for_each = data.coder_parameter.list_format.value == "radio" ? local.radio_list_opts : (
+      data.coder_parameter.list_format.value == "tag-select" ? [] : local.list_color_opts
+    )
+    content {
+      name        = option.value.name
+      value       = option.value.value
+      description = option.value.description
+      icon        = option.value.icon
+    }
   }
 }
-
-data "coder_parameter" "list_string_without_options" {
-  name         = "list_string_without_options"
-  display_name = "List(String)"
-  description  = "list(string) with options"
-  type         = "list(string)"
-  form_type    = "tag-select"
-  order        = 9
-  icon         = "/emojis/0031-fe0f-20e3.png"
-  default      = jsonencode(["purple", "blue", "green", "red", "orange"])
-  // You could send jsonencode(["airplane", "car", "school"])
-}
-
-data "coder_parameter" "list_string_multi_select_options" {
-  // should be multi-select
-  name         = "list_string_multi_select_options"
-  display_name = "List(String)"
-  description  = "list(string) with options"
-  type         = "list(string)"
-  form_type    = "multi-select"
-  order        = 10
-  icon         = "/emojis/0031-fe0f-20e3.png"
-  default      = jsonencode(["blue", "green", "red"])
-
-  option {
-    name        = "Blue"
-    value       = "blue"
-    description = "Like the sky."
-  }
-
-  option {
-    name        = "Red"
-    value       = "red"
-    description = "Like a rose."
-  }
-
-  option {
-    name        = "Green"
-    value       = "green"
-    description = "Like the grass."
-  }
-
-  option {
-    name        = "Purple"
-    value       = "purple"
-    description = "Like a grape."
-  }
-
-  option {
-    name        = "Orange"
-    value       = "orange"
-    description = "Like the fruit."
-  }
-}
-
-
-
