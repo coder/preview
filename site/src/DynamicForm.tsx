@@ -59,19 +59,42 @@ export function DynamicForm() {
     return value.valid ? value.value : "";
   }
 
-  const handleTestdataChange = (value: string) => {
+  const handleConfigChange = (type: 'testdata' | 'user' | 'plan', value: string) => {
     reset({});
     setPrevValues({});
     setResponse(null);
     setCurrentId(0);
     
     const params = new URLSearchParams(window.location.search);
-    params.set('testdata', value);
+
+    if (type === 'testdata') {
+      params.set('testdata', value);
+      setUrlTestdata(value);
+      // Clear user and plan when testdata changes
+      setPlan("");
+      setUser("");
+      params.delete('user');
+      params.delete('plan');
+    } else if (type === 'user') {
+      if (value) {
+        params.set('user', value);
+        setUser(value);
+      } else {
+        params.delete('user');
+        setUser("");
+      }
+    } else if (type === 'plan') {
+      if (value) {
+        params.set('plan', value);
+        setPlan(value);
+      } else {
+        params.delete('plan');
+        setPlan("");
+      }
+    }
+
     const newUrl = `${window.location.pathname}?${params.toString()}`;
     window.history.replaceState({}, '', newUrl);
-    setUrlTestdata(value);
-    setPlan("");
-    setUser("");
   };
   
   const { 
@@ -79,30 +102,10 @@ export function DynamicForm() {
     isLoading: usersLoading, 
     fetchError: usersFetchError 
   } = useUsers(serverAddress, urlTestdata);
-  
-  // Update URL when user or usePlan changes
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    
-    if (plan) {
-      params.set('plan', plan);
-    } else {
-      params.delete('plan');
-    }
-    
-    if (user) {
-      params.set('user', user);
-    } else {
-      params.delete('user');
-    }
-    
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
-    window.history.replaceState({}, '', newUrl);
-  }, [user, plan]);
 
   const wsUrl = `ws://${serverAddress}/ws/${encodeURIComponent(urlTestdata)}?${plan ? `plan=${encodeURIComponent(plan)}&` : ''}${user ? `user=${encodeURIComponent(user)}` : ''}`;
 
-  const { message: serverResponse, sendMessage, connectionStatus } = useWebSocket<Response>(wsUrl, urlTestdata);
+  const { message: serverResponse, sendMessage, connectionStatus } = useWebSocket<Response>(wsUrl, urlTestdata, user, plan);
 
   const [response, setResponse] = useState<Response | null>(null);
   const [currentId, setCurrentId] = useState<number>(0);
@@ -418,7 +421,7 @@ export function DynamicForm() {
 
     return (
       <div key={param.name} className="flex flex-col gap-2 text-left">
-        <p style={{ color: "red" }}>form_type is required</p>
+        {/* <p style={{ color: "red" }}>form_type is required</p> */}
         {renderDiagnostics(param.diagnostics)}
       </div>
     );
@@ -469,7 +472,7 @@ export function DynamicForm() {
       {testcontrols &&
         <div className="flex flex-row gap-4 mb-12">
             <Select
-              onValueChange={handleTestdataChange}
+              onValueChange={(value) => handleConfigChange('testdata', value)}
               value={urlTestdata}
             >
               <SelectTrigger className="w-fit">
@@ -488,9 +491,7 @@ export function DynamicForm() {
 
             {Object.keys(users).length > 0 && (
               <Select
-                  onValueChange={(value) => {
-                    setUser(value);
-                  }}
+                onValueChange={(value) => handleConfigChange('user', value)}
                 value={user}
               >
                 <SelectTrigger className="w-fit">
@@ -512,7 +513,7 @@ export function DynamicForm() {
               Use Plan
               <Switch
                 checked={plan !== ""}
-                onCheckedChange={() => setPlan(plan !== "" ? "" : "plan.json")}
+                onCheckedChange={(checked) => handleConfigChange('plan', checked ? "plan.json" : "")}
               />
             </span>
         </div>
