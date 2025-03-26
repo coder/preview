@@ -23,16 +23,3 @@ type WorkspaceOwnerRBACRole struct {
 	Name  string    `json:"name"`
 	OrgID uuid.UUID `json:"org_id"`
 }
-
-// terraform-provider-framework style
-// type UserResourceModel struct {
-// 	ID UUID `tfsdk:"id"`
-
-// 	Username  types.String `tfsdk:"username"`
-// 	Name      types.String `tfsdk:"name"`
-// 	Email     types.String `tfsdk:"email"`
-// 	Roles     types.Set    `tfsdk:"roles"`      // owner, template-admin, user-admin, auditor (member is implicit)
-// 	LoginType types.String `tfsdk:"login_type"` // none, password, github, oidc
-// 	Password  types.String `tfsdk:"password"`   // only when login_type is password
-// 	Suspended types.Bool   `tfsdk:"suspended"`
-// }
