@@ -1,0 +1,8 @@
+{
+  "developer": {
+    "groups": ["developer"]
+  },
+  "administrator": {
+    "groups": ["admin"]
+  }
+}

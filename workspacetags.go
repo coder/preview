@@ -121,11 +121,15 @@ func NewTag(srcRange *hcl.Range, files map[string]*hcl.File, key, val cty.Value)
 	}
 
 	if val.IsKnown() && val.Type() != cty.String {
+		fr := "<nil>"
+		if !val.Type().Equals(cty.NilType) {
+			fr = val.Type().FriendlyName()
+		}
 		//r := expr.ValueExpr.Range()
 		return types.Tag{}, &hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  "Invalid value type for tag",
-			Detail:   fmt.Sprintf("Value must be a string, but got %s", val.Type().FriendlyName()),
+			Detail:   fmt.Sprintf("Value must be a string, but got %s", fr),
 			//Subject:     &r,
 			Context: srcRange,
 			//Expression:  expr.ValueExpr,

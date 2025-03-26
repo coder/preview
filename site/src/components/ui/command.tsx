@@ -16,7 +16,7 @@ function Command({ className, ...props }: React.ComponentProps<typeof CommandPri
     <CommandPrimitive
       data-slot="command"
       className={cn(
-        "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md",
+        "bg-surface-primary text-content-primary flex h-full w-full flex-col overflow-hidden rounded-md",
         className,
       )}
       {...props}
@@ -53,7 +53,7 @@ function CommandInput({
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
-    <div className="border-input flex items-center border-b px-5" cmdk-input-wrapper="">
+    <div className="border-border-default flex items-center border-b px-5" cmdk-input-wrapper="">
       <SearchIcon size={20} className="text-muted-foreground/80 me-3" />
       <CommandPrimitive.Input
         data-slot="command-input-wrapper"
@@ -134,7 +134,7 @@ function CommandShortcut({ className, ...props }: React.ComponentProps<"span">) 
     <kbd
       data-slot="command-shortcut"
       className={cn(
-        "bg-background text-muted-foreground/70 ms-auto -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium",
+        "bg-surface-primary text-content-disabled ms-auto -me-1 inline-flex h-5 max-h-full items-center rounded border px-1 font-[inherit] text-[0.625rem] font-medium",
         className,
       )}
       {...props}

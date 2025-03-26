@@ -1,7 +1,6 @@
-// useWebSocket.ts
 import { useEffect, useRef, useState, useCallback } from "react";
 
-export function useWebSocket<T>(url: string, testdata: string) {
+export function useWebSocket<T>(url: string, testdata: string, user: string, plan: string) {
   const [message, setMessage] = useState<T | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('connecting');
   const wsRef = useRef<WebSocket | null>(null);
@@ -71,7 +70,7 @@ export function useWebSocket<T>(url: string, testdata: string) {
         wsRef.current = null;
       }
     };
-  }, [testdata, connectWebSocket]); // Remove url from dependencies
+  }, [testdata, user, plan, connectWebSocket]); // Remove url from dependencies
 
   const sendMessage = (data: unknown) => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {

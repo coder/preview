@@ -2,6 +2,7 @@ package preview
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"log/slog"
@@ -17,7 +18,11 @@ import (
 )
 
 type Input struct {
+	// PlanJSONPath is an optional path to a plan file. If PlanJSON isn't
+	// specified, and PlanJSONPath is, then the file will be read and treated
+	// as if the contents were passed in directly.
 	PlanJSONPath    string
+	PlanJSON        json.RawMessage
 	ParameterValues map[string]string
 	Owner           types.WorkspaceOwner
 }

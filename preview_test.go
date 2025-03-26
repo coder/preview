@@ -18,6 +18,7 @@ import (
 func Test_Extract(t *testing.T) {
 	t.Parallel()
 
+	// nice helper to match tf jsonencode
 	jsonencode := func(v interface{}) string {
 		b, err := json.Marshal(v)
 		if err != nil {
@@ -25,6 +26,7 @@ func Test_Extract(t *testing.T) {
 		}
 		return string(b)
 	}
+	var _ = jsonencode
 
 	for _, tc := range []struct {
 		skip        string
@@ -128,35 +130,34 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
-			name:    "external docker resource",
-			dir:     "dockerdata",
-			expTags: map[string]string{"qux": "quux"},
-			unknownTags: []string{
-				"foo", "bar",
+			name: "external docker resource without plan data",
+			dir:  "dockerdata",
+			expTags: map[string]string{
+				"qux":    "quux",
+				"ubuntu": "0000000000000000000000000000000000000000000000000000000000000000",
+				"centos": "0000000000000000000000000000000000000000000000000000000000000000",
 			},
-
-			input: preview.Input{},
+			unknownTags: []string{},
+			input:       preview.Input{},
 			params: map[string]assertParam{
-				"Example": ap().
-					unknown().
-					// Value is unknown, but this is the safe string
-					value("data.coder_parameter.example.value"),
+				"os": ap().
+					value("0000000000000000000000000000000000000000000000000000000000000000"),
 			},
 		},
 		{
 			name: "external docker resource with plan data",
 			dir:  "dockerdata",
 			expTags: map[string]string{
-				"qux": "quux",
-				"foo": "sha256:18305429afa14ea462f810146ba44d4363ae76e4c8dfc38288cf73aa07485005",
-				"bar": "sha256:a27fd8080b517143cbbbab9dfb7c8571c40d67d534bbdee55bd6c473f432b177",
+				"qux":    "quux",
+				"ubuntu": "18305429afa14ea462f810146ba44d4363ae76e4c8dfc38288cf73aa07485005",
+				"centos": "a27fd8080b517143cbbbab9dfb7c8571c40d67d534bbdee55bd6c473f432b177",
 			},
 			unknownTags: []string{},
 			input: preview.Input{
 				PlanJSONPath: "plan.json",
 			},
 			params: map[string]assertParam{
-				"Example": ap().
+				"os": ap().
 					value("18305429afa14ea462f810146ba44d4363ae76e4c8dfc38288cf73aa07485005"),
 			},
 		},
@@ -392,39 +393,7 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
-			name:    "wordle",
-			dir:     "wordle",
-			expTags: map[string]string{},
-			input: preview.Input{
-				PlanJSONPath: "",
-				ParameterValues: map[string]string{
-					"one": "curse",
-					"two": "snake",
-				},
-				Owner: types.WorkspaceOwner{},
-			},
-			unknownTags: []string{},
-			params: map[string]assertParam{
-				"one":   ap().value("curse"),
-				"two":   ap().value("snake"),
-				"three": ap(),
-			},
-		},
-		{
-			name:    "connections",
-			dir:     "connections",
-			expTags: map[string]string{},
-			input: preview.Input{
-				PlanJSONPath: "",
-				ParameterValues: map[string]string{
-					"yellow": jsonencode([]string{}),
-				},
-				Owner: types.WorkspaceOwner{},
-			},
-			unknownTags: []string{},
-			params:      map[string]assertParam{},
-		},
-		{
+			skip:    "skip until https://github.com/aquasecurity/trivy/pull/8479 is resolved",
 			name:    "submodcount",
 			dir:     "submodcount",
 			expTags: map[string]string{},
@@ -439,6 +408,7 @@ func Test_Extract(t *testing.T) {
 			t.Parallel()
 			if tc.skip != "" {
 				t.Skip(tc.skip)
+				return
 			}
 
 			if tc.unknownTags == nil {

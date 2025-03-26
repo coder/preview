@@ -35,11 +35,6 @@ data "coder_parameter" "browser" {
   )
 
   option {
-    name  = "test"
-    value = data.coder_parameter.team.value
-  }
-
-  option {
     name  = "Chrome"
     value = "chrome"
   }
