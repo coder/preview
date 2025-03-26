@@ -11,7 +11,7 @@ type WorkspaceOwner struct {
 	FullName        string                   `json:"full_name"`
 	Email           string                   `json:"email"`
 	SSHPublicKey    string                   `json:"ssh_public_key"`
-	SSHPrivateKey   string                   `json:"ssh_private_key" tfsdk:",sensitive"`
+	SSHPrivateKey   string                   `json:"ssh_private_key"`
 	Groups          []string                 `json:"groups"`
 	SessionToken    string                   `json:"session_token"`
 	OIDCAccessToken string                   `json:"oidc_access_token"`
