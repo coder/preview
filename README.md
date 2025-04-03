@@ -23,7 +23,7 @@
 [![godoc](https://pkg.go.dev/badge/github.com/coder/preview.svg)](https://pkg.go.dev/github.com/coder/preview)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coder/preview)](https://goreportcard.com/report/github.com/coder/preview)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9511/badge)](https://www.bestpractices.dev/projects/9511)
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/coder/preview/badge)](https://scorecard.dev/viewer/?uri=github.com%2Fcoder%2Fcoder)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/coder/preview/badge)](https://scorecard.dev/viewer/?uri=github.com%2Fcoder%2Fpreview)
 [![license](https://img.shields.io/github/license/coder/preview)](./LICENSE)
 
 </div>
