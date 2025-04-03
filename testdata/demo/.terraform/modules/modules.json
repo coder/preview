@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"base","Source":"./modules/base","Dir":"modules/base"},{"Key":"base.deploys","Source":"../deploys","Dir":"modules/deploys"},{"Key":"jetbrains_gateway","Source":"registry.coder.com/modules/jetbrains-gateway/coder","Version":"1.0.28","Dir":".terraform/modules/jetbrains_gateway"}]}
