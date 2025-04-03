@@ -2,7 +2,7 @@
 name: Workspace Template Bug Report
 about: Workspace template yielded incorrect parameters.
 title: "[BUG] Workspace template behavior"
-labels: ''
+labels: bug
 assignees: Emyrk
 
 ---
