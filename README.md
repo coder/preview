@@ -1,32 +1,56 @@
-# Development
+<!-- markdownlint-disable MD041 -->
+<div align="center">
+  <a href="https://coder.com#gh-light-mode-only">
+    <img src="./.github/assets/images/logo-black.png" alt="Coder Logo Light" style="width: 128px">
+  </a>
+  <a href="https://coder.com#gh-dark-mode-only">
+    <img src="./.github/assets/images/logo-white.png" alt="Coder Logo Dark" style="width: 128px">
+  </a>
 
-Currently, a branch of the coder terraform provider is required.
+<h1>
+  Workspace Parameters sourced from Terraform
+</h1>
 
+<br>
+<br>
 
-1. Git clone `git@github.com:coder/terraform-provider-coder.git`
-  - Checkout branch `stevenmasley/form_control`
-  - Build the provider with `go build -o terraform-provider-coder`
-1. Create a file named `.terraformrc` in your `$HOME` directory
-1. Add the following content:
+[Quickstart](#quickstart) | [Docs](https://coder.com/docs) |
+[Why Coder](https://coder.com/why) |
+[Premium](https://coder.com/pricing#compare-plans)
 
-```hcl
- provider_installation {
-     # Override the coder/coder provider to use your local version
-     dev_overrides {
-       "coder/coder" = "/path/to/terraform-provider-coder"
-     }
+[![discord](https://img.shields.io/discord/747933592273027093?label=discord)](https://discord.gg/coder)
+[![release](https://img.shields.io/github/v/release/coder/preview)](https://github.com/coder/preview/releases/latest)
+[![godoc](https://pkg.go.dev/badge/github.com/coder/preview.svg)](https://pkg.go.dev/github.com/coder/preview)
+[![Go Report Card](https://goreportcard.com/badge/github.com/coder/preview)](https://goreportcard.com/report/github.com/coder/preview)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9511/badge)](https://www.bestpractices.dev/projects/9511)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/coder/preview/badge)](https://scorecard.dev/viewer/?uri=github.com%2Fcoder%2Fcoder)
+[![license](https://img.shields.io/github/license/coder/preview)](./LICENSE)
 
-     # For all other providers, install them directly from their origin provider
-     # registries as normal. If you omit this, Terraform will _only_ use
-     # the dev_overrides block, and so no other providers will be available.
-     direct {}
- }
-```
+</div>
 
-Now you are using the right terraform provider.
+This repository contains a component of Coder that handles workspace parameter
+management via Terraform. It's responsible for extracting and managing
+[workspace parameters](https://coder.com/docs/admin/templates/extending-templates/parameters)
+from Terraform configurations, supporting [Coder's](https://coder.com) core
+functionality of creating cloud development environments (like EC2 VMs,
+Kubernetes Pods, and Docker containers).
 
-To run preview:
-1. `cd site`
-2. `pnpm install`
-3. `cd ..`
-4. `go run ./cmd/preview/main.go web --pnpm=site`
+The primary repository for Coder is [here](https://github.com/coder/coder).
+
+<!--Should update this with the new cool form options -->
+<p align="center">
+  <img src="./.github/assets/images/hero-image.png" alt="Coder Hero Image">
+</p>
+
+<!-- TODO: Add a usage section that links to coder/coder doc for how to use the `preview` command in coder cli -->
+
+## Support
+
+Do you have a workspace template that has incorrect parameters? Please open
+[workspace template behavior issue](https://github.com/coder/preview/issues/new?template=workspace-template-bug-report.md).
+
+For other bugs, feature requests, etc, feel free to
+[open an issue](https://github.com/coder/preview/issues/new).
+
+[Join our Discord](https://discord.gg/coder) to provide feedback on in-progress
+features and chat with the community using Coder!
