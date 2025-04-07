@@ -88,7 +88,7 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 
 	optBlocks := block.GetBlocks("option")
 
-	optionType, newFormType, err := provider.ValidateFormType(string(p.Type), len(optBlocks), p.FormType)
+	optionType, newFormType, err := provider.ValidateFormType(provider.OptionType(p.Type), len(optBlocks), p.FormType)
 	var _ = optionType // TODO: Should we enforce this anywhere?
 	if err != nil {
 		diags = diags.Append(&hcl.Diagnostic{

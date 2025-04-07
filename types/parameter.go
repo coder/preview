@@ -78,7 +78,8 @@ type ParameterValidation struct {
 
 // Valid takes the type of the value and the value itself and returns an error
 // if the value is invalid.
-func (v ParameterValidation) Valid(typ, value string) error {
+func (v ParameterValidation) Valid(typ string, value string) error {
+	// TODO: Validate typ is the enum?
 	// Use the provider.Validation struct to validate the value to be
 	// consistent with the provider.
 	return (&provider.Validation{
@@ -89,8 +90,7 @@ func (v ParameterValidation) Valid(typ, value string) error {
 		Monotonic:   orZero(v.Monotonic),
 		Regex:       orZero(v.Regex),
 		Error:       v.Error,
-		Invalid:     orZero(v.Invalid),
-	}).Valid(typ, value)
+	}).Valid(provider.OptionType(typ), value)
 }
 
 type ParameterOption struct {
