@@ -36,7 +36,7 @@ export interface ParameterData {
     // this is likely an enum in an external package "github.com/coder/terraform-provider-coder/v2/provider.ParameterFormType"
     readonly form_type: string;
     // empty interface{} type, falling back to unknown
-    readonly form_type_metadata: unknown;
+    readonly styling: unknown;
     readonly mutable: boolean;
     readonly default_value: NullHCLString;
     readonly icon: string;

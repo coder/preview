@@ -56,7 +56,7 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 		def = types.ToHCLString(block, defAttr)
 	}
 
-	ftmeta := optionalString(block, "form_type_metadata")
+	ftmeta := optionalString(block, "styling")
 	formTypeMeta := make(map[string]any)
 	if ftmeta != "" {
 		_ = json.Unmarshal([]byte(ftmeta), &formTypeMeta)
@@ -65,12 +65,12 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 	p := types.Parameter{
 		Value: pVal,
 		ParameterData: types.ParameterData{
-			Name:             pName,
-			Description:      optionalString(block, "description"),
-			Type:             pType,
-			FormType:         formType,
-			FormTypeMetadata: formTypeMeta,
-			Mutable:          optionalBoolean(block, "mutable"),
+			Name:        pName,
+			Description: optionalString(block, "description"),
+			Type:        pType,
+			FormType:    formType,
+			Styling:     formTypeMeta,
+			Mutable:     optionalBoolean(block, "mutable"),
 			// Default value is always written as a string, then converted
 			// to the correct type.
 			DefaultValue: def,
@@ -88,7 +88,7 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 
 	optBlocks := block.GetBlocks("option")
 
-	optionType, newFormType, err := provider.ValidateFormType(string(p.Type), len(optBlocks), p.FormType)
+	optionType, newFormType, err := provider.ValidateFormType(provider.OptionType(p.Type), len(optBlocks), p.FormType)
 	var _ = optionType // TODO: Should we enforce this anywhere?
 	if err != nil {
 		diags = diags.Append(&hcl.Diagnostic{
