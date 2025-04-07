@@ -63,7 +63,7 @@ data "coder_parameter" display {
   default = local.solved ? false : true
   # default = local.solved ? "" : "Keep guessing!"
 
-  form_type_metadata = jsonencode({
+  styling = jsonencode({
     disabled = !local.solved
   })
 }
@@ -81,7 +81,7 @@ data "coder_parameter" "rows" {
   # name = "rows"
   type = "list(string)"
   form_type = "multi-select"
-  form_type_metadata = jsonencode({
+  styling = jsonencode({
     disabled = module.checker[each.value].solved
   })
   default = "[]"

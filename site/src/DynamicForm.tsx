@@ -216,7 +216,7 @@ export function DynamicForm() {
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={parameterValue(param.default_value)}
-                    disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
+                    disabled={(param.styling as { disabled?: boolean })?.disabled}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder={param.description} />
@@ -267,7 +267,7 @@ export function DynamicForm() {
                       //   })) 
                       //   : []}
                       emptyIndicator={<p className="text-sm">No results found</p>}
-                      disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
+                      disabled={(param.styling as { disabled?: boolean })?.disabled}
                     />
                   </div>
                 )}
@@ -298,7 +298,7 @@ export function DynamicForm() {
                       onValueChange={(value) => {
                         field.onChange(value[0].toString());
                       }}
-                      disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
+                      disabled={(param.styling as { disabled?: boolean })?.disabled}
                       />
                   </div>
                 )}
@@ -315,7 +315,7 @@ export function DynamicForm() {
                 control={methods.control}
                 render={({ field }) => (
                   <div>
-                    <RadioGroup defaultValue={parameterValue(param.default_value)} onValueChange={field.onChange} disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}>
+                    <RadioGroup defaultValue={parameterValue(param.default_value)} onValueChange={field.onChange} disabled={(param.styling as { disabled?: boolean })?.disabled}>
                     {(param.options || []).map((option, idx) => {
                           if (!option) return null;
                           return (
@@ -344,7 +344,7 @@ export function DynamicForm() {
                       <Switch 
                         checked={Boolean(field.value === "true")} 
                         onCheckedChange={(checked) => field.onChange(checked.toString())} 
-                        disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled} 
+                        disabled={(param.styling as { disabled?: boolean })?.disabled}
                       />
                     </div>
                   )}
@@ -361,7 +361,7 @@ export function DynamicForm() {
                   control={methods.control}
                   render={({ field }) => (
                     <div>
-                      <Checkbox checked={Boolean(field.value === "true")} onCheckedChange={(checked) => field.onChange(checked.toString())} disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled} />
+                      <Checkbox checked={Boolean(field.value === "true")} onCheckedChange={(checked) => field.onChange(checked.toString())} disabled={(param.styling as { disabled?: boolean })?.disabled} />
                     </div>
                   )}
                 />
@@ -380,7 +380,7 @@ export function DynamicForm() {
                           <Textarea
                             value={field.value}
                             onChange={(e) => field.onChange(e)}
-                            disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
+                            disabled={(param.styling as { disabled?: boolean })?.disabled}
                           />
                         </div>
                       )}
@@ -402,7 +402,7 @@ export function DynamicForm() {
                           }}
                           type={mapParamTypeToInputType(param.type)}
                           defaultValue={parameterValue(param.default_value)}
-                          disabled={(param.form_type_metadata as { disabled?: boolean })?.disabled}
+                          disabled={(param.styling as { disabled?: boolean })?.disabled}
                         />
                       )}
                     />

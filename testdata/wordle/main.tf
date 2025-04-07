@@ -49,7 +49,7 @@ data "coder_parameter" "letter_bank" {
   order = 9
   default = ""
   form_type = "input"
-  form_type_metadata = jsonencode({
+  styling = jsonencode({
     disabled = !local.solved
   })
   # count = 0
@@ -63,7 +63,7 @@ data "coder_parameter" "one" {
   order = 11
   default = ""
 
-  form_type_metadata = jsonencode({
+  styling = jsonencode({
     disabled = (length(data.coder_parameter.one.value) == 5 && contains(local.wordlist,data.coder_parameter.one.value)) || local.solved
   })
 
@@ -89,7 +89,7 @@ data "coder_parameter" "two" {
   order = 12
   default = ""
 
-  form_type_metadata = jsonencode({
+  styling = jsonencode({
     disabled = (length(data.coder_parameter.two.value) == 5 && contains(local.wordlist,data.coder_parameter.two.value)) || local.solved
   })
 
@@ -115,7 +115,7 @@ data "coder_parameter" "three" {
   order = 13
   default = ""
 
-  form_type_metadata = jsonencode({
+  styling = jsonencode({
     disabled = (length(data.coder_parameter.three.value) == 5 && contains(local.wordlist,data.coder_parameter.three.value)) || local.solved
   })
 
@@ -141,7 +141,7 @@ data "coder_parameter" "four" {
   order = 14
   default = ""
 
-  form_type_metadata = jsonencode({
+  styling = jsonencode({
     disabled = (length(data.coder_parameter.four.value) == 5 && contains(local.wordlist,data.coder_parameter.four.value)) || local.solved
   })
 
@@ -167,7 +167,7 @@ data "coder_parameter" "five" {
   order = 15
   default = ""
 
-  form_type_metadata = jsonencode({
+  styling = jsonencode({
     disabled = (length(data.coder_parameter.five.value) == 5 && contains(local.wordlist,data.coder_parameter.five.value)) || local.solved
   })
 
@@ -193,7 +193,7 @@ data "coder_parameter" "six" {
   order = 16
   default = ""
 
-  form_type_metadata = jsonencode({
+  styling = jsonencode({
     disabled = (length(data.coder_parameter.six.value) == 5 && contains(local.wordlist,data.coder_parameter.six.value)) || local.solved
   })
 

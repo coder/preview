@@ -71,7 +71,7 @@ data "coder_parameter" "cpu" {
   mutable      = true
   order        = 20
 
-  form_type_metadata = jsonencode({
+  styling = jsonencode({
     "minumum" = 1
     "budget"  = 2
     "performance" = module.base.security_level == "high" ? 4 : 8

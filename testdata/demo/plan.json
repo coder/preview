@@ -123,7 +123,7 @@
               "display_name": null,
               "ephemeral": false,
               "form_type": "radio",
-              "form_type_metadata": "{}",
+              "styling": "{}",
               "icon": null,
               "id": "5e27a5d3-52ef-41ba-9c6b-cc4cdb1c98ff",
               "mutable": false,
@@ -190,7 +190,7 @@
               "display_name": "CPU",
               "ephemeral": false,
               "form_type": "slider",
-              "form_type_metadata": "{\"budget\":2,\"minumum\":1,\"performance\":4}",
+              "styling": "{\"budget\":2,\"minumum\":1,\"performance\":4}",
               "icon": "/icon/memory.svg",
               "id": "6e2e551e-b126-490a-a061-08504848bdb5",
               "mutable": true,
@@ -231,7 +231,7 @@
               "display_name": "Region",
               "ephemeral": false,
               "form_type": "radio",
-              "form_type_metadata": "{}",
+              "styling": "{}",
               "icon": "/icon/memory.svg",
               "id": "c60ab269-96a7-42a7-9aaa-d9a6f0f60ecd",
               "mutable": false,
@@ -298,7 +298,7 @@
               "display_name": null,
               "ephemeral": false,
               "form_type": "radio",
-              "form_type_metadata": "{}",
+              "styling": "{}",
               "icon": null,
               "id": "09c65d3c-f116-49a0-855c-6675c4aa1c21",
               "mutable": false,
@@ -474,7 +474,7 @@
                   "display_name": "JetBrains IDE",
                   "ephemeral": false,
                   "form_type": "radio",
-                  "form_type_metadata": "{}",
+                  "styling": "{}",
                   "icon": "/icon/gateway.svg",
                   "id": "a56f76ad-7626-4a22-b7b4-d0dac5c6e93a",
                   "mutable": true,
@@ -709,7 +709,7 @@
             "form_type": {
               "constant_value": "slider"
             },
-            "form_type_metadata": {
+            "styling": {
               "references": [
                 "module.base.security_level",
                 "module.base"
