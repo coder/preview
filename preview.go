@@ -5,12 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
-	"log/slog"
-	"os"
 	"path/filepath"
 
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraform/parser"
-	"github.com/aquasecurity/trivy/pkg/log"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 
@@ -34,10 +31,27 @@ type Output struct {
 	Files         map[string]*hcl.File
 }
 
-func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnostics) {
-	// TODO: FIX LOGGING
-	slog.SetLogLoggerLevel(slog.LevelDebug)
-	slog.SetDefault(slog.New(log.NewHandler(os.Stderr, nil)))
+func Preview(ctx context.Context, input Input, dir fs.FS) (mainOutput *Output, diagnostics hcl.Diagnostics) {
+	// The trivy package works with `github.com/zclconf/go-cty`. This package is
+	// similar to `reflect` in its usage. This package can panic if types are
+	// misused. To protect the caller, a general `recover` is used to catch any
+	// mistakes. If this happens, there is a developer bug that needs to be resolved.
+	defer func() {
+		if r := recover(); r != nil {
+			diagnostics = hcl.Diagnostics{
+				{
+					Severity: hcl.DiagError,
+					Summary:  "Panic occurred in preview. This should not happen, please report this to Coder.",
+					Detail:   fmt.Sprintf("panic in preview: %+v", r),
+				},
+			}
+		}
+	}()
+
+	// TODO: Fix logging. There is no way to pass in an instanced logger to
+	//   the parser.
+	//slog.SetLogLoggerLevel(slog.LevelDebug)
+	//slog.SetDefault(slog.New(log.NewHandler(os.Stderr, nil)))
 
 	varFiles, err := tfVarFiles("", dir)
 	if err != nil {
