@@ -25,13 +25,20 @@ type Input struct {
 }
 
 type Output struct {
-	ModuleOutput  cty.Value
+	// ModuleOutput is any 'output' values from the terraform files. This has 0
+	// effect on the parameters, tags, etc. It can be helpful for debugging, as it
+	// allows exporting some terraform values to the caller to review.
+	ModuleOutput cty.Value
+
 	Parameters    []types.Parameter
 	WorkspaceTags types.TagBlocks
-	Files         map[string]*hcl.File
+	// Files is included for printing diagnostics.
+	// TODO: Is the memory impact of this too much? Should we render diagnostic source code
+	// into the diagnostics up front? and remove this?
+	Files map[string]*hcl.File
 }
 
-func Preview(ctx context.Context, input Input, dir fs.FS) (mainOutput *Output, diagnostics hcl.Diagnostics) {
+func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagnostics hcl.Diagnostics) {
 	// The trivy package works with `github.com/zclconf/go-cty`. This package is
 	// similar to `reflect` in its usage. This package can panic if types are
 	// misused. To protect the caller, a general `recover` is used to catch any
