@@ -9,10 +9,9 @@ gen:
 clean-testdata:
 	git clean -xfd testdata
 
-
 .PHONY: build-wasm
-build-wasm: build/preview.wasm
-	mkdir -p ./build
+build-wasm: site/public/build/preview.wasm
+	mkdir -p ./site/public/build/
 
-build/preview.wasm: $(GO_SRC_FILES)
-	GOOS=js GOARCH=wasm go build -o build/preview.wasm
+site/public/build/preview.wasm: $(GO_SRC_FILES)
+	GOOS=js GOARCH=wasm go build -o site/public/build/preview.wasm ./cmd/wasm
