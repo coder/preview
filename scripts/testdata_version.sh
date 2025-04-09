@@ -3,6 +3,7 @@
 # Check if a version argument is provided
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <version_argument>"
+    echo "This script will update the version of the coder provider in all .tf files in the ./testdata/ directory."
     exit 1
 fi
 
