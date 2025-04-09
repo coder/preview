@@ -14,8 +14,8 @@ fi
 
 VERSION_ARGUMENT=$1
 
-# Find and replace the string in all .tf files in the ./testdata/ directory
-find ./testdata/ -type f -name "*.tf" -exec sed -i.bak "/coder = {/{
+# Find and replace the string in all .tf files in the ./testdata/ directory, excluding any directories with .terraform
+find ./testdata/ -type f -name "*.tf" ! -path "*/.terraform/*" -exec sed -i.bak "/coder = {/{
     # Capture the entire coder block
     :a
     N

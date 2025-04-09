@@ -5,7 +5,6 @@ terraform {
       version = "~> 5.0"
     }
     coder = {
-      version = "v2.4.0-pre0"
       source = "coder/coder"
     }
   }
