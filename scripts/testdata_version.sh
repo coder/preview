@@ -6,9 +6,27 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
+# Check if the git status is clean in the ./testdata directory
+if ! git diff --quiet -- ./testdata; then
+    echo "Error: Your git status is dirty in the ./testdata directory. Please commit or stash your changes before running this script."
+    exit 1
+fi
+
 VERSION_ARGUMENT=$1
 
 # Find and replace the string in all .tf files in the ./testdata/ directory
-find ./testdata/ -type f -name "*.tf" -exec sed "s|    coder = {|    coder = {\n      version = \"$VERSION_ARGUMENT\"|" {} +
+find ./testdata/ -type f -name "*.tf" -exec sed -i.bak "/coder = {/{
+    N
+    # Remove any existing version lines
+    s|[ ]*version[ ]*=[^\\n]*\\n||g
+    # Add the new version line
+    s|    coder = {|    coder = {\n      version = \"$VERSION_ARGUMENT\"|
+    # Ensure the source line is correctly formatted
+    s|source[ ]*=[ ]*\"coder/coder\"|source = \"coder/coder\"|
+    s|source[ ]*\"coder/coder\"|source = \"coder/coder\"|
+}" {} +
+
+# Remove backup files
+find ./testdata/ -type f -name "*.bak" -exec rm {} +
 
 echo "Replacement complete. Backup files have been removed."
