@@ -9,7 +9,7 @@ require (
 	github.com/aquasecurity/trivy v0.58.2
 	github.com/coder/guts v1.0.2-0.20250227211802-139809366a22
 	github.com/coder/serpent v0.10.0
-	github.com/coder/terraform-provider-coder/v2 v2.3.1-0.20250407164559-8356ff71938b
+	github.com/coder/terraform-provider-coder/v2 v2.4.0-pre0
 	github.com/coder/websocket v1.8.13
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/google/uuid v1.6.0
