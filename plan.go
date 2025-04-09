@@ -10,7 +10,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraformplan/tfjson/parser"
 	"github.com/aquasecurity/trivy/pkg/iac/terraform"
 	tfcontext "github.com/aquasecurity/trivy/pkg/iac/terraform/context"
 	tfjson "github.com/hashicorp/terraform-json"
@@ -20,7 +19,7 @@ import (
 	"github.com/coder/preview/hclext"
 )
 
-func PlanJSONHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value), error) {
+func planJSONHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value), error) {
 	var contents io.Reader = bytes.NewReader(input.PlanJSON)
 	// Also accept `{}` as an empty plan. If this is stored in postgres or another json
 	// type, then `{}` is the "empty" value.
@@ -36,7 +35,7 @@ func PlanJSONHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks t
 		}
 	}
 
-	plan, err := ParsePlanJSON(contents)
+	plan, err := parsePlanJSON(contents)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse plan JSON: %w", err)
 	}
@@ -216,26 +215,13 @@ func toCtyValue(a any) (cty.Value, error) {
 	}
 }
 
-// ParsePlanJSON can parse the JSON output of a Terraform plan.
+// parsePlanJSON can parse the JSON output of a Terraform plan.
 // terraform plan out.plan
 // terraform show -json out.plan
-func ParsePlanJSON(reader io.Reader) (*tfjson.Plan, error) {
+func parsePlanJSON(reader io.Reader) (*tfjson.Plan, error) {
 	plan := new(tfjson.Plan)
 	plan.FormatVersion = tfjson.PlanFormatVersionConstraints
 	return plan, json.NewDecoder(reader).Decode(plan)
-}
-
-// ParsePlanJSON can parse the JSON output of a Terraform plan.
-// terraform plan out.plan
-// terraform show -json out.plan
-func TrivyParsePlanJSON(reader io.Reader) (*tfjson.Plan, error) {
-	p := parser.New()
-	plan, err := p.Parse(reader)
-	var _ = plan
-
-	plan.ToFS()
-
-	return nil, err
 }
 
 func keyMatcher(key cty.Value) func(to any) bool {

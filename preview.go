@@ -64,7 +64,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (mainOutput *Output, d
 		}
 	}
 
-	planHook, err := PlanJSONHook(dir, input)
+	planHook, err := planJSONHook(dir, input)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			{
@@ -75,7 +75,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (mainOutput *Output, d
 		}
 	}
 
-	ownerHook, err := WorkspaceOwnerHook(dir, input)
+	ownerHook, err := workspaceOwnerHook(dir, input)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			{
@@ -95,7 +95,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (mainOutput *Output, d
 		parser.OptionWithTFVarsPaths(varFiles...),
 		parser.OptionWithEvalHook(planHook),
 		parser.OptionWithEvalHook(ownerHook),
-		parser.OptionWithEvalHook(ParameterContextsEvalHook(input)),
+		parser.OptionWithEvalHook(parameterContextsEvalHook(input)),
 	)
 
 	err = p.ParseFS(ctx, ".")
@@ -121,8 +121,8 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (mainOutput *Output, d
 	}
 
 	diags := make(hcl.Diagnostics, 0)
-	rp, rpDiags := RichParameters(modules)
-	tags, tagDiags := WorkspaceTags(modules, p.Files())
+	rp, rpDiags := parameters(modules)
+	tags, tagDiags := workspaceTags(modules, p.Files())
 
 	// Add warnings
 	diags = diags.Extend(warnings(modules))

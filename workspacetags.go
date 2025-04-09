@@ -10,7 +10,7 @@ import (
 	"github.com/coder/preview/types"
 )
 
-func WorkspaceTags(modules terraform.Modules, files map[string]*hcl.File) (types.TagBlocks, hcl.Diagnostics) {
+func workspaceTags(modules terraform.Modules, files map[string]*hcl.File) (types.TagBlocks, hcl.Diagnostics) {
 	diags := make(hcl.Diagnostics, 0)
 	tagBlocks := make(types.TagBlocks, 0)
 
@@ -65,7 +65,7 @@ func WorkspaceTags(modules terraform.Modules, files map[string]*hcl.File) (types
 			var tags []types.Tag
 			tagsValue.ForEachElement(func(key cty.Value, val cty.Value) (stop bool) {
 				r := tagsAttr.HCLAttribute().Expr.Range()
-				tag, tagDiag := NewTag(&r, files, key, val)
+				tag, tagDiag := newTag(&r, files, key, val)
 				if tagDiag != nil {
 					diags = diags.Append(tagDiag)
 					return false
@@ -76,7 +76,7 @@ func WorkspaceTags(modules terraform.Modules, files map[string]*hcl.File) (types
 				return false
 			})
 			//for _, item := range tagsObj.Items {
-			//	tag, tagDiag := NewTag(tagsObj, files, item, evCtx)
+			//	tag, tagDiag := newTag(tagsObj, files, item, evCtx)
 			//	if tagDiag != nil {
 			//		diags = diags.Append(tagDiag)
 			//		continue
@@ -94,8 +94,8 @@ func WorkspaceTags(modules terraform.Modules, files map[string]*hcl.File) (types
 	return tagBlocks, diags
 }
 
-// NewTag creates a workspace tag from its hcl expression.
-func NewTag(srcRange *hcl.Range, files map[string]*hcl.File, key, val cty.Value) (types.Tag, *hcl.Diagnostic) {
+// newTag creates a workspace tag from its hcl expression.
+func newTag(srcRange *hcl.Range, files map[string]*hcl.File, key, val cty.Value) (types.Tag, *hcl.Diagnostic) {
 	//key, kdiags := expr.KeyExpr.Value(evCtx)
 	//val, vdiags := expr.ValueExpr.Value(evCtx)
 
