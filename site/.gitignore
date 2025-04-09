@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # wasm
-build
+public/build/preview.wasm

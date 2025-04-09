@@ -1,16 +1,9 @@
 import { createContext, FC, PropsWithChildren, useContext, useEffect, useState } from "react";
-
-type GoPreviewDef = () => Promise<string>;
-
-declare global {
-    interface Window {
-        go_preview: GoPreviewDef;
-    }
-}
+import "./wasm_exec.js";
 
 export interface PreviewContextValue {
     isWasmLoaded: boolean;
-    preview: GoPreviewDef;
+    preview?: GoPreviewDef;
 }
 
 export const PreviewContext = createContext<PreviewContextValue | undefined>(
