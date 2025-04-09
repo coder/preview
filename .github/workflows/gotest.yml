@@ -18,30 +18,6 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: 1.22.8
-      - name: Install Coder Terraform Provider Locally
-        uses: actions/checkout@v4.2.2
-        with:
-          repository: 'coder/terraform-provider-coder'
-          ref: 'stevenmasley/form_control'
-          path: "terraform-provider-coder"
-      - name: Build Local Terraform Provider
-        run: |
-          cd terraform-provider-coder
-          go build -o terraform-provider-coder
-          cd ..
-      - name: Setup dev terraform
-        run: |
-          touch $HOME/.terraformrc
-          echo provider_installation { > $HOME/.terraformrc
-          echo   dev_overrides { >> $HOME/.terraformrc
-          echo     "coder/coder" = "$GITHUB_WORKSPACE/terraform-provider-coder" >> $HOME/.terraformrc
-          echo   } >> $HOME/.terraformrc
-          echo   direct {} >> $HOME/.terraformrc
-          echo } >> $HOME/.terraformrc
-          
-          echo "'.terraformrc' contents"
-          cat $HOME/.terraformrc
-
       - uses: actions/checkout@v4.2.2
       - name: Install gotestsum
         shell: bash
