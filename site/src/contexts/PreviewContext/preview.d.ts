@@ -3,7 +3,7 @@ type GoPreviewDef = () => Promise<string>;
 interface Window {
     // Loaded from wasm
     go_preview?: GoPreviewDef;
-    Go: { new(): { run: (instance: WebAssembly.Instance) => void; importObject: WebAssembly.Imports } };
+    Go: { new(): Go };
 }
 
 declare class Go {
