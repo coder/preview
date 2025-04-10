@@ -3,8 +3,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"syscall/js"
+
+	"github.com/coder/preview"
 )
 
 func main() {
@@ -12,14 +15,17 @@ func main() {
 	done := make(chan struct{}, 0)
 
 	// Expose the Go function `fibonacciSum` to JavaScript
-	js.Global().Set("go_preview", js.FuncOf(Hello))
-	js.Global().Set("Hello", js.FuncOf(Hello))
-	fmt.Println("Golang functions ready for JavaScript")
+	js.Global().Set("go_preview", js.FuncOf(tfpreview))
+	js.Global().Set("Loaded", js.FuncOf(loaded))
 
 	// Block the program from exiting
 	<-done
 }
 
-func Hello(this js.Value, p []js.Value) any {
-	return js.ValueOf("Hello, World!")
+func tfpreview(this js.Value, p []js.Value) any {
+	preview.Preview(context.Background(), preview.Input{}, nil)
+}
+
+func loaded(this js.Value, p []js.Value) any {
+	return js.ValueOf(true)
 }
