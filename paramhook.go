@@ -8,13 +8,13 @@ import (
 	"github.com/coder/preview/hclext"
 )
 
-// ParameterContextsEvalHook is called in a loop, so if parameters affect
+// parameterContextsEvalHook is called in a loop, so if parameters affect
 // other parameters, this can solve the problem 1 "evaluation" at a time.
 //
 // Omitting to set a default value is OK, as long as at least 1 parameter
 // is resolvable. The resolvable parameter will be accessible on the next
 // iteration.
-func ParameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value) {
+func parameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value) {
 	return func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value) {
 		data := blocks.OfType("data")
 		for _, block := range data {

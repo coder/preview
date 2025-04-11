@@ -5,12 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
-	"log/slog"
-	"os"
 	"path/filepath"
 
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraform/parser"
-	"github.com/aquasecurity/trivy/pkg/log"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 
@@ -28,16 +25,40 @@ type Input struct {
 }
 
 type Output struct {
-	ModuleOutput  cty.Value
+	// ModuleOutput is any 'output' values from the terraform files. This has 0
+	// effect on the parameters, tags, etc. It can be helpful for debugging, as it
+	// allows exporting some terraform values to the caller to review.
+	ModuleOutput cty.Value
+
 	Parameters    []types.Parameter
 	WorkspaceTags types.TagBlocks
-	Files         map[string]*hcl.File
+	// Files is included for printing diagnostics.
+	// TODO: Is the memory impact of this too much? Should we render diagnostic source code
+	// into the diagnostics up front? and remove this?
+	Files map[string]*hcl.File
 }
 
-func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnostics) {
-	// TODO: FIX LOGGING
-	slog.SetLogLoggerLevel(slog.LevelDebug)
-	slog.SetDefault(slog.New(log.NewHandler(os.Stderr, nil)))
+func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagnostics hcl.Diagnostics) {
+	// The trivy package works with `github.com/zclconf/go-cty`. This package is
+	// similar to `reflect` in its usage. This package can panic if types are
+	// misused. To protect the caller, a general `recover` is used to catch any
+	// mistakes. If this happens, there is a developer bug that needs to be resolved.
+	defer func() {
+		if r := recover(); r != nil {
+			diagnostics = hcl.Diagnostics{
+				{
+					Severity: hcl.DiagError,
+					Summary:  "Panic occurred in preview. This should not happen, please report this to Coder.",
+					Detail:   fmt.Sprintf("panic in preview: %+v", r),
+				},
+			}
+		}
+	}()
+
+	// TODO: Fix logging. There is no way to pass in an instanced logger to
+	//   the parser.
+	//slog.SetLogLoggerLevel(slog.LevelDebug)
+	//slog.SetDefault(slog.New(log.NewHandler(os.Stderr, nil)))
 
 	varFiles, err := tfVarFiles("", dir)
 	if err != nil {
@@ -50,7 +71,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 		}
 	}
 
-	planHook, err := PlanJSONHook(dir, input)
+	planHook, err := planJSONHook(dir, input)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			{
@@ -61,7 +82,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 		}
 	}
 
-	ownerHook, err := WorkspaceOwnerHook(dir, input)
+	ownerHook, err := workspaceOwnerHook(dir, input)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			{
@@ -81,7 +102,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 		parser.OptionWithTFVarsPaths(varFiles...),
 		parser.OptionWithEvalHook(planHook),
 		parser.OptionWithEvalHook(ownerHook),
-		parser.OptionWithEvalHook(ParameterContextsEvalHook(input)),
+		parser.OptionWithEvalHook(parameterContextsEvalHook(input)),
 	)
 
 	err = p.ParseFS(ctx, ".")
@@ -107,8 +128,8 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (*Output, hcl.Diagnost
 	}
 
 	diags := make(hcl.Diagnostics, 0)
-	rp, rpDiags := RichParameters(modules)
-	tags, tagDiags := WorkspaceTags(modules, p.Files())
+	rp, rpDiags := parameters(modules)
+	tags, tagDiags := workspaceTags(modules, p.Files())
 
 	// Add warnings
 	diags = diags.Extend(warnings(modules))

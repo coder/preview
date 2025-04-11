@@ -11,7 +11,7 @@ import (
 	"github.com/coder/preview/types"
 )
 
-func RichParameters(modules terraform.Modules) ([]types.Parameter, hcl.Diagnostics) {
+func parameters(modules terraform.Modules) ([]types.Parameter, hcl.Diagnostics) {
 	diags := make(hcl.Diagnostics, 0)
 	params := make([]types.Parameter, 0)
 	exists := make(map[string][]types.Parameter)

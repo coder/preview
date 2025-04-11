@@ -10,7 +10,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func WorkspaceOwnerHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value), error) {
+func workspaceOwnerHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks terraform.Blocks, inputVars map[string]cty.Value), error) {
 	if input.Owner.Groups == nil {
 		input.Owner.Groups = []string{}
 	}
