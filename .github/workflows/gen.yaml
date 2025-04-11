@@ -1,4 +1,4 @@
-name: GoTests
+name: Generate
 
 on:
   push:
