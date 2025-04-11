@@ -1,4 +1,4 @@
-name: GoTests
+name: Generate
 
 on:
   push:
@@ -19,8 +19,7 @@ jobs:
         with:
           go-version: 1.22.8
       - uses: actions/checkout@v4.2.2
-      - name: Install gotestsum
-        shell: bash
-        run: go install gotest.tools/gotestsum@latest
-      - name: Run tests
-        run: gotestsum ./...
+      - name: Make Gen
+        run: make --output-sync -B gen
+      - name: Check for unstaged files
+        run: ./scripts/check_unstaged.sh
