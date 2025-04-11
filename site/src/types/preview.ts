@@ -67,6 +67,7 @@ export interface ParameterValidation {
     readonly validation_min: number | null;
     readonly validation_max: number | null;
     readonly validation_monotonic: string | null;
+    readonly validation_invalid: boolean | null;
 }
 
 // From web/session.go
@@ -96,6 +97,19 @@ export const ValidationMonotonicIncreasing = "increasing";
 
 // From types/owner.go
 export interface WorkspaceOwner {
+    readonly id: string;
+    readonly name: string;
+    readonly full_name: string;
+    readonly email: string;
+    readonly ssh_public_key: string;
     readonly groups: readonly string[];
+    readonly login_type: string;
+    readonly rbac_roles: readonly WorkspaceOwnerRBACRole[];
+}
+
+// From types/owner.go
+export interface WorkspaceOwnerRBACRole {
+    readonly name: string;
+    readonly org_id: string;
 }
 
