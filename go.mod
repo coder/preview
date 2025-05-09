@@ -5,7 +5,7 @@ go 1.24.2
 require (
 	cdr.dev/slog v1.6.2-0.20240126064726-20367d4aede6
 	github.com/aquasecurity/trivy v0.58.2
-	github.com/coder/guts v1.0.2-0.20250227211802-139809366a22
+	github.com/coder/guts v1.3.0
 	github.com/coder/serpent v0.10.0
 	github.com/coder/terraform-provider-coder/v2 v2.4.0
 	github.com/coder/websocket v1.8.13
