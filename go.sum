@@ -718,8 +718,8 @@ github.com/coder/pretty v0.0.0-20230908205945-e89ba86370e0 h1:3A0ES21Ke+FxEM8CXx
 github.com/coder/pretty v0.0.0-20230908205945-e89ba86370e0/go.mod h1:5UuS2Ts+nTToAMeOjNlnHFkPahrtDkmpydBen/3wgZc=
 github.com/coder/serpent v0.10.0 h1:ofVk9FJXSek+SmL3yVE3GoArP83M+1tX+H7S4t8BSuM=
 github.com/coder/serpent v0.10.0/go.mod h1:cZFW6/fP+kE9nd/oRkEHJpG6sXCtQ+AX7WMMEHv0Y3Q=
-github.com/coder/terraform-provider-coder/v2 v2.4.0 h1:uuFmF03IyahAZLXEukOdmvV9hGfUMJSESD8+G5wkTcM=
-github.com/coder/terraform-provider-coder/v2 v2.4.0/go.mod h1:2kaBpn5k9ZWtgKq5k4JbkVZG9DzEqR4mJSmpdshcO+s=
+github.com/coder/terraform-provider-coder/v2 v2.4.1 h1:+HxLJVENJ+kvGhibQ0jbr8Evi6M857d9691ytxNbv90=
+github.com/coder/terraform-provider-coder/v2 v2.4.1/go.mod h1:2kaBpn5k9ZWtgKq5k4JbkVZG9DzEqR4mJSmpdshcO+s=
 github.com/coder/websocket v1.8.13 h1:f3QZdXy7uGVz+4uCJy2nTZyM0yTBj8yANEHhqlXZ9FE=
 github.com/coder/websocket v1.8.13/go.mod h1:LNVeNrXQZfe5qhS9ALED3uA+l5pPqvwXg3CKoDBB2gs=
 github.com/containerd/log v0.1.0 h1:TCJt7ioM2cr/tfR8GPbGf9/VRAX8D2B4PjzCpfX540I=
