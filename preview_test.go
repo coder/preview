@@ -443,6 +443,20 @@ func Test_Extract(t *testing.T) {
 			unknownTags: []string{},
 			params:      map[string]assertParam{},
 		},
+		{
+			name:    "plan_stringindex",
+			dir:     "plan_stringindex",
+			expTags: map[string]string{},
+			input: preview.Input{
+				PlanJSONPath: "plan.json",
+			},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"jetbrains_ide": ap().
+					optVals("GO", "IU", "PY").
+					optNames("GoLand 2024.3", "IntelliJ IDEA Ultimate 2024.3", "PyCharm Professional 2024.3"),
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
@@ -585,6 +599,16 @@ func (a assertParam) numOpts(n int) assertParam {
 func (a assertParam) def(str string) assertParam {
 	return a.extend(func(t *testing.T, parameter types.Parameter) {
 		assert.Equal(t, str, parameter.DefaultValue.AsString(), "parameter default equality check")
+	})
+}
+
+func (a assertParam) optNames(opts ...string) assertParam {
+	return a.extend(func(t *testing.T, parameter types.Parameter) {
+		var values []string
+		for _, opt := range parameter.Options {
+			values = append(values, opt.Name)
+		}
+		assert.ElementsMatch(t, opts, values, "parameter option names equality check")
 	})
 }
 

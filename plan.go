@@ -143,6 +143,19 @@ func loadResourcesToContext(ctx *tfcontext.Context, resources []*tfjson.StateRes
 				continue
 			}
 			merged = hclext.MergeWithTupleElement(existing, int(asInt), val)
+		case string:
+			keyStr, ok := resource.Index.(string)
+			if !ok {
+				return fmt.Errorf("unable to convert index '%v' for %q to a string", resource.Name, resource.Index)
+			}
+
+			if !existing.CanIterateElements() {
+				continue
+			}
+
+			instances := existing.AsValueMap()
+			instances[keyStr] = val
+			merged = cty.ObjectVal(instances)
 		case nil:
 			merged = hclext.MergeObjects(existing, val)
 		default:

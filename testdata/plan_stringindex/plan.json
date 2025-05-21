@@ -1,0 +1,490 @@
+{
+  "format_version": "1.2",
+  "terraform_version": "1.11.0-dev",
+  "variables": {
+    "arch": {
+      "value": "amd64"
+    },
+    "channel": {
+      "value": "release"
+    },
+    "download_base_link": {
+      "value": "https://download.jetbrains.com"
+    },
+    "jetbrains_ide_versions": {
+      "value": {
+        "CL": {
+          "build_number": "243.21565.238",
+          "version": "2024.1"
+        },
+        "GO": {
+          "build_number": "243.21565.208",
+          "version": "2024.3"
+        },
+        "IU": {
+          "build_number": "243.21565.193",
+          "version": "2024.3"
+        },
+        "PS": {
+          "build_number": "243.21565.202",
+          "version": "2024.3"
+        },
+        "PY": {
+          "build_number": "243.21565.199",
+          "version": "2024.3"
+        },
+        "RD": {
+          "build_number": "243.21565.191",
+          "version": "2024.3"
+        },
+        "RM": {
+          "build_number": "243.21565.197",
+          "version": "2024.3"
+        },
+        "RR": {
+          "build_number": "243.22562.230",
+          "version": "2024.3"
+        },
+        "WS": {
+          "build_number": "243.21565.180",
+          "version": "2024.3"
+        }
+      }
+    },
+    "jetbrains_ides": {
+      "value": [
+        "GO",
+        "IU",
+        "PY"
+      ]
+    },
+    "releases_base_link": {
+      "value": "https://data.services.jetbrains.com"
+    }
+  },
+  "planned_values": {
+    "root_module": {}
+  },
+  "prior_state": {
+    "format_version": "1.0",
+    "terraform_version": "1.11.0",
+    "values": {
+      "root_module": {
+        "resources": [
+          {
+            "address": "data.coder_parameter.jetbrains_ide",
+            "mode": "data",
+            "type": "coder_parameter",
+            "name": "jetbrains_ide",
+            "provider_name": "registry.terraform.io/coder/coder",
+            "schema_version": 0,
+            "values": {
+              "default": "GO",
+              "description": null,
+              "display_name": "JetBrains IDE",
+              "ephemeral": false,
+              "form_type": "radio",
+              "icon": "/icon/gateway.svg",
+              "id": "84be2d03-2557-4923-9e4f-3ed26450e115",
+              "mutable": true,
+              "name": "jetbrains_ide",
+              "option": [
+                {
+                  "description": "",
+                  "icon": "/icon/goland.svg",
+                  "name": "GoLand 2024.3",
+                  "value": "GO"
+                },
+                {
+                  "description": "",
+                  "icon": "/icon/intellij.svg",
+                  "name": "IntelliJ IDEA Ultimate 2024.3",
+                  "value": "IU"
+                },
+                {
+                  "description": "",
+                  "icon": "/icon/pycharm.svg",
+                  "name": "PyCharm Professional 2024.3",
+                  "value": "PY"
+                }
+              ],
+              "optional": true,
+              "order": null,
+              "styling": "{}",
+              "type": "string",
+              "validation": [],
+              "value": "GO"
+            },
+            "sensitive_values": {
+              "option": [
+                {},
+                {},
+                {}
+              ],
+              "validation": []
+            }
+          },
+          {
+            "address": "data.http.jetbrains_ide_versions[\"GO\"]",
+            "mode": "data",
+            "type": "http",
+            "name": "jetbrains_ide_versions",
+            "index": "GO",
+            "provider_name": "registry.terraform.io/hashicorp/http",
+            "schema_version": 0,
+            "values": {
+              "body": "{\"GO\":[{\"date\":\"2025-05-12\",\"type\":\"release\",\"downloads\":{\"linuxARM64\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1-aarch64.tar.gz\",\"size\":1118167582,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1-aarch64.tar.gz.sha256\"},\"linux\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1.tar.gz\",\"size\":1120783192,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1.tar.gz.sha256\"},\"thirdPartyLibrariesJson\":{\"link\":\"https://resources.jetbrains.com/storage/third-party-libraries/go/goland-2025.1.1-third-party-libraries.json\",\"size\":61075,\"checksumLink\":\"https://resources.jetbrains.com/storage/third-party-libraries/go/goland-2025.1.1-third-party-libraries.json.sha256\"},\"windows\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1.exe\",\"size\":832016440,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1.exe.sha256\"},\"windowsZip\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1.win.zip\",\"size\":1132949747,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1.win.zip.sha256\"},\"windowsARM64\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1-aarch64.exe\",\"size\":794419312,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1-aarch64.exe.sha256\"},\"mac\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1.dmg\",\"size\":1073091958,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1.dmg.sha256\"},\"macM1\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1-aarch64.dmg\",\"size\":1062258831,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1-aarch64.dmg.sha256\"}},\"patches\":{\"win\":[{\"fromBuild\":\"243.26053.20\",\"link\":\"https://download.jetbrains.com/go/GO-243.26053.20-251.25410.140-patch-win.jar\",\"size\":347470625,\"checksumLink\":\"https://download.jetbrains.com/go/GO-243.26053.20-251.25410.140-patch-win.jar.sha256\"},{\"fromBuild\":\"251.23774.430\",\"link\":\"https://download.jetbrains.com/go/GO-251.23774.430-251.25410.140-patch-win.jar\",\"size\":113977718,\"checksumLink\":\"https://download.jetbrains.com/go/GO-251.23774.430-251.25410.140-patch-win.jar.sha256\"}],\"mac\":[{\"fromBuild\":\"243.26053.20\",\"link\":\"https://download.jetbrains.com/go/GO-243.26053.20-251.25410.140-patch-mac.jar\",\"size\":349019823,\"checksumLink\":\"https://download.jetbrains.com/go/GO-243.26053.20-251.25410.140-patch-mac.jar.sha256\"},{\"fromBuild\":\"251.23774.430\",\"link\":\"https://download.jetbrains.com/go/GO-251.23774.430-251.25410.140-patch-mac.jar\",\"size\":112340817,\"checksumLink\":\"https://download.jetbrains.com/go/GO-251.23774.430-251.25410.140-patch-mac.jar.sha256\"}],\"unix\":[{\"fromBuild\":\"243.26053.20\",\"link\":\"https://download.jetbrains.com/go/GO-243.26053.20-251.25410.140-patch-unix.jar\",\"size\":353528662,\"checksumLink\":\"https://download.jetbrains.com/go/GO-243.26053.20-251.25410.140-patch-unix.jar.sha256\"},{\"fromBuild\":\"251.23774.430\",\"link\":\"https://download.jetbrains.com/go/GO-251.23774.430-251.25410.140-patch-unix.jar\",\"size\":112385699,\"checksumLink\":\"https://download.jetbrains.com/go/GO-251.23774.430-251.25410.140-patch-unix.jar.sha256\"}]},\"notesLink\":\"https://youtrack.jetbrains.com/articles/GO-A-231735963\",\"licenseRequired\":true,\"version\":\"2025.1.1\",\"majorVersion\":\"2025.1\",\"build\":\"251.25410.140\",\"whatsnew\":\"\u003ch3\u003eGoLand 2025.1.1 is now available!\u003c/h3\u003e\\n\u003cp\u003eIn this version, we’ve introduced a bunch of minor updates and bug fixes. Please see the \u003ca href=\\\"https://youtrack.jetbrains.com/articles/GO-A-231735963\\\"\u003erelease notes\u003c/a\u003e for the complete list of fixes and improvements.\u003c/p\u003e\",\"uninstallFeedbackLinks\":{\"linuxARM64\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"windowsJBR8\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"windowsZipJBR8\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"linux\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"thirdPartyLibrariesJson\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"windows\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"windowsZip\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"windowsARM64\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"linuxJBR8\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"mac\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"macJBR8\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"macM1\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\"},\"printableReleaseType\":null}]}",
+              "ca_cert_pem": null,
+              "client_cert_pem": null,
+              "client_key_pem": null,
+              "id": "https://data.services.jetbrains.com/products/releases?code=GO\u0026latest=true\u0026type=release",
+              "insecure": null,
+              "method": null,
+              "request_body": null,
+              "request_headers": null,
+              "request_timeout_ms": null,
+              "response_body": "{\"GO\":[{\"date\":\"2025-05-12\",\"type\":\"release\",\"downloads\":{\"linuxARM64\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1-aarch64.tar.gz\",\"size\":1118167582,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1-aarch64.tar.gz.sha256\"},\"linux\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1.tar.gz\",\"size\":1120783192,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1.tar.gz.sha256\"},\"thirdPartyLibrariesJson\":{\"link\":\"https://resources.jetbrains.com/storage/third-party-libraries/go/goland-2025.1.1-third-party-libraries.json\",\"size\":61075,\"checksumLink\":\"https://resources.jetbrains.com/storage/third-party-libraries/go/goland-2025.1.1-third-party-libraries.json.sha256\"},\"windows\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1.exe\",\"size\":832016440,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1.exe.sha256\"},\"windowsZip\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1.win.zip\",\"size\":1132949747,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1.win.zip.sha256\"},\"windowsARM64\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1-aarch64.exe\",\"size\":794419312,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1-aarch64.exe.sha256\"},\"mac\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1.dmg\",\"size\":1073091958,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1.dmg.sha256\"},\"macM1\":{\"link\":\"https://download.jetbrains.com/go/goland-2025.1.1-aarch64.dmg\",\"size\":1062258831,\"checksumLink\":\"https://download.jetbrains.com/go/goland-2025.1.1-aarch64.dmg.sha256\"}},\"patches\":{\"win\":[{\"fromBuild\":\"243.26053.20\",\"link\":\"https://download.jetbrains.com/go/GO-243.26053.20-251.25410.140-patch-win.jar\",\"size\":347470625,\"checksumLink\":\"https://download.jetbrains.com/go/GO-243.26053.20-251.25410.140-patch-win.jar.sha256\"},{\"fromBuild\":\"251.23774.430\",\"link\":\"https://download.jetbrains.com/go/GO-251.23774.430-251.25410.140-patch-win.jar\",\"size\":113977718,\"checksumLink\":\"https://download.jetbrains.com/go/GO-251.23774.430-251.25410.140-patch-win.jar.sha256\"}],\"mac\":[{\"fromBuild\":\"243.26053.20\",\"link\":\"https://download.jetbrains.com/go/GO-243.26053.20-251.25410.140-patch-mac.jar\",\"size\":349019823,\"checksumLink\":\"https://download.jetbrains.com/go/GO-243.26053.20-251.25410.140-patch-mac.jar.sha256\"},{\"fromBuild\":\"251.23774.430\",\"link\":\"https://download.jetbrains.com/go/GO-251.23774.430-251.25410.140-patch-mac.jar\",\"size\":112340817,\"checksumLink\":\"https://download.jetbrains.com/go/GO-251.23774.430-251.25410.140-patch-mac.jar.sha256\"}],\"unix\":[{\"fromBuild\":\"243.26053.20\",\"link\":\"https://download.jetbrains.com/go/GO-243.26053.20-251.25410.140-patch-unix.jar\",\"size\":353528662,\"checksumLink\":\"https://download.jetbrains.com/go/GO-243.26053.20-251.25410.140-patch-unix.jar.sha256\"},{\"fromBuild\":\"251.23774.430\",\"link\":\"https://download.jetbrains.com/go/GO-251.23774.430-251.25410.140-patch-unix.jar\",\"size\":112385699,\"checksumLink\":\"https://download.jetbrains.com/go/GO-251.23774.430-251.25410.140-patch-unix.jar.sha256\"}]},\"notesLink\":\"https://youtrack.jetbrains.com/articles/GO-A-231735963\",\"licenseRequired\":true,\"version\":\"2025.1.1\",\"majorVersion\":\"2025.1\",\"build\":\"251.25410.140\",\"whatsnew\":\"\u003ch3\u003eGoLand 2025.1.1 is now available!\u003c/h3\u003e\\n\u003cp\u003eIn this version, we’ve introduced a bunch of minor updates and bug fixes. Please see the \u003ca href=\\\"https://youtrack.jetbrains.com/articles/GO-A-231735963\\\"\u003erelease notes\u003c/a\u003e for the complete list of fixes and improvements.\u003c/p\u003e\",\"uninstallFeedbackLinks\":{\"linuxARM64\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"windowsJBR8\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"windowsZipJBR8\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"linux\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"thirdPartyLibrariesJson\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"windows\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"windowsZip\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"windowsARM64\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"linuxJBR8\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"mac\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"macJBR8\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\",\"macM1\":\"https://www.jetbrains.com/go/uninstall/?edition=2025.1.1\"},\"printableReleaseType\":null}]}",
+              "response_body_base64": "eyJHTyI6W3siZGF0ZSI6IjIwMjUtMDUtMTIiLCJ0eXBlIjoicmVsZWFzZSIsImRvd25sb2FkcyI6eyJsaW51eEFSTTY0Ijp7ImxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vZ28vZ29sYW5kLTIwMjUuMS4xLWFhcmNoNjQudGFyLmd6Iiwic2l6ZSI6MTExODE2NzU4MiwiY2hlY2tzdW1MaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2dvL2dvbGFuZC0yMDI1LjEuMS1hYXJjaDY0LnRhci5nei5zaGEyNTYifSwibGludXgiOnsibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9nby9nb2xhbmQtMjAyNS4xLjEudGFyLmd6Iiwic2l6ZSI6MTEyMDc4MzE5MiwiY2hlY2tzdW1MaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2dvL2dvbGFuZC0yMDI1LjEuMS50YXIuZ3ouc2hhMjU2In0sInRoaXJkUGFydHlMaWJyYXJpZXNKc29uIjp7ImxpbmsiOiJodHRwczovL3Jlc291cmNlcy5qZXRicmFpbnMuY29tL3N0b3JhZ2UvdGhpcmQtcGFydHktbGlicmFyaWVzL2dvL2dvbGFuZC0yMDI1LjEuMS10aGlyZC1wYXJ0eS1saWJyYXJpZXMuanNvbiIsInNpemUiOjYxMDc1LCJjaGVja3N1bUxpbmsiOiJodHRwczovL3Jlc291cmNlcy5qZXRicmFpbnMuY29tL3N0b3JhZ2UvdGhpcmQtcGFydHktbGlicmFyaWVzL2dvL2dvbGFuZC0yMDI1LjEuMS10aGlyZC1wYXJ0eS1saWJyYXJpZXMuanNvbi5zaGEyNTYifSwid2luZG93cyI6eyJsaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2dvL2dvbGFuZC0yMDI1LjEuMS5leGUiLCJzaXplIjo4MzIwMTY0NDAsImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9nby9nb2xhbmQtMjAyNS4xLjEuZXhlLnNoYTI1NiJ9LCJ3aW5kb3dzWmlwIjp7ImxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vZ28vZ29sYW5kLTIwMjUuMS4xLndpbi56aXAiLCJzaXplIjoxMTMyOTQ5NzQ3LCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vZ28vZ29sYW5kLTIwMjUuMS4xLndpbi56aXAuc2hhMjU2In0sIndpbmRvd3NBUk02NCI6eyJsaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2dvL2dvbGFuZC0yMDI1LjEuMS1hYXJjaDY0LmV4ZSIsInNpemUiOjc5NDQxOTMxMiwiY2hlY2tzdW1MaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2dvL2dvbGFuZC0yMDI1LjEuMS1hYXJjaDY0LmV4ZS5zaGEyNTYifSwibWFjIjp7ImxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vZ28vZ29sYW5kLTIwMjUuMS4xLmRtZyIsInNpemUiOjEwNzMwOTE5NTgsImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9nby9nb2xhbmQtMjAyNS4xLjEuZG1nLnNoYTI1NiJ9LCJtYWNNMSI6eyJsaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2dvL2dvbGFuZC0yMDI1LjEuMS1hYXJjaDY0LmRtZyIsInNpemUiOjEwNjIyNTg4MzEsImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9nby9nb2xhbmQtMjAyNS4xLjEtYWFyY2g2NC5kbWcuc2hhMjU2In19LCJwYXRjaGVzIjp7IndpbiI6W3siZnJvbUJ1aWxkIjoiMjQzLjI2MDUzLjIwIiwibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9nby9HTy0yNDMuMjYwNTMuMjAtMjUxLjI1NDEwLjE0MC1wYXRjaC13aW4uamFyIiwic2l6ZSI6MzQ3NDcwNjI1LCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vZ28vR08tMjQzLjI2MDUzLjIwLTI1MS4yNTQxMC4xNDAtcGF0Y2gtd2luLmphci5zaGEyNTYifSx7ImZyb21CdWlsZCI6IjI1MS4yMzc3NC40MzAiLCJsaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2dvL0dPLTI1MS4yMzc3NC40MzAtMjUxLjI1NDEwLjE0MC1wYXRjaC13aW4uamFyIiwic2l6ZSI6MTEzOTc3NzE4LCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vZ28vR08tMjUxLjIzNzc0LjQzMC0yNTEuMjU0MTAuMTQwLXBhdGNoLXdpbi5qYXIuc2hhMjU2In1dLCJtYWMiOlt7ImZyb21CdWlsZCI6IjI0My4yNjA1My4yMCIsImxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vZ28vR08tMjQzLjI2MDUzLjIwLTI1MS4yNTQxMC4xNDAtcGF0Y2gtbWFjLmphciIsInNpemUiOjM0OTAxOTgyMywiY2hlY2tzdW1MaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2dvL0dPLTI0My4yNjA1My4yMC0yNTEuMjU0MTAuMTQwLXBhdGNoLW1hYy5qYXIuc2hhMjU2In0seyJmcm9tQnVpbGQiOiIyNTEuMjM3NzQuNDMwIiwibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9nby9HTy0yNTEuMjM3NzQuNDMwLTI1MS4yNTQxMC4xNDAtcGF0Y2gtbWFjLmphciIsInNpemUiOjExMjM0MDgxNywiY2hlY2tzdW1MaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2dvL0dPLTI1MS4yMzc3NC40MzAtMjUxLjI1NDEwLjE0MC1wYXRjaC1tYWMuamFyLnNoYTI1NiJ9XSwidW5peCI6W3siZnJvbUJ1aWxkIjoiMjQzLjI2MDUzLjIwIiwibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9nby9HTy0yNDMuMjYwNTMuMjAtMjUxLjI1NDEwLjE0MC1wYXRjaC11bml4LmphciIsInNpemUiOjM1MzUyODY2MiwiY2hlY2tzdW1MaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2dvL0dPLTI0My4yNjA1My4yMC0yNTEuMjU0MTAuMTQwLXBhdGNoLXVuaXguamFyLnNoYTI1NiJ9LHsiZnJvbUJ1aWxkIjoiMjUxLjIzNzc0LjQzMCIsImxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vZ28vR08tMjUxLjIzNzc0LjQzMC0yNTEuMjU0MTAuMTQwLXBhdGNoLXVuaXguamFyIiwic2l6ZSI6MTEyMzg1Njk5LCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vZ28vR08tMjUxLjIzNzc0LjQzMC0yNTEuMjU0MTAuMTQwLXBhdGNoLXVuaXguamFyLnNoYTI1NiJ9XX0sIm5vdGVzTGluayI6Imh0dHBzOi8veW91dHJhY2suamV0YnJhaW5zLmNvbS9hcnRpY2xlcy9HTy1BLTIzMTczNTk2MyIsImxpY2Vuc2VSZXF1aXJlZCI6dHJ1ZSwidmVyc2lvbiI6IjIwMjUuMS4xIiwibWFqb3JWZXJzaW9uIjoiMjAyNS4xIiwiYnVpbGQiOiIyNTEuMjU0MTAuMTQwIiwid2hhdHNuZXciOiI8aDM+R29MYW5kIDIwMjUuMS4xIGlzIG5vdyBhdmFpbGFibGUhPC9oMz5cbjxwPkluIHRoaXMgdmVyc2lvbiwgd2XigJl2ZSBpbnRyb2R1Y2VkIGEgYnVuY2ggb2YgbWlub3IgdXBkYXRlcyBhbmQgYnVnIGZpeGVzLiBQbGVhc2Ugc2VlIHRoZSA8YSBocmVmPVwiaHR0cHM6Ly95b3V0cmFjay5qZXRicmFpbnMuY29tL2FydGljbGVzL0dPLUEtMjMxNzM1OTYzXCI+cmVsZWFzZSBub3RlczwvYT4gZm9yIHRoZSBjb21wbGV0ZSBsaXN0IG9mIGZpeGVzIGFuZCBpbXByb3ZlbWVudHMuPC9wPiIsInVuaW5zdGFsbEZlZWRiYWNrTGlua3MiOnsibGludXhBUk02NCI6Imh0dHBzOi8vd3d3LmpldGJyYWlucy5jb20vZ28vdW5pbnN0YWxsLz9lZGl0aW9uPTIwMjUuMS4xIiwid2luZG93c0pCUjgiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL2dvL3VuaW5zdGFsbC8/ZWRpdGlvbj0yMDI1LjEuMSIsIndpbmRvd3NaaXBKQlI4IjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9nby91bmluc3RhbGwvP2VkaXRpb249MjAyNS4xLjEiLCJsaW51eCI6Imh0dHBzOi8vd3d3LmpldGJyYWlucy5jb20vZ28vdW5pbnN0YWxsLz9lZGl0aW9uPTIwMjUuMS4xIiwidGhpcmRQYXJ0eUxpYnJhcmllc0pzb24iOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL2dvL3VuaW5zdGFsbC8/ZWRpdGlvbj0yMDI1LjEuMSIsIndpbmRvd3MiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL2dvL3VuaW5zdGFsbC8/ZWRpdGlvbj0yMDI1LjEuMSIsIndpbmRvd3NaaXAiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL2dvL3VuaW5zdGFsbC8/ZWRpdGlvbj0yMDI1LjEuMSIsIndpbmRvd3NBUk02NCI6Imh0dHBzOi8vd3d3LmpldGJyYWlucy5jb20vZ28vdW5pbnN0YWxsLz9lZGl0aW9uPTIwMjUuMS4xIiwibGludXhKQlI4IjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9nby91bmluc3RhbGwvP2VkaXRpb249MjAyNS4xLjEiLCJtYWMiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL2dvL3VuaW5zdGFsbC8/ZWRpdGlvbj0yMDI1LjEuMSIsIm1hY0pCUjgiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL2dvL3VuaW5zdGFsbC8/ZWRpdGlvbj0yMDI1LjEuMSIsIm1hY00xIjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9nby91bmluc3RhbGwvP2VkaXRpb249MjAyNS4xLjEifSwicHJpbnRhYmxlUmVsZWFzZVR5cGUiOm51bGx9XX0=",
+              "response_headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Content-Type": "application/json;charset=UTF-8",
+                "Date": "Wed, 21 May 2025 17:57:48 GMT",
+                "Last-Modified": "Wed, 21 May 2025 09:29:01 GMT",
+                "Vary": "accept-encoding"
+              },
+              "retry": null,
+              "status_code": 200,
+              "url": "https://data.services.jetbrains.com/products/releases?code=GO\u0026latest=true\u0026type=release"
+            },
+            "sensitive_values": {
+              "response_headers": {}
+            }
+          },
+          {
+            "address": "data.http.jetbrains_ide_versions[\"IU\"]",
+            "mode": "data",
+            "type": "http",
+            "name": "jetbrains_ide_versions",
+            "index": "IU",
+            "provider_name": "registry.terraform.io/hashicorp/http",
+            "schema_version": 0,
+            "values": {
+              "body": "{\"IIU\":[{\"date\":\"2025-05-09\",\"type\":\"release\",\"downloads\":{\"linuxARM64\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1-aarch64.tar.gz\",\"size\":1678615748,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1-aarch64.tar.gz.sha256\"},\"linux\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.tar.gz\",\"size\":1681592268,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.tar.gz.sha256\"},\"thirdPartyLibrariesJson\":{\"link\":\"https://resources.jetbrains.com/storage/third-party-libraries/idea/ideaIU-2025.1.1.1-third-party-libraries.json\",\"size\":388765,\"checksumLink\":\"https://resources.jetbrains.com/storage/third-party-libraries/idea/ideaIU-2025.1.1.1-third-party-libraries.json.sha256\"},\"windows\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.exe\",\"size\":1266249784,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.exe.sha256\"},\"windowsZip\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.win.zip\",\"size\":1694591205,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.win.zip.sha256\"},\"windowsARM64\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1-aarch64.exe\",\"size\":1228386664,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1-aarch64.exe.sha256\"},\"mac\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.dmg\",\"size\":1616583653,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.dmg.sha256\"},\"macM1\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1-aarch64.dmg\",\"size\":1605638446,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1-aarch64.dmg.sha256\"}},\"patches\":{\"win\":[{\"fromBuild\":\"251.25410.109\",\"link\":\"https://download.jetbrains.com/idea/IU-251.25410.109-251.25410.129-patch-win.jar\",\"size\":35358098,\"checksumLink\":\"https://download.jetbrains.com/idea/IU-251.25410.109-251.25410.129-patch-win.jar.sha256\"},{\"fromBuild\":\"243.26053.27\",\"link\":\"https://download.jetbrains.com/idea/IU-243.26053.27-251.25410.129-patch-win.jar\",\"size\":631084959,\"checksumLink\":\"https://download.jetbrains.com/idea/IU-243.26053.27-251.25410.129-patch-win.jar.sha256\"}],\"mac\":[{\"fromBuild\":\"251.25410.109\",\"link\":\"https://download.jetbrains.com/idea/IU-251.25410.109-251.25410.129-patch-mac.jar\",\"size\":33727565,\"checksumLink\":\"https://download.jetbrains.com/idea/IU-251.25410.109-251.25410.129-patch-mac.jar.sha256\"},{\"fromBuild\":\"243.26053.27\",\"link\":\"https://download.jetbrains.com/idea/IU-243.26053.27-251.25410.129-patch-mac.jar\",\"size\":632672125,\"checksumLink\":\"https://download.jetbrains.com/idea/IU-243.26053.27-251.25410.129-patch-mac.jar.sha256\"}],\"unix\":[{\"fromBuild\":\"251.25410.109\",\"link\":\"https://download.jetbrains.com/idea/IU-251.25410.109-251.25410.129-patch-unix.jar\",\"size\":33769350,\"checksumLink\":\"https://download.jetbrains.com/idea/IU-251.25410.109-251.25410.129-patch-unix.jar.sha256\"},{\"fromBuild\":\"243.26053.27\",\"link\":\"https://download.jetbrains.com/idea/IU-243.26053.27-251.25410.129-patch-unix.jar\",\"size\":637149470,\"checksumLink\":\"https://download.jetbrains.com/idea/IU-243.26053.27-251.25410.129-patch-unix.jar.sha256\"}]},\"notesLink\":\"https://youtrack.jetbrains.com/articles/IDEA-A-2100662430/IntelliJ-IDEA-2025.1.1.1-251.25410.129-build-Release-Notes\",\"licenseRequired\":true,\"version\":\"2025.1.1.1\",\"majorVersion\":\"2025.1\",\"build\":\"251.25410.129\",\"whatsnew\":\"IntelliJ IDEA 2025.1.1.1 is out! This update includes a hotfix for \u003ca href=\\\"https://youtrack.jetbrains.com/issue/KMT-1074/\\\"\u003eKMT-1074\u003c/a\u003e. Check out the release notes for all the details.\",\"uninstallFeedbackLinks\":{\"macWithJBR\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"linuxARM64\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"sourcesArchive\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windowsJBR8\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windowsZipJBR8\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"linuxWithoutJBR\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windowsZipJBR11\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"thirdPartyLibrariesJson\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windows\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windowsZip\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"mac\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"macJBR8\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"macJBR11\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windowsJBR11\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"linux\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"linuxJBR11\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windowsARM64\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"linuxJBR8\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"macM1\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\"},\"printableReleaseType\":null}]}",
+              "ca_cert_pem": null,
+              "client_cert_pem": null,
+              "client_key_pem": null,
+              "id": "https://data.services.jetbrains.com/products/releases?code=IU\u0026latest=true\u0026type=release",
+              "insecure": null,
+              "method": null,
+              "request_body": null,
+              "request_headers": null,
+              "request_timeout_ms": null,
+              "response_body": "{\"IIU\":[{\"date\":\"2025-05-09\",\"type\":\"release\",\"downloads\":{\"linuxARM64\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1-aarch64.tar.gz\",\"size\":1678615748,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1-aarch64.tar.gz.sha256\"},\"linux\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.tar.gz\",\"size\":1681592268,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.tar.gz.sha256\"},\"thirdPartyLibrariesJson\":{\"link\":\"https://resources.jetbrains.com/storage/third-party-libraries/idea/ideaIU-2025.1.1.1-third-party-libraries.json\",\"size\":388765,\"checksumLink\":\"https://resources.jetbrains.com/storage/third-party-libraries/idea/ideaIU-2025.1.1.1-third-party-libraries.json.sha256\"},\"windows\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.exe\",\"size\":1266249784,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.exe.sha256\"},\"windowsZip\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.win.zip\",\"size\":1694591205,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.win.zip.sha256\"},\"windowsARM64\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1-aarch64.exe\",\"size\":1228386664,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1-aarch64.exe.sha256\"},\"mac\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.dmg\",\"size\":1616583653,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1.dmg.sha256\"},\"macM1\":{\"link\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1-aarch64.dmg\",\"size\":1605638446,\"checksumLink\":\"https://download.jetbrains.com/idea/ideaIU-2025.1.1.1-aarch64.dmg.sha256\"}},\"patches\":{\"win\":[{\"fromBuild\":\"251.25410.109\",\"link\":\"https://download.jetbrains.com/idea/IU-251.25410.109-251.25410.129-patch-win.jar\",\"size\":35358098,\"checksumLink\":\"https://download.jetbrains.com/idea/IU-251.25410.109-251.25410.129-patch-win.jar.sha256\"},{\"fromBuild\":\"243.26053.27\",\"link\":\"https://download.jetbrains.com/idea/IU-243.26053.27-251.25410.129-patch-win.jar\",\"size\":631084959,\"checksumLink\":\"https://download.jetbrains.com/idea/IU-243.26053.27-251.25410.129-patch-win.jar.sha256\"}],\"mac\":[{\"fromBuild\":\"251.25410.109\",\"link\":\"https://download.jetbrains.com/idea/IU-251.25410.109-251.25410.129-patch-mac.jar\",\"size\":33727565,\"checksumLink\":\"https://download.jetbrains.com/idea/IU-251.25410.109-251.25410.129-patch-mac.jar.sha256\"},{\"fromBuild\":\"243.26053.27\",\"link\":\"https://download.jetbrains.com/idea/IU-243.26053.27-251.25410.129-patch-mac.jar\",\"size\":632672125,\"checksumLink\":\"https://download.jetbrains.com/idea/IU-243.26053.27-251.25410.129-patch-mac.jar.sha256\"}],\"unix\":[{\"fromBuild\":\"251.25410.109\",\"link\":\"https://download.jetbrains.com/idea/IU-251.25410.109-251.25410.129-patch-unix.jar\",\"size\":33769350,\"checksumLink\":\"https://download.jetbrains.com/idea/IU-251.25410.109-251.25410.129-patch-unix.jar.sha256\"},{\"fromBuild\":\"243.26053.27\",\"link\":\"https://download.jetbrains.com/idea/IU-243.26053.27-251.25410.129-patch-unix.jar\",\"size\":637149470,\"checksumLink\":\"https://download.jetbrains.com/idea/IU-243.26053.27-251.25410.129-patch-unix.jar.sha256\"}]},\"notesLink\":\"https://youtrack.jetbrains.com/articles/IDEA-A-2100662430/IntelliJ-IDEA-2025.1.1.1-251.25410.129-build-Release-Notes\",\"licenseRequired\":true,\"version\":\"2025.1.1.1\",\"majorVersion\":\"2025.1\",\"build\":\"251.25410.129\",\"whatsnew\":\"IntelliJ IDEA 2025.1.1.1 is out! This update includes a hotfix for \u003ca href=\\\"https://youtrack.jetbrains.com/issue/KMT-1074/\\\"\u003eKMT-1074\u003c/a\u003e. Check out the release notes for all the details.\",\"uninstallFeedbackLinks\":{\"macWithJBR\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"linuxARM64\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"sourcesArchive\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windowsJBR8\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windowsZipJBR8\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"linuxWithoutJBR\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windowsZipJBR11\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"thirdPartyLibrariesJson\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windows\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windowsZip\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"mac\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"macJBR8\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"macJBR11\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windowsJBR11\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"linux\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"linuxJBR11\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"windowsARM64\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"linuxJBR8\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\",\"macM1\":\"https://www.jetbrains.com/idea/uninstall/?edition=IU-2025.1.1.1\"},\"printableReleaseType\":null}]}",
+              "response_body_base64": "eyJJSVUiOlt7ImRhdGUiOiIyMDI1LTA1LTA5IiwidHlwZSI6InJlbGVhc2UiLCJkb3dubG9hZHMiOnsibGludXhBUk02NCI6eyJsaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2lkZWEvaWRlYUlVLTIwMjUuMS4xLjEtYWFyY2g2NC50YXIuZ3oiLCJzaXplIjoxNjc4NjE1NzQ4LCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vaWRlYS9pZGVhSVUtMjAyNS4xLjEuMS1hYXJjaDY0LnRhci5nei5zaGEyNTYifSwibGludXgiOnsibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9pZGVhL2lkZWFJVS0yMDI1LjEuMS4xLnRhci5neiIsInNpemUiOjE2ODE1OTIyNjgsImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9pZGVhL2lkZWFJVS0yMDI1LjEuMS4xLnRhci5nei5zaGEyNTYifSwidGhpcmRQYXJ0eUxpYnJhcmllc0pzb24iOnsibGluayI6Imh0dHBzOi8vcmVzb3VyY2VzLmpldGJyYWlucy5jb20vc3RvcmFnZS90aGlyZC1wYXJ0eS1saWJyYXJpZXMvaWRlYS9pZGVhSVUtMjAyNS4xLjEuMS10aGlyZC1wYXJ0eS1saWJyYXJpZXMuanNvbiIsInNpemUiOjM4ODc2NSwiY2hlY2tzdW1MaW5rIjoiaHR0cHM6Ly9yZXNvdXJjZXMuamV0YnJhaW5zLmNvbS9zdG9yYWdlL3RoaXJkLXBhcnR5LWxpYnJhcmllcy9pZGVhL2lkZWFJVS0yMDI1LjEuMS4xLXRoaXJkLXBhcnR5LWxpYnJhcmllcy5qc29uLnNoYTI1NiJ9LCJ3aW5kb3dzIjp7ImxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vaWRlYS9pZGVhSVUtMjAyNS4xLjEuMS5leGUiLCJzaXplIjoxMjY2MjQ5Nzg0LCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vaWRlYS9pZGVhSVUtMjAyNS4xLjEuMS5leGUuc2hhMjU2In0sIndpbmRvd3NaaXAiOnsibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9pZGVhL2lkZWFJVS0yMDI1LjEuMS4xLndpbi56aXAiLCJzaXplIjoxNjk0NTkxMjA1LCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vaWRlYS9pZGVhSVUtMjAyNS4xLjEuMS53aW4uemlwLnNoYTI1NiJ9LCJ3aW5kb3dzQVJNNjQiOnsibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9pZGVhL2lkZWFJVS0yMDI1LjEuMS4xLWFhcmNoNjQuZXhlIiwic2l6ZSI6MTIyODM4NjY2NCwiY2hlY2tzdW1MaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2lkZWEvaWRlYUlVLTIwMjUuMS4xLjEtYWFyY2g2NC5leGUuc2hhMjU2In0sIm1hYyI6eyJsaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2lkZWEvaWRlYUlVLTIwMjUuMS4xLjEuZG1nIiwic2l6ZSI6MTYxNjU4MzY1MywiY2hlY2tzdW1MaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2lkZWEvaWRlYUlVLTIwMjUuMS4xLjEuZG1nLnNoYTI1NiJ9LCJtYWNNMSI6eyJsaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2lkZWEvaWRlYUlVLTIwMjUuMS4xLjEtYWFyY2g2NC5kbWciLCJzaXplIjoxNjA1NjM4NDQ2LCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vaWRlYS9pZGVhSVUtMjAyNS4xLjEuMS1hYXJjaDY0LmRtZy5zaGEyNTYifX0sInBhdGNoZXMiOnsid2luIjpbeyJmcm9tQnVpbGQiOiIyNTEuMjU0MTAuMTA5IiwibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9pZGVhL0lVLTI1MS4yNTQxMC4xMDktMjUxLjI1NDEwLjEyOS1wYXRjaC13aW4uamFyIiwic2l6ZSI6MzUzNTgwOTgsImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9pZGVhL0lVLTI1MS4yNTQxMC4xMDktMjUxLjI1NDEwLjEyOS1wYXRjaC13aW4uamFyLnNoYTI1NiJ9LHsiZnJvbUJ1aWxkIjoiMjQzLjI2MDUzLjI3IiwibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9pZGVhL0lVLTI0My4yNjA1My4yNy0yNTEuMjU0MTAuMTI5LXBhdGNoLXdpbi5qYXIiLCJzaXplIjo2MzEwODQ5NTksImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9pZGVhL0lVLTI0My4yNjA1My4yNy0yNTEuMjU0MTAuMTI5LXBhdGNoLXdpbi5qYXIuc2hhMjU2In1dLCJtYWMiOlt7ImZyb21CdWlsZCI6IjI1MS4yNTQxMC4xMDkiLCJsaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2lkZWEvSVUtMjUxLjI1NDEwLjEwOS0yNTEuMjU0MTAuMTI5LXBhdGNoLW1hYy5qYXIiLCJzaXplIjozMzcyNzU2NSwiY2hlY2tzdW1MaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2lkZWEvSVUtMjUxLjI1NDEwLjEwOS0yNTEuMjU0MTAuMTI5LXBhdGNoLW1hYy5qYXIuc2hhMjU2In0seyJmcm9tQnVpbGQiOiIyNDMuMjYwNTMuMjciLCJsaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2lkZWEvSVUtMjQzLjI2MDUzLjI3LTI1MS4yNTQxMC4xMjktcGF0Y2gtbWFjLmphciIsInNpemUiOjYzMjY3MjEyNSwiY2hlY2tzdW1MaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2lkZWEvSVUtMjQzLjI2MDUzLjI3LTI1MS4yNTQxMC4xMjktcGF0Y2gtbWFjLmphci5zaGEyNTYifV0sInVuaXgiOlt7ImZyb21CdWlsZCI6IjI1MS4yNTQxMC4xMDkiLCJsaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2lkZWEvSVUtMjUxLjI1NDEwLjEwOS0yNTEuMjU0MTAuMTI5LXBhdGNoLXVuaXguamFyIiwic2l6ZSI6MzM3NjkzNTAsImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9pZGVhL0lVLTI1MS4yNTQxMC4xMDktMjUxLjI1NDEwLjEyOS1wYXRjaC11bml4Lmphci5zaGEyNTYifSx7ImZyb21CdWlsZCI6IjI0My4yNjA1My4yNyIsImxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vaWRlYS9JVS0yNDMuMjYwNTMuMjctMjUxLjI1NDEwLjEyOS1wYXRjaC11bml4LmphciIsInNpemUiOjYzNzE0OTQ3MCwiY2hlY2tzdW1MaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL2lkZWEvSVUtMjQzLjI2MDUzLjI3LTI1MS4yNTQxMC4xMjktcGF0Y2gtdW5peC5qYXIuc2hhMjU2In1dfSwibm90ZXNMaW5rIjoiaHR0cHM6Ly95b3V0cmFjay5qZXRicmFpbnMuY29tL2FydGljbGVzL0lERUEtQS0yMTAwNjYyNDMwL0ludGVsbGlKLUlERUEtMjAyNS4xLjEuMS0yNTEuMjU0MTAuMTI5LWJ1aWxkLVJlbGVhc2UtTm90ZXMiLCJsaWNlbnNlUmVxdWlyZWQiOnRydWUsInZlcnNpb24iOiIyMDI1LjEuMS4xIiwibWFqb3JWZXJzaW9uIjoiMjAyNS4xIiwiYnVpbGQiOiIyNTEuMjU0MTAuMTI5Iiwid2hhdHNuZXciOiJJbnRlbGxpSiBJREVBIDIwMjUuMS4xLjEgaXMgb3V0ISBUaGlzIHVwZGF0ZSBpbmNsdWRlcyBhIGhvdGZpeCBmb3IgPGEgaHJlZj1cImh0dHBzOi8veW91dHJhY2suamV0YnJhaW5zLmNvbS9pc3N1ZS9LTVQtMTA3NC9cIj5LTVQtMTA3NDwvYT4uIENoZWNrIG91dCB0aGUgcmVsZWFzZSBub3RlcyBmb3IgYWxsIHRoZSBkZXRhaWxzLiIsInVuaW5zdGFsbEZlZWRiYWNrTGlua3MiOnsibWFjV2l0aEpCUiI6Imh0dHBzOi8vd3d3LmpldGJyYWlucy5jb20vaWRlYS91bmluc3RhbGwvP2VkaXRpb249SVUtMjAyNS4xLjEuMSIsImxpbnV4QVJNNjQiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL2lkZWEvdW5pbnN0YWxsLz9lZGl0aW9uPUlVLTIwMjUuMS4xLjEiLCJzb3VyY2VzQXJjaGl2ZSI6Imh0dHBzOi8vd3d3LmpldGJyYWlucy5jb20vaWRlYS91bmluc3RhbGwvP2VkaXRpb249SVUtMjAyNS4xLjEuMSIsIndpbmRvd3NKQlI4IjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9pZGVhL3VuaW5zdGFsbC8/ZWRpdGlvbj1JVS0yMDI1LjEuMS4xIiwid2luZG93c1ppcEpCUjgiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL2lkZWEvdW5pbnN0YWxsLz9lZGl0aW9uPUlVLTIwMjUuMS4xLjEiLCJsaW51eFdpdGhvdXRKQlIiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL2lkZWEvdW5pbnN0YWxsLz9lZGl0aW9uPUlVLTIwMjUuMS4xLjEiLCJ3aW5kb3dzWmlwSkJSMTEiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL2lkZWEvdW5pbnN0YWxsLz9lZGl0aW9uPUlVLTIwMjUuMS4xLjEiLCJ0aGlyZFBhcnR5TGlicmFyaWVzSnNvbiI6Imh0dHBzOi8vd3d3LmpldGJyYWlucy5jb20vaWRlYS91bmluc3RhbGwvP2VkaXRpb249SVUtMjAyNS4xLjEuMSIsIndpbmRvd3MiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL2lkZWEvdW5pbnN0YWxsLz9lZGl0aW9uPUlVLTIwMjUuMS4xLjEiLCJ3aW5kb3dzWmlwIjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9pZGVhL3VuaW5zdGFsbC8/ZWRpdGlvbj1JVS0yMDI1LjEuMS4xIiwibWFjIjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9pZGVhL3VuaW5zdGFsbC8/ZWRpdGlvbj1JVS0yMDI1LjEuMS4xIiwibWFjSkJSOCI6Imh0dHBzOi8vd3d3LmpldGJyYWlucy5jb20vaWRlYS91bmluc3RhbGwvP2VkaXRpb249SVUtMjAyNS4xLjEuMSIsIm1hY0pCUjExIjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9pZGVhL3VuaW5zdGFsbC8/ZWRpdGlvbj1JVS0yMDI1LjEuMS4xIiwid2luZG93c0pCUjExIjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9pZGVhL3VuaW5zdGFsbC8/ZWRpdGlvbj1JVS0yMDI1LjEuMS4xIiwibGludXgiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL2lkZWEvdW5pbnN0YWxsLz9lZGl0aW9uPUlVLTIwMjUuMS4xLjEiLCJsaW51eEpCUjExIjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9pZGVhL3VuaW5zdGFsbC8/ZWRpdGlvbj1JVS0yMDI1LjEuMS4xIiwid2luZG93c0FSTTY0IjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9pZGVhL3VuaW5zdGFsbC8/ZWRpdGlvbj1JVS0yMDI1LjEuMS4xIiwibGludXhKQlI4IjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9pZGVhL3VuaW5zdGFsbC8/ZWRpdGlvbj1JVS0yMDI1LjEuMS4xIiwibWFjTTEiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL2lkZWEvdW5pbnN0YWxsLz9lZGl0aW9uPUlVLTIwMjUuMS4xLjEifSwicHJpbnRhYmxlUmVsZWFzZVR5cGUiOm51bGx9XX0=",
+              "response_headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Content-Type": "application/json;charset=UTF-8",
+                "Date": "Wed, 21 May 2025 17:57:48 GMT",
+                "Last-Modified": "Wed, 21 May 2025 09:29:01 GMT",
+                "Vary": "accept-encoding"
+              },
+              "retry": null,
+              "status_code": 200,
+              "url": "https://data.services.jetbrains.com/products/releases?code=IU\u0026latest=true\u0026type=release"
+            },
+            "sensitive_values": {
+              "response_headers": {}
+            }
+          },
+          {
+            "address": "data.http.jetbrains_ide_versions[\"PY\"]",
+            "mode": "data",
+            "type": "http",
+            "name": "jetbrains_ide_versions",
+            "index": "PY",
+            "provider_name": "registry.terraform.io/hashicorp/http",
+            "schema_version": 0,
+            "values": {
+              "body": "{\"PCP\":[{\"date\":\"2025-05-15\",\"type\":\"release\",\"downloads\":{\"linuxARM64\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.tar.gz\",\"size\":1171821950,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.tar.gz.sha256\"},\"linux\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.tar.gz\",\"size\":1174447820,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.tar.gz.sha256\"},\"thirdPartyLibrariesJson\":{\"link\":\"https://resources.jetbrains.com/storage/third-party-libraries/python/pycharmPY-2025.1.1.1-third-party-libraries.json\",\"size\":383963,\"checksumLink\":\"https://resources.jetbrains.com/storage/third-party-libraries/python/pycharmPY-2025.1.1.1-third-party-libraries.json.sha256\"},\"windows\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.exe\",\"size\":865917528,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.exe.sha256\"},\"windowsZip\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.win.zip\",\"size\":1198622914,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.win.zip.sha256\"},\"windowsARM64\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.exe\",\"size\":828310440,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.exe.sha256\"},\"mac\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.dmg\",\"size\":1133228342,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.dmg.sha256\"},\"macM1\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.dmg\",\"size\":1122318478,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.dmg.sha256\"},\"windowsZipARM64\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.win.zip\",\"size\":1156103015,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.win.zip.sha256\"}},\"patches\":{\"win\":[{\"fromBuild\":\"251.25410.122\",\"link\":\"https://download.jetbrains.com/python/PY-251.25410.122-251.25410.159-patch-win.jar\",\"size\":92987228,\"checksumLink\":\"https://download.jetbrains.com/python/PY-251.25410.122-251.25410.159-patch-win.jar.sha256\"},{\"fromBuild\":\"243.26053.29\",\"link\":\"https://download.jetbrains.com/python/PY-243.26053.29-251.25410.159-patch-win.jar\",\"size\":378884244,\"checksumLink\":\"https://download.jetbrains.com/python/PY-243.26053.29-251.25410.159-patch-win.jar.sha256\"}],\"mac\":[{\"fromBuild\":\"251.25410.122\",\"link\":\"https://download.jetbrains.com/python/PY-251.25410.122-251.25410.159-patch-mac.jar\",\"size\":91343694,\"checksumLink\":\"https://download.jetbrains.com/python/PY-251.25410.122-251.25410.159-patch-mac.jar.sha256\"},{\"fromBuild\":\"243.26053.29\",\"link\":\"https://download.jetbrains.com/python/PY-243.26053.29-251.25410.159-patch-mac.jar\",\"size\":380475184,\"checksumLink\":\"https://download.jetbrains.com/python/PY-243.26053.29-251.25410.159-patch-mac.jar.sha256\"}],\"unix\":[{\"fromBuild\":\"251.25410.122\",\"link\":\"https://download.jetbrains.com/python/PY-251.25410.122-251.25410.159-patch-unix.jar\",\"size\":91390257,\"checksumLink\":\"https://download.jetbrains.com/python/PY-251.25410.122-251.25410.159-patch-unix.jar.sha256\"},{\"fromBuild\":\"243.26053.29\",\"link\":\"https://download.jetbrains.com/python/PY-243.26053.29-251.25410.159-patch-unix.jar\",\"size\":384937927,\"checksumLink\":\"https://download.jetbrains.com/python/PY-243.26053.29-251.25410.159-patch-unix.jar.sha256\"}]},\"notesLink\":\"https://youtrack.jetbrains.com/articles/PY-A-233538403/PyCharm-2025.1.1.1-251.25410.159-build-Release-Notes\",\"licenseRequired\":true,\"version\":\"2025.1.1.1\",\"majorVersion\":\"2025.1\",\"build\":\"251.25410.159\",\"whatsnew\":\"\u003cul\u003e\\n \u003cli\u003eFix for editor lags when using conda interpreter - \u003ca href=\\\"https://youtrack.jetbrains.com/issue/PY-80823\\\"\u003ePY-80823\u003c/a\u003e\u003c/li\u003e\\n\u003c/ul\u003e\\n\u003cp\u003eFor more details, refer to our \u003ca href=\\\"https://youtrack.jetbrains.com/articles/PY-A-233538403/PyCharm-2025.1.1.1-251.25410.159-build-Release-Notes\\\"\u003erelease notes\u003c/a\u003e.\u003c/p\u003e\",\"uninstallFeedbackLinks\":{\"linuxARM64\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"macAnaconda\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"linuxAnaconda\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"thirdPartyLibrariesJson\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"windows\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"windowsZip\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"mac\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"linux\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"windowsAnaconda\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"windowsARM64\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"macM1\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"macM1Anaconda\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"windowsZipARM64\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\"},\"printableReleaseType\":null}]}",
+              "ca_cert_pem": null,
+              "client_cert_pem": null,
+              "client_key_pem": null,
+              "id": "https://data.services.jetbrains.com/products/releases?code=PY\u0026latest=true\u0026type=release",
+              "insecure": null,
+              "method": null,
+              "request_body": null,
+              "request_headers": null,
+              "request_timeout_ms": null,
+              "response_body": "{\"PCP\":[{\"date\":\"2025-05-15\",\"type\":\"release\",\"downloads\":{\"linuxARM64\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.tar.gz\",\"size\":1171821950,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.tar.gz.sha256\"},\"linux\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.tar.gz\",\"size\":1174447820,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.tar.gz.sha256\"},\"thirdPartyLibrariesJson\":{\"link\":\"https://resources.jetbrains.com/storage/third-party-libraries/python/pycharmPY-2025.1.1.1-third-party-libraries.json\",\"size\":383963,\"checksumLink\":\"https://resources.jetbrains.com/storage/third-party-libraries/python/pycharmPY-2025.1.1.1-third-party-libraries.json.sha256\"},\"windows\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.exe\",\"size\":865917528,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.exe.sha256\"},\"windowsZip\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.win.zip\",\"size\":1198622914,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.win.zip.sha256\"},\"windowsARM64\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.exe\",\"size\":828310440,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.exe.sha256\"},\"mac\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.dmg\",\"size\":1133228342,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1.dmg.sha256\"},\"macM1\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.dmg\",\"size\":1122318478,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.dmg.sha256\"},\"windowsZipARM64\":{\"link\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.win.zip\",\"size\":1156103015,\"checksumLink\":\"https://download.jetbrains.com/python/pycharm-2025.1.1.1-aarch64.win.zip.sha256\"}},\"patches\":{\"win\":[{\"fromBuild\":\"251.25410.122\",\"link\":\"https://download.jetbrains.com/python/PY-251.25410.122-251.25410.159-patch-win.jar\",\"size\":92987228,\"checksumLink\":\"https://download.jetbrains.com/python/PY-251.25410.122-251.25410.159-patch-win.jar.sha256\"},{\"fromBuild\":\"243.26053.29\",\"link\":\"https://download.jetbrains.com/python/PY-243.26053.29-251.25410.159-patch-win.jar\",\"size\":378884244,\"checksumLink\":\"https://download.jetbrains.com/python/PY-243.26053.29-251.25410.159-patch-win.jar.sha256\"}],\"mac\":[{\"fromBuild\":\"251.25410.122\",\"link\":\"https://download.jetbrains.com/python/PY-251.25410.122-251.25410.159-patch-mac.jar\",\"size\":91343694,\"checksumLink\":\"https://download.jetbrains.com/python/PY-251.25410.122-251.25410.159-patch-mac.jar.sha256\"},{\"fromBuild\":\"243.26053.29\",\"link\":\"https://download.jetbrains.com/python/PY-243.26053.29-251.25410.159-patch-mac.jar\",\"size\":380475184,\"checksumLink\":\"https://download.jetbrains.com/python/PY-243.26053.29-251.25410.159-patch-mac.jar.sha256\"}],\"unix\":[{\"fromBuild\":\"251.25410.122\",\"link\":\"https://download.jetbrains.com/python/PY-251.25410.122-251.25410.159-patch-unix.jar\",\"size\":91390257,\"checksumLink\":\"https://download.jetbrains.com/python/PY-251.25410.122-251.25410.159-patch-unix.jar.sha256\"},{\"fromBuild\":\"243.26053.29\",\"link\":\"https://download.jetbrains.com/python/PY-243.26053.29-251.25410.159-patch-unix.jar\",\"size\":384937927,\"checksumLink\":\"https://download.jetbrains.com/python/PY-243.26053.29-251.25410.159-patch-unix.jar.sha256\"}]},\"notesLink\":\"https://youtrack.jetbrains.com/articles/PY-A-233538403/PyCharm-2025.1.1.1-251.25410.159-build-Release-Notes\",\"licenseRequired\":true,\"version\":\"2025.1.1.1\",\"majorVersion\":\"2025.1\",\"build\":\"251.25410.159\",\"whatsnew\":\"\u003cul\u003e\\n \u003cli\u003eFix for editor lags when using conda interpreter - \u003ca href=\\\"https://youtrack.jetbrains.com/issue/PY-80823\\\"\u003ePY-80823\u003c/a\u003e\u003c/li\u003e\\n\u003c/ul\u003e\\n\u003cp\u003eFor more details, refer to our \u003ca href=\\\"https://youtrack.jetbrains.com/articles/PY-A-233538403/PyCharm-2025.1.1.1-251.25410.159-build-Release-Notes\\\"\u003erelease notes\u003c/a\u003e.\u003c/p\u003e\",\"uninstallFeedbackLinks\":{\"linuxARM64\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"macAnaconda\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"linuxAnaconda\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"thirdPartyLibrariesJson\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"windows\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"windowsZip\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"mac\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"linux\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"windowsAnaconda\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"windowsARM64\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"macM1\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"macM1Anaconda\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\",\"windowsZipARM64\":\"https://www.jetbrains.com/pycharm/uninstall/?version=PY-2025.1.1.1\"},\"printableReleaseType\":null}]}",
+              "response_body_base64": "eyJQQ1AiOlt7ImRhdGUiOiIyMDI1LTA1LTE1IiwidHlwZSI6InJlbGVhc2UiLCJkb3dubG9hZHMiOnsibGludXhBUk02NCI6eyJsaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL3B5dGhvbi9weWNoYXJtLTIwMjUuMS4xLjEtYWFyY2g2NC50YXIuZ3oiLCJzaXplIjoxMTcxODIxOTUwLCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vcHl0aG9uL3B5Y2hhcm0tMjAyNS4xLjEuMS1hYXJjaDY0LnRhci5nei5zaGEyNTYifSwibGludXgiOnsibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vcHljaGFybS0yMDI1LjEuMS4xLnRhci5neiIsInNpemUiOjExNzQ0NDc4MjAsImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vcHljaGFybS0yMDI1LjEuMS4xLnRhci5nei5zaGEyNTYifSwidGhpcmRQYXJ0eUxpYnJhcmllc0pzb24iOnsibGluayI6Imh0dHBzOi8vcmVzb3VyY2VzLmpldGJyYWlucy5jb20vc3RvcmFnZS90aGlyZC1wYXJ0eS1saWJyYXJpZXMvcHl0aG9uL3B5Y2hhcm1QWS0yMDI1LjEuMS4xLXRoaXJkLXBhcnR5LWxpYnJhcmllcy5qc29uIiwic2l6ZSI6MzgzOTYzLCJjaGVja3N1bUxpbmsiOiJodHRwczovL3Jlc291cmNlcy5qZXRicmFpbnMuY29tL3N0b3JhZ2UvdGhpcmQtcGFydHktbGlicmFyaWVzL3B5dGhvbi9weWNoYXJtUFktMjAyNS4xLjEuMS10aGlyZC1wYXJ0eS1saWJyYXJpZXMuanNvbi5zaGEyNTYifSwid2luZG93cyI6eyJsaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL3B5dGhvbi9weWNoYXJtLTIwMjUuMS4xLjEuZXhlIiwic2l6ZSI6ODY1OTE3NTI4LCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vcHl0aG9uL3B5Y2hhcm0tMjAyNS4xLjEuMS5leGUuc2hhMjU2In0sIndpbmRvd3NaaXAiOnsibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vcHljaGFybS0yMDI1LjEuMS4xLndpbi56aXAiLCJzaXplIjoxMTk4NjIyOTE0LCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vcHl0aG9uL3B5Y2hhcm0tMjAyNS4xLjEuMS53aW4uemlwLnNoYTI1NiJ9LCJ3aW5kb3dzQVJNNjQiOnsibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vcHljaGFybS0yMDI1LjEuMS4xLWFhcmNoNjQuZXhlIiwic2l6ZSI6ODI4MzEwNDQwLCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vcHl0aG9uL3B5Y2hhcm0tMjAyNS4xLjEuMS1hYXJjaDY0LmV4ZS5zaGEyNTYifSwibWFjIjp7ImxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vcHl0aG9uL3B5Y2hhcm0tMjAyNS4xLjEuMS5kbWciLCJzaXplIjoxMTMzMjI4MzQyLCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vcHl0aG9uL3B5Y2hhcm0tMjAyNS4xLjEuMS5kbWcuc2hhMjU2In0sIm1hY00xIjp7ImxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vcHl0aG9uL3B5Y2hhcm0tMjAyNS4xLjEuMS1hYXJjaDY0LmRtZyIsInNpemUiOjExMjIzMTg0NzgsImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vcHljaGFybS0yMDI1LjEuMS4xLWFhcmNoNjQuZG1nLnNoYTI1NiJ9LCJ3aW5kb3dzWmlwQVJNNjQiOnsibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vcHljaGFybS0yMDI1LjEuMS4xLWFhcmNoNjQud2luLnppcCIsInNpemUiOjExNTYxMDMwMTUsImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vcHljaGFybS0yMDI1LjEuMS4xLWFhcmNoNjQud2luLnppcC5zaGEyNTYifX0sInBhdGNoZXMiOnsid2luIjpbeyJmcm9tQnVpbGQiOiIyNTEuMjU0MTAuMTIyIiwibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vUFktMjUxLjI1NDEwLjEyMi0yNTEuMjU0MTAuMTU5LXBhdGNoLXdpbi5qYXIiLCJzaXplIjo5Mjk4NzIyOCwiY2hlY2tzdW1MaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL3B5dGhvbi9QWS0yNTEuMjU0MTAuMTIyLTI1MS4yNTQxMC4xNTktcGF0Y2gtd2luLmphci5zaGEyNTYifSx7ImZyb21CdWlsZCI6IjI0My4yNjA1My4yOSIsImxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vcHl0aG9uL1BZLTI0My4yNjA1My4yOS0yNTEuMjU0MTAuMTU5LXBhdGNoLXdpbi5qYXIiLCJzaXplIjozNzg4ODQyNDQsImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vUFktMjQzLjI2MDUzLjI5LTI1MS4yNTQxMC4xNTktcGF0Y2gtd2luLmphci5zaGEyNTYifV0sIm1hYyI6W3siZnJvbUJ1aWxkIjoiMjUxLjI1NDEwLjEyMiIsImxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vcHl0aG9uL1BZLTI1MS4yNTQxMC4xMjItMjUxLjI1NDEwLjE1OS1wYXRjaC1tYWMuamFyIiwic2l6ZSI6OTEzNDM2OTQsImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vUFktMjUxLjI1NDEwLjEyMi0yNTEuMjU0MTAuMTU5LXBhdGNoLW1hYy5qYXIuc2hhMjU2In0seyJmcm9tQnVpbGQiOiIyNDMuMjYwNTMuMjkiLCJsaW5rIjoiaHR0cHM6Ly9kb3dubG9hZC5qZXRicmFpbnMuY29tL3B5dGhvbi9QWS0yNDMuMjYwNTMuMjktMjUxLjI1NDEwLjE1OS1wYXRjaC1tYWMuamFyIiwic2l6ZSI6MzgwNDc1MTg0LCJjaGVja3N1bUxpbmsiOiJodHRwczovL2Rvd25sb2FkLmpldGJyYWlucy5jb20vcHl0aG9uL1BZLTI0My4yNjA1My4yOS0yNTEuMjU0MTAuMTU5LXBhdGNoLW1hYy5qYXIuc2hhMjU2In1dLCJ1bml4IjpbeyJmcm9tQnVpbGQiOiIyNTEuMjU0MTAuMTIyIiwibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vUFktMjUxLjI1NDEwLjEyMi0yNTEuMjU0MTAuMTU5LXBhdGNoLXVuaXguamFyIiwic2l6ZSI6OTEzOTAyNTcsImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vUFktMjUxLjI1NDEwLjEyMi0yNTEuMjU0MTAuMTU5LXBhdGNoLXVuaXguamFyLnNoYTI1NiJ9LHsiZnJvbUJ1aWxkIjoiMjQzLjI2MDUzLjI5IiwibGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vUFktMjQzLjI2MDUzLjI5LTI1MS4yNTQxMC4xNTktcGF0Y2gtdW5peC5qYXIiLCJzaXplIjozODQ5Mzc5MjcsImNoZWNrc3VtTGluayI6Imh0dHBzOi8vZG93bmxvYWQuamV0YnJhaW5zLmNvbS9weXRob24vUFktMjQzLjI2MDUzLjI5LTI1MS4yNTQxMC4xNTktcGF0Y2gtdW5peC5qYXIuc2hhMjU2In1dfSwibm90ZXNMaW5rIjoiaHR0cHM6Ly95b3V0cmFjay5qZXRicmFpbnMuY29tL2FydGljbGVzL1BZLUEtMjMzNTM4NDAzL1B5Q2hhcm0tMjAyNS4xLjEuMS0yNTEuMjU0MTAuMTU5LWJ1aWxkLVJlbGVhc2UtTm90ZXMiLCJsaWNlbnNlUmVxdWlyZWQiOnRydWUsInZlcnNpb24iOiIyMDI1LjEuMS4xIiwibWFqb3JWZXJzaW9uIjoiMjAyNS4xIiwiYnVpbGQiOiIyNTEuMjU0MTAuMTU5Iiwid2hhdHNuZXciOiI8dWw+XG4gPGxpPkZpeCBmb3IgZWRpdG9yIGxhZ3Mgd2hlbiB1c2luZyBjb25kYSBpbnRlcnByZXRlciAtIDxhIGhyZWY9XCJodHRwczovL3lvdXRyYWNrLmpldGJyYWlucy5jb20vaXNzdWUvUFktODA4MjNcIj5QWS04MDgyMzwvYT48L2xpPlxuPC91bD5cbjxwPkZvciBtb3JlIGRldGFpbHMsIHJlZmVyIHRvIG91ciA8YSBocmVmPVwiaHR0cHM6Ly95b3V0cmFjay5qZXRicmFpbnMuY29tL2FydGljbGVzL1BZLUEtMjMzNTM4NDAzL1B5Q2hhcm0tMjAyNS4xLjEuMS0yNTEuMjU0MTAuMTU5LWJ1aWxkLVJlbGVhc2UtTm90ZXNcIj5yZWxlYXNlIG5vdGVzPC9hPi48L3A+IiwidW5pbnN0YWxsRmVlZGJhY2tMaW5rcyI6eyJsaW51eEFSTTY0IjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9weWNoYXJtL3VuaW5zdGFsbC8/dmVyc2lvbj1QWS0yMDI1LjEuMS4xIiwibWFjQW5hY29uZGEiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL3B5Y2hhcm0vdW5pbnN0YWxsLz92ZXJzaW9uPVBZLTIwMjUuMS4xLjEiLCJsaW51eEFuYWNvbmRhIjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9weWNoYXJtL3VuaW5zdGFsbC8/dmVyc2lvbj1QWS0yMDI1LjEuMS4xIiwidGhpcmRQYXJ0eUxpYnJhcmllc0pzb24iOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL3B5Y2hhcm0vdW5pbnN0YWxsLz92ZXJzaW9uPVBZLTIwMjUuMS4xLjEiLCJ3aW5kb3dzIjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9weWNoYXJtL3VuaW5zdGFsbC8/dmVyc2lvbj1QWS0yMDI1LjEuMS4xIiwid2luZG93c1ppcCI6Imh0dHBzOi8vd3d3LmpldGJyYWlucy5jb20vcHljaGFybS91bmluc3RhbGwvP3ZlcnNpb249UFktMjAyNS4xLjEuMSIsIm1hYyI6Imh0dHBzOi8vd3d3LmpldGJyYWlucy5jb20vcHljaGFybS91bmluc3RhbGwvP3ZlcnNpb249UFktMjAyNS4xLjEuMSIsImxpbnV4IjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9weWNoYXJtL3VuaW5zdGFsbC8/dmVyc2lvbj1QWS0yMDI1LjEuMS4xIiwid2luZG93c0FuYWNvbmRhIjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9weWNoYXJtL3VuaW5zdGFsbC8/dmVyc2lvbj1QWS0yMDI1LjEuMS4xIiwid2luZG93c0FSTTY0IjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9weWNoYXJtL3VuaW5zdGFsbC8/dmVyc2lvbj1QWS0yMDI1LjEuMS4xIiwibWFjTTEiOiJodHRwczovL3d3dy5qZXRicmFpbnMuY29tL3B5Y2hhcm0vdW5pbnN0YWxsLz92ZXJzaW9uPVBZLTIwMjUuMS4xLjEiLCJtYWNNMUFuYWNvbmRhIjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9weWNoYXJtL3VuaW5zdGFsbC8/dmVyc2lvbj1QWS0yMDI1LjEuMS4xIiwid2luZG93c1ppcEFSTTY0IjoiaHR0cHM6Ly93d3cuamV0YnJhaW5zLmNvbS9weWNoYXJtL3VuaW5zdGFsbC8/dmVyc2lvbj1QWS0yMDI1LjEuMS4xIn0sInByaW50YWJsZVJlbGVhc2VUeXBlIjpudWxsfV19",
+              "response_headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Content-Type": "application/json;charset=UTF-8",
+                "Date": "Wed, 21 May 2025 17:57:48 GMT",
+                "Last-Modified": "Wed, 21 May 2025 09:29:01 GMT",
+                "Vary": "accept-encoding"
+              },
+              "retry": null,
+              "status_code": 200,
+              "url": "https://data.services.jetbrains.com/products/releases?code=PY\u0026latest=true\u0026type=release"
+            },
+            "sensitive_values": {
+              "response_headers": {}
+            }
+          }
+        ]
+      }
+    }
+  },
+  "configuration": {
+    "provider_config": {
+      "coder": {
+        "name": "coder",
+        "full_name": "registry.terraform.io/coder/coder"
+      },
+      "docker": {
+        "name": "docker",
+        "full_name": "registry.terraform.io/kreuzwerker/docker",
+        "version_constraint": "~\u003e 3.0.0"
+      },
+      "envbuilder": {
+        "name": "envbuilder",
+        "full_name": "registry.terraform.io/coder/envbuilder"
+      },
+      "http": {
+        "name": "http",
+        "full_name": "registry.terraform.io/hashicorp/http"
+      }
+    },
+    "root_module": {
+      "resources": [
+        {
+          "address": "data.coder_parameter.jetbrains_ide",
+          "mode": "data",
+          "type": "coder_parameter",
+          "name": "jetbrains_ide",
+          "provider_config_key": "coder",
+          "expressions": {
+            "default": {
+              "references": [
+                "var.jetbrains_ides[0]",
+                "var.jetbrains_ides"
+              ]
+            },
+            "display_name": {
+              "constant_value": "JetBrains IDE"
+            },
+            "icon": {
+              "constant_value": "/icon/gateway.svg"
+            },
+            "mutable": {
+              "constant_value": true
+            },
+            "name": {
+              "constant_value": "jetbrains_ide"
+            },
+            "type": {
+              "constant_value": "string"
+            }
+          },
+          "schema_version": 0
+        },
+        {
+          "address": "data.http.jetbrains_ide_versions",
+          "mode": "data",
+          "type": "http",
+          "name": "jetbrains_ide_versions",
+          "provider_config_key": "http",
+          "expressions": {
+            "url": {
+              "references": [
+                "var.releases_base_link",
+                "each.key",
+                "var.channel"
+              ]
+            }
+          },
+          "schema_version": 0,
+          "for_each_expression": {
+            "references": [
+              "var.jetbrains_ides"
+            ]
+          }
+        }
+      ],
+      "variables": {
+        "arch": {
+          "default": "amd64",
+          "description": "The target architecture of the workspace"
+        },
+        "channel": {
+          "default": "release",
+          "description": "JetBrains IDE release channel. Valid values are release and eap."
+        },
+        "download_base_link": {
+          "default": "https://download.jetbrains.com"
+        },
+        "jetbrains_ide_versions": {
+          "default": {
+            "CL": {
+              "build_number": "243.21565.238",
+              "version": "2024.1"
+            },
+            "GO": {
+              "build_number": "243.21565.208",
+              "version": "2024.3"
+            },
+            "IU": {
+              "build_number": "243.21565.193",
+              "version": "2024.3"
+            },
+            "PS": {
+              "build_number": "243.21565.202",
+              "version": "2024.3"
+            },
+            "PY": {
+              "build_number": "243.21565.199",
+              "version": "2024.3"
+            },
+            "RD": {
+              "build_number": "243.21565.191",
+              "version": "2024.3"
+            },
+            "RM": {
+              "build_number": "243.21565.197",
+              "version": "2024.3"
+            },
+            "RR": {
+              "build_number": "243.22562.230",
+              "version": "2024.3"
+            },
+            "WS": {
+              "build_number": "243.21565.180",
+              "version": "2024.3"
+            }
+          },
+          "description": "The set of versions for each jetbrains IDE"
+        },
+        "jetbrains_ides": {
+          "default": [
+            "IU",
+            "PS",
+            "WS",
+            "PY",
+            "CL",
+            "GO",
+            "RM",
+            "RD",
+            "RR"
+          ],
+          "description": "The list of IDE product codes."
+        },
+        "releases_base_link": {
+          "default": "https://data.services.jetbrains.com"
+        }
+      }
+    }
+  },
+  "checks": [
+    {
+      "address": {
+        "kind": "var",
+        "name": "arch",
+        "to_display": "var.arch"
+      },
+      "status": "pass",
+      "instances": [
+        {
+          "address": {
+            "to_display": "var.arch"
+          },
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "address": {
+        "kind": "var",
+        "name": "channel",
+        "to_display": "var.channel"
+      },
+      "status": "pass",
+      "instances": [
+        {
+          "address": {
+            "to_display": "var.channel"
+          },
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "address": {
+        "kind": "var",
+        "name": "download_base_link",
+        "to_display": "var.download_base_link"
+      },
+      "status": "pass",
+      "instances": [
+        {
+          "address": {
+            "to_display": "var.download_base_link"
+          },
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "address": {
+        "kind": "var",
+        "name": "jetbrains_ide_versions",
+        "to_display": "var.jetbrains_ide_versions"
+      },
+      "status": "pass",
+      "instances": [
+        {
+          "address": {
+            "to_display": "var.jetbrains_ide_versions"
+          },
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "address": {
+        "kind": "var",
+        "name": "jetbrains_ides",
+        "to_display": "var.jetbrains_ides"
+      },
+      "status": "pass",
+      "instances": [
+        {
+          "address": {
+            "to_display": "var.jetbrains_ides"
+          },
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "address": {
+        "kind": "var",
+        "name": "releases_base_link",
+        "to_display": "var.releases_base_link"
+      },
+      "status": "pass",
+      "instances": [
+        {
+          "address": {
+            "to_display": "var.releases_base_link"
+          },
+          "status": "pass"
+        }
+      ]
+    }
+  ],
+  "timestamp": "2025-05-21T17:57:48Z",
+  "applyable": false,
+  "complete": true,
+  "errored": false
+}
