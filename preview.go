@@ -98,7 +98,9 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 	// moduleSource is "" for a local module
 	p := parser.New(dir, "",
 		parser.OptionStopOnHCLError(false),
+		// Obviously prevent http downloads.
 		parser.OptionWithDownloads(false),
+		// Cached moules are sourced from a file on the host disk.
 		parser.OptionWithSkipCachedModules(true),
 		parser.OptionWithTFVarsPaths(varFiles...),
 		parser.OptionWithEvalHook(planHook),

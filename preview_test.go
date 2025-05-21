@@ -443,6 +443,16 @@ func Test_Extract(t *testing.T) {
 			unknownTags: []string{},
 			params:      map[string]assertParam{},
 		},
+		{
+			name:        "diskaccess",
+			dir:         "diskaccess",
+			expTags:     map[string]string{},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"file": ap().
+					optVals("hello world", types.UnknownStringValue),
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
