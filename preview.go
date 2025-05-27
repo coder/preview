@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"path/filepath"
 
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraform/parser"
@@ -23,6 +24,7 @@ type Input struct {
 	PlanJSON        json.RawMessage
 	ParameterValues map[string]string
 	Owner           types.WorkspaceOwner
+	Logger          *slog.Logger
 }
 
 type Output struct {
@@ -93,10 +95,15 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 			},
 		}
 	}
-	var _ = ownerHook
+
+	logger := input.Logger
+	if logger == nil { // Default to discarding logs
+		logger = slog.New(slog.DiscardHandler)
+	}
 
 	// moduleSource is "" for a local module
 	p := parser.New(dir, "",
+		parser.OptionWithLogger(logger),
 		parser.OptionStopOnHCLError(false),
 		parser.OptionWithDownloads(false),
 		parser.OptionWithSkipCachedModules(true),
@@ -117,7 +124,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		}
 	}
 
-	modules, _, err := p.EvaluateAll(ctx)
+	modules, err := p.EvaluateAll(ctx)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			{
