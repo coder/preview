@@ -457,6 +457,17 @@ func Test_Extract(t *testing.T) {
 					optNames("GoLand 2024.3", "IntelliJ IDEA Ultimate 2024.3", "PyCharm Professional 2024.3"),
 			},
 		},
+		{
+			name:        "unknownoption",
+			dir:         "unknownoption",
+			expTags:     map[string]string{},
+			input:       preview.Input{},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"unknown": apWithDiags().
+					errorDiagnostics("The set of options cannot be resolved"),
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
