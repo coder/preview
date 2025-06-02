@@ -7,16 +7,16 @@ require (
 	github.com/aquasecurity/trivy v0.58.2
 	github.com/coder/guts v1.5.0
 	github.com/coder/serpent v0.10.0
-	github.com/coder/terraform-provider-coder/v2 v2.4.2
+	github.com/coder/terraform-provider-coder/v2 v2.5.3
 	github.com/coder/websocket v1.8.13
 	github.com/go-chi/chi v4.1.2+incompatible
-	github.com/hashicorp/go-cty v1.4.1-0.20200414143053-d3edf31b6320
+	github.com/hashicorp/go-cty v1.5.0
 	github.com/hashicorp/go-version v1.7.0
 	github.com/hashicorp/hc-install v0.9.2
 	github.com/hashicorp/hcl/v2 v2.23.0
 	github.com/hashicorp/terraform-exec v0.23.0
-	github.com/hashicorp/terraform-json v0.24.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.36.1
+	github.com/hashicorp/terraform-json v0.25.0
+	github.com/hashicorp/terraform-plugin-sdk/v2 v2.37.0
 	github.com/jedib0t/go-pretty/v6 v6.6.7
 	github.com/quasilyte/go-ruleguard/dsl v0.3.22
 	github.com/stretchr/testify v1.10.0
@@ -78,7 +78,7 @@ require (
 	github.com/hashicorp/go-safetemp v1.0.0 // indirect
 	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/logutils v1.0.0 // indirect
-	github.com/hashicorp/terraform-plugin-go v0.26.0 // indirect
+	github.com/hashicorp/terraform-plugin-go v0.27.0 // indirect
 	github.com/hashicorp/terraform-plugin-log v0.9.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.1-0.20220621161143-b0104c826a24 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
@@ -134,7 +134,7 @@ require (
 	google.golang.org/genproto v0.0.0-20250303144028-a0af3efb3deb // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250303144028-a0af3efb3deb // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250313205543-e70fdf4c4cb4 // indirect
-	google.golang.org/grpc v1.72.0 // indirect
+	google.golang.org/grpc v1.72.1 // indirect
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/utils v0.0.0-20241104100929-3ea5e8cea738 // indirect
