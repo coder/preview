@@ -132,6 +132,8 @@ func Test_Extract(t *testing.T) {
 				"Region": ap().
 					value("eu").
 					optVals("us", "eu", "au"),
+				"indexed_0": ap(),
+				"indexed_1": ap(),
 			},
 		},
 		{

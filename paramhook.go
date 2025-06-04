@@ -28,8 +28,15 @@ func parameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks 
 
 			nameAttr := block.GetAttribute("name")
 			nameVal := nameAttr.Value()
-			if !nameVal.Type().Equals(cty.String) {
-				continue // Ignore the errors at this point
+			if !nameVal.IsKnown() {
+				// Wait for it to be known
+				continue
+			}
+
+			if nameVal.IsNull() ||
+				!nameVal.Type().Equals(cty.String) {
+				// Ignore the errors at this point
+				continue
 			}
 
 			//nolint:gocritic // string type asserted

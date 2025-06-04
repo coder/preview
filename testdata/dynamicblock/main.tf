@@ -12,6 +12,24 @@ variable "regions" {
   default = ["us", "eu", "au"]
 }
 
+data "coder_parameter" "indexed" {
+  count = 2
+  name = "indexed_${count.index}"
+  display_name = "Indexed Param ${count.index}"
+  type = "string"
+  form_type = "dropdown"
+  default = "Hello_0"
+
+  dynamic "option" {
+    for_each = range(2)
+
+    content {
+      name  = "Hello_${option.value}"
+      value = "Hello_${option.value}"
+    }
+  }
+}
+
 data "coder_parameter" "region" {
   name        = "Region"
   description = "Which region would you like to deploy to?"
