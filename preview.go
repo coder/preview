@@ -209,3 +209,70 @@ func tfVarFiles(path string, dir fs.FS) ([]string, error) {
 	}
 	return files, nil
 }
+
+func PreviewPresets(ctx context.Context, dir fs.FS) ([]types.Preset, hcl.Diagnostics) {
+	// The trivy package works with `github.com/zclconf/go-cty`. This package is
+	// similar to `reflect` in its usage. This package can panic if types are
+	// misused. To protect the caller, a general `recover` is used to catch any
+	// mistakes. If this happens, there is a developer bug that needs to be resolved.
+	var diagnostics hcl.Diagnostics
+	defer func() {
+		if r := recover(); r != nil {
+			diagnostics.Extend(hcl.Diagnostics{
+				{
+					Severity: hcl.DiagError,
+					Summary:  "Panic occurred in preview. This should not happen, please report this to Coder.",
+					Detail:   fmt.Sprintf("panic in preview: %+v", r),
+				},
+			})
+		}
+	}()
+
+	logger := slog.New(slog.DiscardHandler)
+
+	varFiles, err := tfVarFiles("", dir)
+	if err != nil {
+		return nil, hcl.Diagnostics{
+			{
+				Severity: hcl.DiagError,
+				Summary:  "Files not found",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	// moduleSource is "" for a local module
+	p := parser.New(dir, "",
+		parser.OptionWithLogger(logger),
+		parser.OptionStopOnHCLError(false),
+		parser.OptionWithDownloads(false),
+		parser.OptionWithSkipCachedModules(true),
+		parser.OptionWithTFVarsPaths(varFiles...),
+	)
+
+	err = p.ParseFS(ctx, ".")
+	if err != nil {
+		return nil, hcl.Diagnostics{
+			{
+				Severity: hcl.DiagError,
+				Summary:  "Parse terraform files",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	modules, err := p.EvaluateAll(ctx)
+	if err != nil {
+		return nil, hcl.Diagnostics{
+			{
+				Severity: hcl.DiagError,
+				Summary:  "Evaluate terraform files",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	rp, rpDiags := parameters(modules)
+	presets, presetDiags := presets(modules, rp)
+	return presets, diagnostics.Extend(rpDiags).Extend(presetDiags)
+}

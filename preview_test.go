@@ -42,6 +42,7 @@ func Test_Extract(t *testing.T) {
 		expTags     map[string]string
 		unknownTags []string
 		params      map[string]assertParam
+		presets     []types.Preset
 		warnings    []*regexp.Regexp
 	}{
 		{
@@ -543,6 +544,9 @@ func Test_Extract(t *testing.T) {
 				require.True(t, ok, "unknown parameter %s", param.Name)
 				check(t, param)
 			}
+
+			presets, diags := preview.PreviewPresets(context.Background(), dirFs)
+			assert.ElementsMatch(t, tc.presets, presets)
 		})
 	}
 }

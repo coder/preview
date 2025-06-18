@@ -74,6 +74,35 @@ func Parameters(writer io.Writer, params []types.Parameter, files map[string]*hc
 	_, _ = fmt.Fprintln(writer, tableWriter.Render())
 }
 
+func Presets(writer io.Writer, presets []types.Preset, files map[string]*hcl.File) {
+	tableWriter := table.NewWriter()
+	tableWriter.SetStyle(table.StyleLight)
+	tableWriter.Style().Options.SeparateColumns = false
+	row := table.Row{"Preset"}
+	tableWriter.AppendHeader(row)
+	for _, p := range presets {
+		tableWriter.AppendRow(table.Row{
+			fmt.Sprintf("%s\n%s", p.Name, formatPresetParameters(p.Parameters)),
+		})
+		if hcl.Diagnostics(p.Diagnostics).HasErrors() {
+			var out bytes.Buffer
+			WriteDiagnostics(&out, files, hcl.Diagnostics(p.Diagnostics))
+			tableWriter.AppendRow(table.Row{out.String()})
+		}
+
+		tableWriter.AppendSeparator()
+	}
+	_, _ = fmt.Fprintln(writer, tableWriter.Render())
+}
+
+func formatPresetParameters(presetParameters map[string]string) string {
+	var str strings.Builder
+	for presetParamName, PresetParamValue := range presetParameters {
+		_, _ = str.WriteString(fmt.Sprintf("%s = %s\n", presetParamName, PresetParamValue))
+	}
+	return str.String()
+}
+
 func formatOptions(selected []string, options []*types.ParameterOption) string {
 	var str strings.Builder
 	sep := ""
