@@ -106,7 +106,7 @@ export interface SessionInputs {
 }
 
 // From types/value.go
-export const UnknownStringValue = "??";
+export const UnknownStringValue = "";
 
 // From types/parameter.go
 export const ValidationMonotonicDecreasing = "decreasing";
