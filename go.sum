@@ -717,8 +717,8 @@ github.com/coder/pretty v0.0.0-20230908205945-e89ba86370e0 h1:3A0ES21Ke+FxEM8CXx
 github.com/coder/pretty v0.0.0-20230908205945-e89ba86370e0/go.mod h1:5UuS2Ts+nTToAMeOjNlnHFkPahrtDkmpydBen/3wgZc=
 github.com/coder/serpent v0.10.0 h1:ofVk9FJXSek+SmL3yVE3GoArP83M+1tX+H7S4t8BSuM=
 github.com/coder/serpent v0.10.0/go.mod h1:cZFW6/fP+kE9nd/oRkEHJpG6sXCtQ+AX7WMMEHv0Y3Q=
-github.com/coder/terraform-provider-coder/v2 v2.5.3 h1:EwqIIQKe/j8bsR4WyDJ3bD0dVdkfVqJ43TwClyGneUU=
-github.com/coder/terraform-provider-coder/v2 v2.5.3/go.mod h1:kqP2MW/OF5u3QBRPDt84vn1izKjncICFfv26nSb781I=
+github.com/coder/terraform-provider-coder/v2 v2.7.0 h1:0WV89TuboHnoy4J8MwNnCtNjF3Onx2Ny959FC2ClGQg=
+github.com/coder/terraform-provider-coder/v2 v2.7.0/go.mod h1:WrdLSbihuzH1RZhwrU+qmkqEhUbdZT/sjHHdarm5b5g=
 github.com/coder/trivy v0.0.0-20250527170238-9416a59d7019 h1:MHkv/W7l9eRAN9gOG0qZ1TLRGWIIfNi92273vPAQ8Fs=
 github.com/coder/trivy v0.0.0-20250527170238-9416a59d7019/go.mod h1:eqk+w9RLBmbd/cB5XfPZFuVn77cf/A6fB7qmEVeSmXk=
 github.com/coder/websocket v1.8.13 h1:f3QZdXy7uGVz+4uCJy2nTZyM0yTBj8yANEHhqlXZ9FE=
