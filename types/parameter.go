@@ -80,6 +80,7 @@ type ParameterStyling struct {
 	Placeholder *string `json:"placeholder,omitempty"`
 	Disabled    *bool   `json:"disabled,omitempty"`
 	Label       *string `json:"label,omitempty"`
+	MaskInput   *bool   `json:"mask_input,omitempty"`
 }
 
 type ParameterOption struct {
