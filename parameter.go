@@ -25,6 +25,14 @@ func parameters(modules terraform.Modules) ([]types.Parameter, hcl.Diagnostics) 
 			}
 
 			if param != nil {
+				if param.Required && param.Value.Value.IsNull() {
+					param.Diagnostics = append(param.Diagnostics, types.DiagnosticCode(&hcl.Diagnostic{
+						Severity: hcl.DiagError,
+						Summary:  "Required parameter not provided",
+						Detail:   "parameter value is null",
+					}, types.DiagnosticCodeRequired))
+				}
+
 				params = append(params, *param)
 
 				if _, ok := exists[param.Name]; !ok {

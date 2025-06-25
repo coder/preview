@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"path/filepath"
 
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraform/parser"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
+	ctyjson "github.com/zclconf/go-cty/cty/json"
 
 	"github.com/coder/preview/hclext"
 	"github.com/coder/preview/types"
@@ -23,20 +25,42 @@ type Input struct {
 	PlanJSON        json.RawMessage
 	ParameterValues map[string]string
 	Owner           types.WorkspaceOwner
+	Logger          *slog.Logger
 }
 
 type Output struct {
 	// ModuleOutput is any 'output' values from the terraform files. This has 0
 	// effect on the parameters, tags, etc. It can be helpful for debugging, as it
 	// allows exporting some terraform values to the caller to review.
-	ModuleOutput cty.Value
+	//
+	// JSON marshalling is handled in the custom methods.
+	ModuleOutput cty.Value `json:"-"`
 
-	Parameters    []types.Parameter
-	WorkspaceTags types.TagBlocks
+	Parameters    []types.Parameter `json:"parameters"`
+	WorkspaceTags types.TagBlocks   `json:"workspace_tags"`
 	// Files is included for printing diagnostics.
-	// TODO: Is the memory impact of this too much? Should we render diagnostic source code
-	// into the diagnostics up front? and remove this?
-	Files map[string]*hcl.File
+	// They can be marshalled, but not unmarshalled. This is a limitation
+	// of the HCL library.
+	Files map[string]*hcl.File `json:"-"`
+}
+
+// MarshalJSON includes the ModuleOutput and files in the JSON output. Output
+// should never be unmarshalled. Marshalling to JSON is strictly useful for
+// debugging information.
+func (o Output) MarshalJSON() ([]byte, error) {
+	// Do not make this a fatal error, as it is supplementary information.
+	modOutput, _ := ctyjson.Marshal(o.ModuleOutput, o.ModuleOutput.Type())
+
+	type Alias Output
+	return json.Marshal(&struct {
+		ModuleOutput json.RawMessage      `json:"module_output"`
+		Files        map[string]*hcl.File `json:"files"`
+		Alias
+	}{
+		ModuleOutput: modOutput,
+		Files:        o.Files,
+		Alias:        (Alias)(o),
+	})
 }
 
 func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagnostics hcl.Diagnostics) {
@@ -93,10 +117,15 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 			},
 		}
 	}
-	var _ = ownerHook
+
+	logger := input.Logger
+	if logger == nil { // Default to discarding logs
+		logger = slog.New(slog.DiscardHandler)
+	}
 
 	// moduleSource is "" for a local module
 	p := parser.New(dir, "",
+		parser.OptionWithLogger(logger),
 		parser.OptionStopOnHCLError(false),
 		parser.OptionWithDownloads(false),
 		parser.OptionWithSkipCachedModules(true),
@@ -117,7 +146,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		}
 	}
 
-	modules, _, err := p.EvaluateAll(ctx)
+	modules, err := p.EvaluateAll(ctx)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			{

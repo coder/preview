@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	UnknownStringValue = "??"
+	UnknownStringValue = ""
 )
 
 type NullHCLString struct {
@@ -46,11 +46,15 @@ func ToHCLString(block *terraform.Block, attr *terraform.Attribute) HCLString {
 	}
 }
 
-func (s HCLString) MarshalJSON() ([]byte, error) {
-	return json.Marshal(NullHCLString{
+func (s HCLString) NullHCLString() NullHCLString {
+	return NullHCLString{
 		Value: s.AsString(),
 		Valid: s.Valid() && s.Value.IsKnown(),
-	})
+	}
+}
+
+func (s HCLString) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.NullHCLString())
 }
 
 func (s *HCLString) UnmarshalJSON(data []byte) error {

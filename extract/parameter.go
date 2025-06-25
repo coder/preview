@@ -147,9 +147,6 @@ func ParameterFromBlock(block *terraform.Block) (*types.Parameter, hcl.Diagnosti
 	}
 
 	usageDiags := ParameterUsageDiagnostics(p)
-	if usageDiags.HasErrors() {
-		p.FormType = provider.ParameterFormTypeError
-	}
 	diags = diags.Extend(usageDiags)
 
 	// Diagnostics are scoped to the parameter

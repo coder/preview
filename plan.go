@@ -143,6 +143,19 @@ func loadResourcesToContext(ctx *tfcontext.Context, resources []*tfjson.StateRes
 				continue
 			}
 			merged = hclext.MergeWithTupleElement(existing, int(asInt), val)
+		case string:
+			keyStr, ok := resource.Index.(string)
+			if !ok {
+				return fmt.Errorf("unable to convert index '%v' for %q to a string", resource.Name, resource.Index)
+			}
+
+			if !existing.CanIterateElements() {
+				continue
+			}
+
+			instances := existing.AsValueMap()
+			instances[keyStr] = val
+			merged = cty.ObjectVal(instances)
 		case nil:
 			merged = hclext.MergeObjects(existing, val)
 		default:
@@ -169,7 +182,10 @@ func toCtyValue(a any) (cty.Value, error) {
 			}
 			sv = append(sv, v)
 		}
-		return cty.ListVal(sv), nil
+
+		// Always use a tuple over a list. Tuples are heterogeneous typed lists, which is
+		// more robust. Functionally equivalent for our use case of looking up values.
+		return cty.TupleVal(sv), nil
 	case reflect.Map:
 		if av.Type().Key().Kind() != reflect.String {
 			return cty.NilVal, fmt.Errorf("map keys must be string, found %q", av.Type().Key().Kind())

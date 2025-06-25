@@ -41,11 +41,34 @@ locals {
 
   available_words = setsubtract(toset(local.word_bank), toset(local.used_words))
 
+
   colors = toset(["yellow", "green", "blue", "purple"])
 
   solved = length([for color in local.colors : module.checker[color].solved if module.checker[color].solved]) == 4
 }
 
+
+locals {
+  unpadded_items = tolist(local.available_words)
+  target_width = 3
+  remainder = length(local.unpadded_items) % local.target_width
+  padding_needed = local.remainder == 0 ? 0 : local.target_width - local.remainder
+  items = concat(local.unpadded_items, slice(["", "", ""], 0, local.padding_needed))
+
+  # Split into rows of 3 items each
+  rows = [
+    for i in range(0, length(local.items), local.target_width) : slice(local.items, i, i + local.target_width)
+  ]
+
+  # Generate Markdown rows
+  markdown_rows = [
+    for row in local.rows : "| ${join(" | ", concat(row, slice(["", "", ""], 0, local.target_width - length(row))))} |"
+  ]
+  markdown = join("\n", concat(
+    ["| Item 1 | Item 2 | Item 3 |", "|--------|--------|--------|"],
+    local.markdown_rows
+  ))
+}
 
 
 module "checker" {
@@ -57,8 +80,20 @@ module "checker" {
 
 data "coder_parameter" display {
   name = "display"
-  display_name = local.solved ? "Congrats, you won! You may now hit the switch!" : join(", ", local.available_words)
-  description = local.solved ? "Hitting the switch enables workspace creation." : "Remaining words are above, you cannot use this switch until you solve the puzzle!"
+  display_name = local.solved ? "Congrats, you won! You may now hit the switch!" : <<EOM
+  Remaining words are below, you cannot use this switch until you solve the puzzle!
+
+  EOM
+
+  description = local.solved ? "Hitting the switch enables workspace creation." : <<EOM
+
+  |  |  |  |
+  |--|--|--|
+
+
+  ${local.markdown}
+
+  EOM
   type = "bool"
   form_type = "switch"
   default = local.solved ? false : true
