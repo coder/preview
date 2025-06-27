@@ -25,6 +25,8 @@ func init() {
 		},
 		Type: function.StaticReturnType(cty.String),
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
+			// This code is taken directly from "github.com/mitchellh/go-homedir"
+			// The only change is that instead of expanding the path, we return an error
 			path := args[0].AsString()
 			if len(path) == 0 {
 				return cty.StringVal(path), nil
