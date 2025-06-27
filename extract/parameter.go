@@ -252,7 +252,7 @@ func optionalStringEnum[T ~string](block *terraform.Block, key string, def T, va
 		tyAttr := block.GetAttribute(key)
 		return "", &hcl.Diagnostic{
 			Severity: hcl.DiagError,
-			Summary:  fmt.Sprintf("Invalid %q attribute", key),
+			Summary:  fmt.Sprintf("Invalid %q attribute for block %s", key, block.Label()),
 			Detail:   err.Error(),
 			Subject:  &(tyAttr.HCLAttribute().Range),
 			//Context:     &(block.HCLBlock().DefRange),
@@ -275,7 +275,7 @@ func requiredString(block *terraform.Block, key string) (string, *hcl.Diagnostic
 
 		diag := &hcl.Diagnostic{
 			Severity: hcl.DiagError,
-			Summary:  fmt.Sprintf("Invalid %q attribute", key),
+			Summary:  fmt.Sprintf("Invalid %q attribute for block %s", key, block.Label()),
 			Detail:   fmt.Sprintf("Expected a string, got %q", typeName),
 			Subject:  &(tyAttr.HCLAttribute().Range),
 			//Context:     &(block.HCLBlock().DefRange),
@@ -393,7 +393,7 @@ func required(block *terraform.Block, keys ...string) hcl.Diagnostics {
 			r := block.HCLBlock().Body.MissingItemRange()
 			diags = diags.Append(&hcl.Diagnostic{
 				Severity: hcl.DiagError,
-				Summary:  fmt.Sprintf("Missing required attribute %q", key),
+				Summary:  fmt.Sprintf("Missing required attribute %q for block %q", key, block.Label()),
 				Detail:   fmt.Sprintf("The %s attribute is required", key),
 				Subject:  &r,
 				Extra:    nil,
