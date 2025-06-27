@@ -17,18 +17,9 @@ func workspaceTags(modules terraform.Modules, files map[string]*hcl.File) (types
 	for _, mod := range modules {
 		blocks := mod.GetDatasByType("coder_workspace_tags")
 		for _, block := range blocks {
-			evCtx := block.Context().Inner()
-
 			tagsAttr := block.GetAttribute("tags")
 			if tagsAttr.IsNil() {
-				r := block.HCLBlock().Body.MissingItemRange()
-				diags = diags.Append(&hcl.Diagnostic{
-					Severity:    hcl.DiagError,
-					Summary:     "Missing required argument",
-					Detail:      `"tags" attribute is required by coder_workspace_tags blocks`,
-					Subject:     &r,
-					EvalContext: evCtx,
-				})
+				// Nil tags block is valid, just skip it.
 				continue
 			}
 
