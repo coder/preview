@@ -50,12 +50,27 @@ func Test_Extract(t *testing.T) {
 			failPreview: true,
 		},
 		{
+			name: "sometags",
+			dir:  "sometags",
+			expTags: map[string]string{
+				"string": "foo",
+				"number": "42",
+				"bool":   "true",
+				"extra":  "bar",
+			},
+			unknownTags: []string{
+				"map", "list", "null",
+			},
+		},
+		{
 			name: "simple static values",
 			dir:  "static",
 			expTags: map[string]string{
 				"zone": "developers",
 			},
-			unknownTags: []string{},
+			unknownTags: []string{
+				"list",
+			},
 			params: map[string]assertParam{
 				"region": ap().value("us").
 					def("us").

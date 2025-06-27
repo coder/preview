@@ -120,23 +120,6 @@ func newTag(srcRange *hcl.Range, _ map[string]*hcl.File, key, val cty.Value) (ty
 		}
 	}
 
-	if val.IsKnown() && val.Type() != cty.String {
-		fr := "<nil>"
-		if !val.Type().Equals(cty.NilType) {
-			fr = val.Type().FriendlyName()
-		}
-		// r := expr.ValueExpr.Range()
-		return types.Tag{}, &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  "Invalid value type for tag",
-			Detail:   fmt.Sprintf("Value must be a string, but got %s", fr),
-			//Subject:     &r,
-			Context: srcRange,
-			//Expression:  expr.ValueExpr,
-			//EvalContext: evCtx,
-		}
-	}
-
 	tag := types.Tag{
 		Key: types.HCLString{
 			Value: key,
@@ -148,6 +131,25 @@ func newTag(srcRange *hcl.Range, _ map[string]*hcl.File, key, val cty.Value) (ty
 			//ValueDiags: vdiags,
 			//ValueExpr:  expr.ValueExpr,
 		},
+	}
+
+	// If the value is known, but the type is not a string, bool, or number.
+	// Then throw an error. Only the supported types can safely be converted to a string.
+	if !(val.Type() == cty.String || val.Type() == cty.Bool || val.Type() == cty.Number) {
+		fr := "<nil>"
+		if !val.Type().Equals(cty.NilType) {
+			fr = val.Type().FriendlyName()
+		}
+
+		tag.Value.ValueDiags = tag.Value.ValueDiags.Append(&hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("Invalid value type for tag %q", tag.KeyString()),
+			Detail:   fmt.Sprintf("Value must be a string, but got %s", fr),
+			//Subject:     &r,
+			Context: srcRange,
+			//Expression:  expr.ValueExpr,
+			//EvalContext: evCtx,
+		})
 	}
 
 	// ks, err := source(expr.KeyExpr.Range(), files)
