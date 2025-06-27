@@ -68,9 +68,6 @@ func Test_Extract(t *testing.T) {
 			expTags: map[string]string{
 				"zone": "developers",
 			},
-			unknownTags: []string{
-				"list",
-			},
 			params: map[string]assertParam{
 				"region": ap().value("us").
 					def("us").
