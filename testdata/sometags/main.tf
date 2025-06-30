@@ -17,6 +17,12 @@ data "coder_workspace_tags" "custom_workspace_tags" {
       "key1" = "value1"
       "key2" = "value2"
     }
+    "complex" = {
+      "nested_list" = [1, 2, 3]
+      "nested"  = {
+        "key" = "value"
+      }
+    }
     "null"  = null
   }
 }

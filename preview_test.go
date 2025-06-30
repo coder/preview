@@ -53,14 +53,16 @@ func Test_Extract(t *testing.T) {
 			name: "sometags",
 			dir:  "sometags",
 			expTags: map[string]string{
-				"string": "foo",
-				"number": "42",
-				"bool":   "true",
-				"extra":  "bar",
+				"string":  "foo",
+				"number":  "42",
+				"bool":    "true",
+				"extra":   "bar",
+				"list":    `["a", "b", "c"]`,
+				"map":     `{"key1": "value1", "key2": "value2"}`,
+				"complex": `{"nested": {"key": "value"}, "nested_list": [1, 2, 3]}`,
+				"null":    "null",
 			},
-			unknownTags: []string{
-				"map", "list", "null",
-			},
+			unknownTags: []string{},
 		},
 		{
 			name: "simple static values",
@@ -522,7 +524,18 @@ func Test_Extract(t *testing.T) {
 			// Assert tags
 			validTags := output.WorkspaceTags.Tags()
 
-			assert.Equal(t, tc.expTags, validTags)
+			for k, expected := range tc.expTags {
+				tag, ok := validTags[k]
+				if !ok {
+					t.Errorf("expected tag %q to be present in output, but it was not", k)
+					continue
+				}
+				if tag != expected {
+					assert.JSONEqf(t, expected, tag, "tag %q does not match expected, nor is it a json equivalent", k)
+				}
+			}
+			assert.Equal(t, len(tc.expTags), len(output.WorkspaceTags.Tags()), "unexpected number of tags in output")
+
 			assert.ElementsMatch(t, tc.unknownTags, output.WorkspaceTags.UnusableTags().SafeNames())
 
 			// Assert params
