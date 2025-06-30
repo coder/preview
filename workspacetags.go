@@ -6,7 +6,6 @@ import (
 	"github.com/aquasecurity/trivy/pkg/iac/terraform"
 	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
-	"github.com/zclconf/go-cty/cty/json"
 
 	"github.com/coder/preview/types"
 )
@@ -50,6 +49,12 @@ func workspaceTags(modules terraform.Modules, files map[string]*hcl.File) (types
 
 			var tags []types.Tag
 			tagsValue.ForEachElement(func(key cty.Value, val cty.Value) (stop bool) {
+				if val.IsNull() {
+					// null tags with null values are omitted
+					// This matches the behavior of `terraform apply``
+					return false
+				}
+
 				r := tagsAttr.HCLAttribute().Expr.Range()
 				tag, tagDiag := newTag(&r, files, key, val)
 				if tagDiag != nil {
@@ -101,19 +106,13 @@ func newTag(srcRange *hcl.Range, _ map[string]*hcl.File, key, val cty.Value) (ty
 			fr = val.Type().FriendlyName()
 		}
 
-		// Unsupported types will be converted to a JSON string representation.
-		jsonData, err := json.Marshal(val, val.Type())
-		if err != nil {
-			tag.Value.ValueDiags = tag.Value.ValueDiags.Append(&hcl.Diagnostic{
-				Severity: hcl.DiagError,
-				Summary:  fmt.Sprintf("Invalid value type for tag %q", tag.KeyString()),
-				Detail:   fmt.Sprintf("Value must be a string, but got %s. Attempt to marshal to json: %s", fr, err.Error()),
-				Context:  srcRange,
-			})
-		} else {
-			// Value successfully marshaled to JSON, we can store it as a string.
-			tag.Value.Value = cty.StringVal(string(jsonData))
-		}
+		// Unsupported types will be treated as errors.
+		tag.Value.ValueDiags = tag.Value.ValueDiags.Append(&hcl.Diagnostic{
+			Severity: hcl.DiagError,
+			Summary:  fmt.Sprintf("Invalid value type for tag %q", tag.KeyString()),
+			Detail:   fmt.Sprintf("Value must be a string, but got %s.", fr),
+			Context:  srcRange,
+		})
 	}
 
 	return tag, nil

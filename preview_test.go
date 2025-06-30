@@ -53,15 +53,14 @@ func Test_Extract(t *testing.T) {
 			name: "sometags",
 			dir:  "sometags",
 			expTags: map[string]string{
-				"string":  "foo",
-				"number":  "42",
-				"bool":    "true",
-				"list":    `["a", "b", "c"]`,
-				"map":     `{"key1": "value1", "key2": "value2"}`,
-				"complex": `{"nested": {"key": "value"}, "nested_list": [1, 2, 3]}`,
-				"null":    "null",
+				"string": "foo",
+				"number": "42",
+				"bool":   "true",
+				// null tags are omitted
 			},
-			unknownTags: []string{},
+			unknownTags: []string{
+				"complex", "map", "list",
+			},
 		},
 		{
 			name: "simple static values",

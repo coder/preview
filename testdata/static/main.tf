@@ -15,6 +15,7 @@ terraform {
 data "coder_workspace_tags" "custom_workspace_tags" {
   tags = {
     "zone"        = "developers"
+    "null"        = null
   }
 }
 
