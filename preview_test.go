@@ -56,7 +56,6 @@ func Test_Extract(t *testing.T) {
 				"string":  "foo",
 				"number":  "42",
 				"bool":    "true",
-				"extra":   "bar",
 				"list":    `["a", "b", "c"]`,
 				"map":     `{"key1": "value1", "key2": "value2"}`,
 				"complex": `{"nested": {"key": "value"}, "nested_list": [1, 2, 3]}`,

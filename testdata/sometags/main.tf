@@ -27,9 +27,3 @@ data "coder_workspace_tags" "custom_workspace_tags" {
   }
 }
 
-
-data "coder_workspace_tags" "custom_workspace_tags" {
-  tags = {
-    "extra" = "bar"
-  }
-}
