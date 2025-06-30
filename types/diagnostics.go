@@ -10,6 +10,11 @@ const (
 	// DiagnosticCodeRequired is used when a parameter value is `null`, but
 	// the parameter is required.
 	DiagnosticCodeRequired = "required"
+
+	// DiagnosticModuleNotLoaded is used when a module block is present, but
+	// the mode failed to load. This can be because `.terraform/modules` is
+	// not present.
+	DiagnosticModuleNotLoaded = "module_not_loaded"
 )
 
 type DiagnosticExtra struct {
