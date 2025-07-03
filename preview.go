@@ -132,6 +132,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		parser.OptionWithTFVarsPaths(varFiles...),
 		parser.OptionWithEvalHook(planHook),
 		parser.OptionWithEvalHook(ownerHook),
+		parser.OptionWithWorkingDirectoryPath("/"),
 		parser.OptionWithEvalHook(parameterContextsEvalHook(input)),
 	)
 
