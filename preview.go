@@ -28,7 +28,9 @@ type Input struct {
 	ParameterValues map[string]string
 	Owner           types.WorkspaceOwner
 	Logger          *slog.Logger
-	TFVars          map[string]cty.Value
+	// TFVars will override any variables set in '.tfvars' files.
+	// The value set must be a cty.Value, as the type can be anything.
+	TFVars map[string]cty.Value
 }
 
 type Output struct {
@@ -83,11 +85,6 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		}
 	}()
 
-	// TODO: Fix logging. There is no way to pass in an instanced logger to
-	//   the parser.
-	// slog.SetLogLoggerLevel(slog.LevelDebug)
-	// slog.SetDefault(slog.New(log.NewHandler(os.Stderr, nil)))
-
 	varFiles, err := tfVarFiles("", dir)
 	if err != nil {
 		return nil, hcl.Diagnostics{
@@ -110,7 +107,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		}
 	}
 
-	planHook, err := PlanJSONHook(dir, input)
+	planHook, err := planJSONHook(dir, input)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			{
@@ -135,7 +132,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 	logger := input.Logger
 	if logger == nil { // Default to discarding logs
 		logger = slog.New(slog.DiscardHandler)
-        }
+	}
 
 	// Override with user supplied variables
 	for k, v := range input.TFVars {
@@ -148,9 +145,11 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		parser.OptionStopOnHCLError(false),
 		parser.OptionWithDownloads(false),
 		parser.OptionWithSkipCachedModules(true),
+		parser.OptionWithTFVarsPaths(varFiles...),
 		parser.OptionWithEvalHook(planHook),
 		parser.OptionWithEvalHook(ownerHook),
-		parser.OptionWithEvalHook(ParameterContextsEvalHook(input)),
+		parser.OptionWithWorkingDirectoryPath("/"),
+		parser.OptionWithEvalHook(parameterContextsEvalHook(input)),
 		// 'OptionsWithTfVars' cannot be set with 'OptionWithTFVarsPaths'. So load the
 		// tfvars from the files ourselves and merge with the user-supplied tf vars.
 		parser.OptionsWithTfVars(variableValues),
