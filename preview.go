@@ -134,7 +134,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		logger = slog.New(slog.DiscardHandler)
 	}
 
-	// Override with user supplied variables
+	// Override with user-supplied variables
 	for k, v := range input.TFVars {
 		variableValues[k] = v
 	}
@@ -145,7 +145,6 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		parser.OptionStopOnHCLError(false),
 		parser.OptionWithDownloads(false),
 		parser.OptionWithSkipCachedModules(true),
-		parser.OptionWithTFVarsPaths(varFiles...),
 		parser.OptionWithEvalHook(planHook),
 		parser.OptionWithEvalHook(ownerHook),
 		parser.OptionWithWorkingDirectoryPath("/"),
