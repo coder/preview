@@ -10,10 +10,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/stretchr/testify/require"
 
 	"github.com/coder/preview"
 	"github.com/coder/preview/internal/verify"
+	"github.com/coder/preview/tfvars"
 	"github.com/coder/preview/types"
 )
 
@@ -102,11 +104,11 @@ func Test_VerifyE2E(t *testing.T) {
 
 			entryWrkPath := t.TempDir()
 
-			for _, tfexec := range tfexecs {
-				tfexec := tfexec
+			for _, tfexecutable := range tfexecs {
+				tfexecutable := tfexecutable
 
-				t.Run(tfexec.Version, func(t *testing.T) {
-					wp := filepath.Join(entryWrkPath, tfexec.Version)
+				t.Run(tfexecutable.Version, func(t *testing.T) {
+					wp := filepath.Join(entryWrkPath, tfexecutable.Version)
 					err := os.MkdirAll(wp, 0755)
 					require.NoError(t, err, "creating working dir")
 
@@ -118,7 +120,7 @@ func Test_VerifyE2E(t *testing.T) {
 					err = verify.CopyTFFS(wp, subFS)
 					require.NoError(t, err, "copying test data to working dir")
 
-					exe, err := tfexec.WorkingDir(wp)
+					exe, err := tfexecutable.WorkingDir(wp)
 					require.NoError(t, err, "creating working executable")
 
 					ctx, cancel := context.WithTimeout(context.Background(), time.Minute*2)
@@ -126,9 +128,19 @@ func Test_VerifyE2E(t *testing.T) {
 					err = exe.Init(ctx)
 					require.NoError(t, err, "terraform init")
 
+					tfVarFiles, err := tfvars.TFVarFiles("", subFS)
+					require.NoError(t, err, "loading tfvars files")
+
+					planOpts := make([]tfexec.PlanOption, 0)
+					applyOpts := make([]tfexec.ApplyOption, 0)
+					for _, varFile := range tfVarFiles {
+						planOpts = append(planOpts, tfexec.VarFile(varFile))
+						applyOpts = append(applyOpts, tfexec.VarFile(varFile))
+					}
+
 					planOutFile := "tfplan"
 					planOutPath := filepath.Join(wp, planOutFile)
-					_, err = exe.Plan(ctx, planOutPath)
+					_, err = exe.Plan(ctx, planOutPath, planOpts...)
 					require.NoError(t, err, "terraform plan")
 
 					plan, err := exe.ShowPlan(ctx, planOutPath)
@@ -141,7 +153,7 @@ func Test_VerifyE2E(t *testing.T) {
 					err = os.WriteFile(filepath.Join(wp, "plan.json"), pd, 0644)
 					require.NoError(t, err, "writing plan.json")
 
-					_, err = exe.Apply(ctx)
+					_, err = exe.Apply(ctx, applyOpts...)
 					require.NoError(t, err, "terraform apply")
 
 					state, err := exe.Show(ctx)

@@ -56,14 +56,15 @@ func (e WorkingExecutable) Init(ctx context.Context) error {
 	return e.TF.Init(ctx, tfexec.Upgrade(true))
 }
 
-func (e WorkingExecutable) Plan(ctx context.Context, outPath string) (bool, error) {
-	changes, err := e.TF.Plan(ctx, tfexec.Out(outPath))
+func (e WorkingExecutable) Plan(ctx context.Context, outPath string, opts ...tfexec.PlanOption) (bool, error) {
+	opts = append(opts, tfexec.Out(outPath))
+	changes, err := e.TF.Plan(ctx, opts...)
 	return changes, err
 }
 
-func (e WorkingExecutable) Apply(ctx context.Context) ([]byte, error) {
+func (e WorkingExecutable) Apply(ctx context.Context, opts ...tfexec.ApplyOption) ([]byte, error) {
 	var out bytes.Buffer
-	err := e.TF.ApplyJSON(ctx, &out)
+	err := e.TF.ApplyJSON(ctx, &out, opts...)
 	return out.Bytes(), err
 }
 

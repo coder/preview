@@ -13,6 +13,36 @@ import (
 	"github.com/zclconf/go-cty/cty"
 )
 
+// TFVarFiles extracts any .tfvars files from the given directory.
+// TODO: Test nested directories and how that should behave.
+func TFVarFiles(path string, dir fs.FS) ([]string, error) {
+	dp := "."
+	entries, err := fs.ReadDir(dir, dp)
+	if err != nil {
+		return nil, fmt.Errorf("read dir %q: %w", dp, err)
+	}
+
+	files := make([]string, 0)
+	for _, entry := range entries {
+		if entry.IsDir() {
+			subD, err := fs.Sub(dir, entry.Name())
+			if err != nil {
+				return nil, fmt.Errorf("sub dir %q: %w", entry.Name(), err)
+			}
+			newFiles, err := TFVarFiles(filepath.Join(path, entry.Name()), subD)
+			if err != nil {
+				return nil, err
+			}
+			files = append(files, newFiles...)
+		}
+
+		if filepath.Ext(entry.Name()) == ".tfvars" || strings.HasSuffix(entry.Name(), ".tfvars.json") {
+			files = append(files, filepath.Join(path, entry.Name()))
+		}
+	}
+	return files, nil
+}
+
 func LoadTFVars(srcFS fs.FS, filenames []string) (map[string]cty.Value, error) {
 	combinedVars := make(map[string]cty.Value)
 
