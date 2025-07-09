@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"log/slog"
 	"path/filepath"
+	"strings"
 
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraform/parser"
 	"github.com/hashicorp/hcl/v2"
@@ -14,6 +15,7 @@ import (
 	ctyjson "github.com/zclconf/go-cty/cty/json"
 
 	"github.com/coder/preview/hclext"
+	"github.com/coder/preview/tfvars"
 	"github.com/coder/preview/types"
 )
 
@@ -26,6 +28,7 @@ type Input struct {
 	ParameterValues map[string]string
 	Owner           types.WorkspaceOwner
 	Logger          *slog.Logger
+	TFVars          map[string]cty.Value
 }
 
 type Output struct {
@@ -96,7 +99,18 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		}
 	}
 
-	planHook, err := planJSONHook(dir, input)
+	variableValues, err := tfvars.LoadTFVars(dir, varFiles)
+	if err != nil {
+		return nil, hcl.Diagnostics{
+			{
+				Severity: hcl.DiagError,
+				Summary:  "Failed to load tfvars from files",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
+	planHook, err := PlanJSONHook(dir, input)
 	if err != nil {
 		return nil, hcl.Diagnostics{
 			{
@@ -121,6 +135,11 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 	logger := input.Logger
 	if logger == nil { // Default to discarding logs
 		logger = slog.New(slog.DiscardHandler)
+        }
+
+	// Override with user supplied variables
+	for k, v := range input.TFVars {
+		variableValues[k] = v
 	}
 
 	// moduleSource is "" for a local module
@@ -129,11 +148,12 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		parser.OptionStopOnHCLError(false),
 		parser.OptionWithDownloads(false),
 		parser.OptionWithSkipCachedModules(true),
-		parser.OptionWithTFVarsPaths(varFiles...),
 		parser.OptionWithEvalHook(planHook),
 		parser.OptionWithEvalHook(ownerHook),
-		parser.OptionWithWorkingDirectoryPath("/"),
-		parser.OptionWithEvalHook(parameterContextsEvalHook(input)),
+		parser.OptionWithEvalHook(ParameterContextsEvalHook(input)),
+		// 'OptionsWithTfVars' cannot be set with 'OptionWithTFVarsPaths'. So load the
+		// tfvars from the files ourselves and merge with the user-supplied tf vars.
+		parser.OptionsWithTfVars(variableValues),
 	)
 
 	err = p.ParseFS(ctx, ".")
@@ -203,7 +223,7 @@ func tfVarFiles(path string, dir fs.FS) ([]string, error) {
 			files = append(files, newFiles...)
 		}
 
-		if filepath.Ext(entry.Name()) == ".tfvars" {
+		if filepath.Ext(entry.Name()) == ".tfvars" || strings.HasSuffix(entry.Name(), ".tfvars.json") {
 			files = append(files, filepath.Join(path, entry.Name()))
 		}
 	}

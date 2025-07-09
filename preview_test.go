@@ -13,6 +13,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/zclconf/go-cty/cty"
 
 	"github.com/coder/preview"
 	"github.com/coder/preview/types"
@@ -469,6 +470,37 @@ func Test_Extract(t *testing.T) {
 				"jetbrains_ide": ap().
 					optVals("GO", "IU", "PY").
 					optNames("GoLand 2024.3", "IntelliJ IDEA Ultimate 2024.3", "PyCharm Professional 2024.3"),
+			},
+		},
+		{
+			name:    "tfvars_from_file",
+			dir:     "tfvars",
+			expTags: map[string]string{},
+			input: preview.Input{
+				ParameterValues: map[string]string{},
+			},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"variable_values": ap().
+					def("alex").optVals("alex", "bob", "claire", "jason"),
+			},
+		},
+		{
+			name:    "tfvars_from_input",
+			dir:     "tfvars",
+			expTags: map[string]string{},
+			input: preview.Input{
+				ParameterValues: map[string]string{},
+				TFVars: map[string]cty.Value{
+					"one":   cty.StringVal("andrew"),
+					"two":   cty.StringVal("bill"),
+					"three": cty.StringVal("carter"),
+				},
+			},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"variable_values": ap().
+					def("andrew").optVals("andrew", "bill", "carter", "jason"),
 			},
 		},
 		{
