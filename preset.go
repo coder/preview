@@ -11,20 +11,25 @@ import (
 	"github.com/coder/preview/types"
 )
 
-func presets(modules terraform.Modules, parameters []types.Parameter) ([]types.Preset, hcl.Diagnostics) {
-	diags := make(hcl.Diagnostics, 0)
-	presets := make([]types.Preset, 0)
+// presets extracts all presets from the given modules. It then validates the name,
+// parameters and default preset.
+func presets(modules terraform.Modules, parameters []types.Parameter) []types.Preset {
+	foundPresets := make([]types.Preset, 0)
+	var defaultPreset *types.Preset
 
 	for _, mod := range modules {
 		blocks := mod.GetDatasByType(types.BlockTypePreset)
 		for _, block := range blocks {
-			preset, pDiags := extract.PresetFromBlock(block)
-			if len(pDiags) > 0 {
-				diags = diags.Extend(pDiags)
-			}
-
-			if preset == nil {
-				continue
+			preset := extract.PresetFromBlock(block)
+			switch true {
+			case defaultPreset != nil && preset.Default:
+				preset.Diagnostics = append(preset.Diagnostics, &hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary:  "Multiple default presets",
+					Detail:   fmt.Sprintf("Only one preset can be marked as default. %q is already marked as default", defaultPreset.Name),
+				})
+			case defaultPreset == nil && preset.Default:
+				defaultPreset = &preset
 			}
 
 			for paramName, paramValue := range preset.Parameters {
@@ -35,7 +40,7 @@ func presets(modules terraform.Modules, parameters []types.Parameter) ([]types.P
 					preset.Diagnostics = append(preset.Diagnostics, &hcl.Diagnostic{
 						Severity: hcl.DiagError,
 						Summary:  "Undefined Parameter",
-						Detail:   fmt.Sprintf("Preset %q requires parameter %q, but it is not defined by the template.", preset.Name, paramName),
+						Detail:   fmt.Sprintf("Preset parameter %q is not defined by the template.", paramName),
 					})
 					continue
 				}
@@ -45,9 +50,9 @@ func presets(modules terraform.Modules, parameters []types.Parameter) ([]types.P
 				}
 			}
 
-			presets = append(presets, *preset)
+			foundPresets = append(foundPresets, preset)
 		}
 	}
 
-	return presets, diags
+	return foundPresets
 }

@@ -274,13 +274,16 @@ func requiredString(block *terraform.Block, key string) (string, *hcl.Diagnostic
 		}
 
 		diag := &hcl.Diagnostic{
-			Severity: hcl.DiagError,
-			Summary:  fmt.Sprintf("Invalid %q attribute for block %s", key, block.Label()),
-			Detail:   fmt.Sprintf("Expected a string, got %q", typeName),
-			Subject:  &(tyAttr.HCLAttribute().Range),
-			//Context:     &(block.HCLBlock().DefRange),
-			Expression:  tyAttr.HCLAttribute().Expr,
+			Severity:    hcl.DiagError,
+			Summary:     fmt.Sprintf("Invalid %q attribute for block %s", key, block.Label()),
+			Detail:      fmt.Sprintf("Expected a string, got %q", typeName),
 			EvalContext: block.Context().Inner(),
+		}
+
+		if tyAttr.IsNotNil() {
+			diag.Subject = &(tyAttr.HCLAttribute().Range)
+			// diag.Context = &(block.HCLBlock().DefRange)
+			diag.Expression = tyAttr.HCLAttribute().Expr
 		}
 
 		if !tyVal.IsWhollyKnown() {
