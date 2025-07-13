@@ -80,7 +80,8 @@ func (r *RootCmd) Root() *serpent.Command {
 
 			ctx := i.Context()
 
-			presets, _ := preview.PreviewPresets(ctx, dfs)
+			output, _ := preview.Preview(ctx, preview.Input{}, dfs)
+			presets := output.Presets
 			chosenPresetIndex := slices.IndexFunc(presets, func(p types.Preset) bool {
 				return p.Name == preset
 			})

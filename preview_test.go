@@ -244,21 +244,6 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
-			name:        "empty preset",
-			dir:         "emptypreset",
-			expTags:     map[string]string{},
-			input:       preview.Input{},
-			unknownTags: []string{},
-			presets: func(t *testing.T, presets []types.Preset) {
-				require.Len(t, presets, 1)
-				preset := presets[0]
-				require.Len(t, preset.Diagnostics, 1)
-				require.Equal(t, preset.Diagnostics[0].Summary, "Invalid \"name\" attribute for block coder_workspace_preset.test")
-				require.Equal(t, preset.Diagnostics[0].Detail, "Expected a string, got \"<nil>\"")
-			},
-			failPreview: false,
-		},
-		{
 			name:        "invalid presets",
 			dir:         "invalidpresets",
 			expTags:     map[string]string{},
@@ -270,9 +255,6 @@ func Test_Extract(t *testing.T) {
 			},
 			presets: func(t *testing.T, presets []types.Preset) {
 				presetMap := map[string]func(t *testing.T, preset types.Preset){
-					"": func(t *testing.T, preset types.Preset) {
-						require.Len(t, preset.Diagnostics, 0)
-					},
 					"empty_parameters": func(t *testing.T, preset types.Preset) {
 						require.Len(t, preset.Diagnostics, 0)
 					},

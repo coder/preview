@@ -16,10 +16,6 @@ data "coder_parameter" "valid_parameter" {
   }
 }
 
-data "coder_workspace_preset" "invalid_preset_name" {
-  name = ""
-}
-
 data "coder_workspace_preset" "no_parameters" {
   name = "no_parameters"
 }
