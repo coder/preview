@@ -1,4 +1,4 @@
-// Code taken from https://github.com/aquasecurity/trivy/blob/main/pkg/iac/scanners/terraform/parser/load_vars.go
+// Code taken from https://github.com/aquasecurity/trivy/blob/0449787eb52854cbdd7f4c5794adbf58965e60f8/pkg/iac/scanners/terraform/parser/load_vars.go
 package tfvars
 
 import (
@@ -46,21 +46,11 @@ func TFVarFiles(path string, dir fs.FS) ([]string, error) {
 func LoadTFVars(srcFS fs.FS, filenames []string) (map[string]cty.Value, error) {
 	combinedVars := make(map[string]cty.Value)
 
-	// Intentionally commented out to avoid loading from host environment
+	// Intentionally avoid loading terraform variables from the host environment.
+	// Trivy (and terraform) use os.Environ() to search for "TF_VAR_" prefixed
+	// environment variables.
 	//
-	//for _, env := range os.Environ() {
-	//	split := strings.Split(env, "=")
-	//	key := split[0]
-	//	if !strings.HasPrefix(key, "TF_VAR_") {
-	//		continue
-	//	}
-	//	key = strings.TrimPrefix(key, "TF_VAR_")
-	//	var val string
-	//	if len(split) > 1 {
-	//		val = split[1]
-	//	}
-	//	combinedVars[key] = cty.StringVal(val)
-	//}
+	// Preview should be sandboxed, so this code should not be included.
 
 	for _, filename := range filenames {
 		vars, err := LoadTFVarsFile(srcFS, filename)
