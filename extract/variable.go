@@ -14,7 +14,24 @@ import (
 
 // VariableFromBlock extracts a terraform variable, but not it's final resolved value.
 // code taken mostly from https://github.com/aquasecurity/trivy/blob/main/pkg/iac/scanners/terraform/parser/evaluator.go#L479
-func VariableFromBlock(block *terraform.Block) types.Variable {
+func VariableFromBlock(block *terraform.Block) (tfVar types.Variable) {
+	defer func() {
+		// Extra safety mechanism to ensure that if a panic occurs, we do not break
+		// everything else.
+		if r := recover(); r != nil {
+			tfVar = types.Variable{
+				Name: block.Label(),
+				Diagnostics: types.Diagnostics{
+					{
+						Severity: hcl.DiagError,
+						Summary:  "Panic occurred in extracting variable. This should not happen, please report this to Coder.",
+						Detail:   fmt.Sprintf("panic in variable extract: %+v", r),
+					},
+				},
+			}
+		}
+	}()
+
 	attributes := block.Attributes()
 
 	var valType cty.Type
