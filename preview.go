@@ -42,6 +42,7 @@ type Output struct {
 	Parameters    []types.Parameter `json:"parameters"`
 	WorkspaceTags types.TagBlocks   `json:"workspace_tags"`
 	Presets       []types.Preset    `json:"presets"`
+	Variables     []types.Variable  `json:"variables"`
 	// Files is included for printing diagnostics.
 	// They can be marshalled, but not unmarshalled. This is a limitation
 	// of the HCL library.
@@ -181,6 +182,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 	rp, rpDiags := parameters(modules)
 	presets := presets(modules, rp)
 	tags, tagDiags := workspaceTags(modules, p.Files())
+	vars := variables(modules)
 
 	// Add warnings
 	diags = diags.Extend(warnings(modules))
@@ -191,6 +193,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		WorkspaceTags: tags,
 		Presets:       presets,
 		Files:         p.Files(),
+		Variables:     vars,
 	}, diags.Extend(rpDiags).Extend(tagDiags)
 }
 

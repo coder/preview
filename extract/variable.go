@@ -1,0 +1,83 @@
+package extract
+
+import (
+	"fmt"
+
+	"github.com/aquasecurity/trivy/pkg/iac/terraform"
+	"github.com/hashicorp/hcl/v2"
+	"github.com/hashicorp/hcl/v2/ext/typeexpr"
+	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/convert"
+
+	"github.com/coder/preview/types"
+)
+
+// VariableFromBlock extracts a terraform variable, but not it's final resolved value.
+// code taken mostly from https://github.com/aquasecurity/trivy/blob/main/pkg/iac/scanners/terraform/parser/evaluator.go#L479
+func VariableFromBlock(block *terraform.Block) types.Variable {
+	attributes := block.Attributes()
+
+	var valType cty.Type
+	var defaults *typeexpr.Defaults
+
+	if typeAttr, exists := attributes["type"]; exists {
+		ty, def, err := typeAttr.DecodeVarType()
+		if err != nil {
+			var subject hcl.Range
+			if typeAttr.HCLAttribute() != nil {
+				subject = typeAttr.HCLAttribute().Range
+			}
+			return types.Variable{
+				Name: block.Label(),
+				Diagnostics: hcl.Diagnostics{&hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary:  "Failed to decode variable type for " + block.Label(),
+					Detail:   err.Error(),
+					Subject:  &subject,
+				}},
+			}
+		}
+		valType = ty
+		defaults = def
+	}
+
+	var val cty.Value
+	if def, exists := attributes["default"]; exists {
+		val = def.NullableValue()
+	}
+
+	if valType != cty.NilType {
+		if defaults != nil {
+			val = defaults.Apply(val)
+		}
+
+		typedVal, err := convert.Convert(val, valType)
+		if err != nil {
+			var subject hcl.Range
+			if attributes["default"].HCLAttribute() != nil {
+				subject = attributes["default"].HCLAttribute().Range
+			}
+			return types.Variable{
+				Name: block.Label(),
+				Diagnostics: hcl.Diagnostics{&hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary: fmt.Sprintf("Failed to convert variable default value to type %q for %q",
+						valType.FriendlyNameForConstraint(), block.Label()),
+					Detail:  err.Error(),
+					Subject: &subject,
+				}},
+			}
+		}
+		val = typedVal
+	} else {
+		valType = val.Type()
+	}
+	return types.Variable{
+		Default:     val,
+		Type:        valType,
+		Description: optionalString(block, "description"),
+		Nullable:    optionalBoolean(block, "nullable"),
+		Sensitive:   optionalBoolean(block, "sensitive"),
+		Ephemeral:   optionalBoolean(block, "ephemeral"),
+	}
+}
