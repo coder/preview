@@ -12,6 +12,32 @@ terraform {
   }
 }
 
+variable "string" {
+  default = "Hello, world!"
+}
+
+variable "number" {
+  default = 7
+}
+
+variable "boolean" {
+  default = true
+}
+
+variable "coerce_string" {
+  default = 5 // This will be coerced to a string
+  type = string
+}
+
+variable "complex" {
+  type = object({
+    list   = list(string)
+    name = string
+    age  = number
+  })
+}
+
+
 data "coder_workspace_tags" "custom_workspace_tags" {
   tags = {
     "zone"        = "developers"

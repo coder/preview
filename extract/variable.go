@@ -42,21 +42,22 @@ func VariableFromBlock(block *terraform.Block) types.Variable {
 	}
 
 	var val cty.Value
+	var defSubject hcl.Range
 	if def, exists := attributes["default"]; exists {
 		val = def.NullableValue()
+		defSubject = def.HCLAttribute().Range
 	}
 
 	if valType != cty.NilType {
+		// TODO: If this code ever extracts the actual value of the variable,
+		// then we need to source the value from that, rather than the default.
 		if defaults != nil {
 			val = defaults.Apply(val)
 		}
 
+		valOK := !val.IsNull() && val.IsWhollyKnown()
 		typedVal, err := convert.Convert(val, valType)
-		if err != nil {
-			var subject hcl.Range
-			if attributes["default"].HCLAttribute() != nil {
-				subject = attributes["default"].HCLAttribute().Range
-			}
+		if err != nil && valOK {
 			return types.Variable{
 				Name: block.Label(),
 				Diagnostics: hcl.Diagnostics{&hcl.Diagnostic{
@@ -64,15 +65,20 @@ func VariableFromBlock(block *terraform.Block) types.Variable {
 					Summary: fmt.Sprintf("Failed to convert variable default value to type %q for %q",
 						valType.FriendlyNameForConstraint(), block.Label()),
 					Detail:  err.Error(),
-					Subject: &subject,
+					Subject: &defSubject,
 				}},
 			}
 		}
-		val = typedVal
+
+		// If the new converted value is ok, use it.
+		if err == nil {
+			val = typedVal
+		}
 	} else {
 		valType = val.Type()
 	}
 	return types.Variable{
+		Name:        block.Label(),
 		Default:     val,
 		Type:        valType,
 		Description: optionalString(block, "description"),

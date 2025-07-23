@@ -16,6 +16,7 @@ import (
 	"github.com/zclconf/go-cty/cty"
 
 	"github.com/coder/preview"
+	"github.com/coder/preview/hclext"
 	"github.com/coder/preview/types"
 	"github.com/coder/terraform-provider-coder/v2/provider"
 )
@@ -43,6 +44,7 @@ func Test_Extract(t *testing.T) {
 		expTags     map[string]string
 		unknownTags []string
 		params      map[string]assertParam
+		variables   map[string]assertVariable
 		presets     func(t *testing.T, presets []types.Preset)
 		warnings    []*regexp.Regexp
 	}{
@@ -76,6 +78,17 @@ func Test_Extract(t *testing.T) {
 					optVals("us", "eu").
 					formType(provider.ParameterFormTypeRadio),
 				"numerical": ap().value("5"),
+			},
+			variables: map[string]assertVariable{
+				"string":        av().def(cty.StringVal("Hello, world!")).typeEq(cty.String),
+				"number":        av().def(cty.NumberIntVal(7)).typeEq(cty.Number),
+				"boolean":       av().def(cty.BoolVal(true)).typeEq(cty.Bool),
+				"coerce_string": av().def(cty.StringVal("5")).typeEq(cty.String),
+				"complex": av().typeEq(cty.Object(map[string]cty.Type{
+					"list": cty.List(cty.String),
+					"name": cty.String,
+					"age":  cty.Number,
+				})),
 			},
 		},
 		{
@@ -637,8 +650,66 @@ func Test_Extract(t *testing.T) {
 			if tc.presets != nil {
 				tc.presets(t, output.Presets)
 			}
+
+			// Assert variables
+			require.Len(t, output.Variables, len(tc.variables), "wrong number of variables expected")
+			for _, variable := range output.Variables {
+				check, ok := tc.variables[variable.Name]
+				require.True(t, ok, "unknown variable %s", variable.Name)
+				check(t, variable)
+			}
 		})
 	}
+}
+
+type assertVariable func(t *testing.T, variable types.Variable)
+
+func av() assertVariable {
+	return func(t *testing.T, v types.Variable) {
+		t.Helper()
+		assert.Empty(t, v.Diagnostics, "variable should have no diagnostics")
+	}
+}
+
+func (a assertVariable) nullable(n bool) assertVariable {
+	return a.extend(func(t *testing.T, v types.Variable) {
+		assert.Equal(t, v.Nullable, n, "variable nullable check")
+	})
+}
+
+func (a assertVariable) typeEq(ty cty.Type) assertVariable {
+	return a.extend(func(t *testing.T, v types.Variable) {
+		assert.Truef(t, ty.Equals(v.Type), "%q variable type equality check", v.Name)
+	})
+}
+
+func (a assertVariable) def(def cty.Value) assertVariable {
+	return a.extend(func(t *testing.T, v types.Variable) {
+		if !assert.Truef(t, def.Equals(v.Default).True(), "%q variable default equality check", v.Name) {
+			exp, _ := hclext.AsString(def)
+			got, _ := hclext.AsString(v.Default)
+			t.Logf("Expected: %s, Value: %s", exp, got)
+		}
+
+	})
+}
+
+func (a assertVariable) sensitive(s bool) assertVariable {
+	return a.extend(func(t *testing.T, v types.Variable) {
+		assert.Equal(t, v.Sensitive, s, "variable sensitive check")
+	})
+}
+
+func (a assertVariable) ephemeral(e bool) assertVariable {
+	return a.extend(func(t *testing.T, v types.Variable) {
+		assert.Equal(t, v.Ephemeral, e, "variable ephemeral check")
+	})
+}
+
+func (a assertVariable) description(d string) assertVariable {
+	return a.extend(func(t *testing.T, v types.Variable) {
+		assert.Equal(t, v.Description, d, "variable description check")
+	})
 }
 
 type assertParam func(t *testing.T, parameter types.Parameter)
@@ -769,5 +840,18 @@ func (a assertParam) extend(f assertParam) assertParam {
 		t.Helper()
 		(a)(t, parameter)
 		f(t, parameter)
+	}
+}
+
+//nolint:revive
+func (a assertVariable) extend(f assertVariable) assertVariable {
+	if a == nil {
+		a = func(t *testing.T, v types.Variable) {}
+	}
+
+	return func(t *testing.T, v types.Variable) {
+		t.Helper()
+		(a)(t, v)
+		f(t, v)
 	}
 }

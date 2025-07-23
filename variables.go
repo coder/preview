@@ -11,7 +11,7 @@ import (
 )
 
 func variables(modules terraform.Modules) []types.Variable {
-	variableBlocks := modules.GetDatasByType("variable")
+	variableBlocks := modules.GetBlocks().OfType("variable")
 	vars := make([]types.Variable, 0, len(variableBlocks))
 	for _, block := range variableBlocks {
 		vars = append(vars, extract.VariableFromBlock(block))
