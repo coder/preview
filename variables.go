@@ -11,10 +11,17 @@ import (
 )
 
 func variables(modules terraform.Modules) []types.Variable {
-	variableBlocks := modules.GetBlocks().OfType("variable")
-	vars := make([]types.Variable, 0, len(variableBlocks))
-	for _, block := range variableBlocks {
-		vars = append(vars, extract.VariableFromBlock(block))
+	vars := make([]types.Variable, 0)
+
+	for _, mod := range modules {
+		// Only extract variables from root modules. Child modules have their
+		// vars set in the parent module.
+		if mod.Parent() == nil {
+			variableBlocks := mod.GetBlocks().OfType("variable")
+			for _, block := range variableBlocks {
+				vars = append(vars, extract.VariableFromBlock(block))
+			}
+		}
 	}
 
 	// Sort the variables by name for consistency

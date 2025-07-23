@@ -13,6 +13,10 @@ terraform {
   }
 }
 
+variable "unknown" {
+  default = data.docker_registry_image.ubuntu.sha256_digest
+}
+
 data "coder_parameter" "unknown" {
   name = "unknown"
   display_name = "Unknown Option Example"

@@ -1,20 +1,19 @@
 package types
 
 import (
-	"github.com/hashicorp/hcl/v2"
 	"github.com/zclconf/go-cty/cty"
 )
 
 type Variable struct {
-	Name        string
-	Default     cty.Value
-	Type        cty.Type
-	Description string
-	Nullable    bool
-	Sensitive   bool
-	Ephemeral   bool
+	Name string `json:"name"`
+	// Unsure how cty values json marshal
+	Default     cty.Value `json:"default"`
+	Type        cty.Type  `json:"type"`
+	Description string    `json:"description"`
+	Nullable    bool      `json:"nullable"`
+	Sensitive   bool      `json:"sensitive"`
 
 	// Variables also have 'Validation', which is currently not implemented.
 
-	Diagnostics hcl.Diagnostics
+	Diagnostics Diagnostics `json:"diagnostics"`
 }

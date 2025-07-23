@@ -29,7 +29,7 @@ func VariableFromBlock(block *terraform.Block) types.Variable {
 			}
 			return types.Variable{
 				Name: block.Label(),
-				Diagnostics: hcl.Diagnostics{&hcl.Diagnostic{
+				Diagnostics: types.Diagnostics{&hcl.Diagnostic{
 					Severity: hcl.DiagError,
 					Summary:  "Failed to decode variable type for " + block.Label(),
 					Detail:   err.Error(),
@@ -55,23 +55,22 @@ func VariableFromBlock(block *terraform.Block) types.Variable {
 			val = defaults.Apply(val)
 		}
 
-		valOK := !val.IsNull() && val.IsWhollyKnown()
-		typedVal, err := convert.Convert(val, valType)
-		if err != nil && valOK {
-			return types.Variable{
-				Name: block.Label(),
-				Diagnostics: hcl.Diagnostics{&hcl.Diagnostic{
-					Severity: hcl.DiagError,
-					Summary: fmt.Sprintf("Failed to convert variable default value to type %q for %q",
-						valType.FriendlyNameForConstraint(), block.Label()),
-					Detail:  err.Error(),
-					Subject: &defSubject,
-				}},
-			}
-		}
+		canConvert := !val.IsNull() && val.IsWhollyKnown() && valType != cty.NilType
 
-		// If the new converted value is ok, use it.
-		if err == nil {
+		if canConvert {
+			typedVal, err := convert.Convert(val, valType)
+			if err != nil {
+				return types.Variable{
+					Name: block.Label(),
+					Diagnostics: types.Diagnostics{&hcl.Diagnostic{
+						Severity: hcl.DiagError,
+						Summary: fmt.Sprintf("Failed to convert variable default value to type %q for %q",
+							valType.FriendlyNameForConstraint(), block.Label()),
+						Detail:  err.Error(),
+						Subject: &defSubject,
+					}},
+				}
+			}
 			val = typedVal
 		}
 	} else {
@@ -84,6 +83,5 @@ func VariableFromBlock(block *terraform.Block) types.Variable {
 		Description: optionalString(block, "description"),
 		Nullable:    optionalBoolean(block, "nullable"),
 		Sensitive:   optionalBoolean(block, "sensitive"),
-		Ephemeral:   optionalBoolean(block, "ephemeral"),
 	}
 }

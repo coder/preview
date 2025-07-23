@@ -14,6 +14,9 @@ terraform {
 
 variable "string" {
   default = "Hello, world!"
+  nullable = true
+  sensitive =  true
+  description = "test"
 }
 
 variable "number" {
