@@ -12,7 +12,7 @@ import (
 	"github.com/coder/preview/types"
 )
 
-// VariableFromBlock extracts a terraform variable, but not it's final resolved value.
+// VariableFromBlock extracts a terraform variable, but not its final resolved value.
 // code taken mostly from https://github.com/aquasecurity/trivy/blob/main/pkg/iac/scanners/terraform/parser/evaluator.go#L479
 func VariableFromBlock(block *terraform.Block) (tfVar types.Variable) {
 	defer func() {
