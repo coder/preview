@@ -38,6 +38,11 @@ variable "complex" {
     name = string
     age  = number
   })
+  default = {
+    list = []
+    name = "John Doe"
+    age  = 30
+  }
 }
 
 

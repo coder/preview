@@ -619,7 +619,6 @@ func Test_Extract(t *testing.T) {
 					errorDiagnostics("The set of options cannot be resolved"),
 			},
 			variables: map[string]assertVariable{
-				// For now, unknown values are treated as nil :shrug:
 				"unknown": av().def(cty.NilVal),
 			},
 		},
