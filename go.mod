@@ -6,7 +6,7 @@ require (
 	cdr.dev/slog v1.6.2-0.20240126064726-20367d4aede6
 	github.com/aquasecurity/trivy v0.58.2
 	github.com/coder/serpent v0.10.0
-	github.com/coder/terraform-provider-coder/v2 v2.8.0
+	github.com/coder/terraform-provider-coder/v2 v2.9.0
 	github.com/coder/websocket v1.8.13
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/hashicorp/go-cty v1.5.0
@@ -115,7 +115,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0 // indirect
-	golang.org/x/mod v0.24.0 // indirect
+	golang.org/x/mod v0.25.0 // indirect
 	golang.org/x/net v0.40.0 // indirect
 	golang.org/x/oauth2 v0.28.0 // indirect
 	golang.org/x/sync v0.14.0 // indirect
