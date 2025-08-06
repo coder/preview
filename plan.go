@@ -105,7 +105,7 @@ func priorPlanModule(plan *tfjson.Plan, block *terraform.Block) *tfjson.StateMod
 	for i := range modPath {
 		idx := slices.IndexFunc(current.ChildModules, func(m *tfjson.StateModule) bool {
 			if m == nil {
-				return false // Avoid nil pointer dereference
+				return false
 			}
 			return m.Address == strings.Join(modPath[:i+1], ".")
 		})
