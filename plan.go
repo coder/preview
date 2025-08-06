@@ -81,7 +81,11 @@ func planJSONHook(dfs fs.FS, input Input) (func(ctx *tfcontext.Context, blocks t
 // priorPlanModule returns the state data of the module a given block is in.
 func priorPlanModule(plan *tfjson.Plan, block *terraform.Block) *tfjson.StateModule {
 	if !block.InModule() {
-		return plan.PriorState.Values.RootModule
+		// If the block is not in a module, then we can just return the root module.
+		if plan.PriorState != nil && plan.PriorState.Values != nil {
+			return plan.PriorState.Values.RootModule
+		}
+		return nil
 	}
 
 	var modPath []string
