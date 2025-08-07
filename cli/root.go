@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"slices"
 	"strings"
@@ -29,11 +30,24 @@ func (r *RootCmd) Root() *serpent.Command {
 		groups   []string
 		planJSON string
 		preset   string
+		lvl      string
 	)
 	cmd := &serpent.Command{
 		Use:   "codertf",
 		Short: "codertf is a command line tool for previewing terraform template outputs.",
 		Options: serpent.OptionSet{
+			{
+				Name:        "log-level",
+				Description: "Turns on trivy parser logs.",
+				Flag:        "log-level",
+				Default:     "",
+				Value: serpent.EnumOf(&lvl,
+					slog.LevelDebug.String(),
+					slog.LevelInfo.String(),
+					slog.LevelWarn.String(),
+					slog.LevelError.String(),
+				),
+			},
 			{
 				Name:          "dir",
 				Description:   "Directory with terraform files.",
@@ -80,7 +94,21 @@ func (r *RootCmd) Root() *serpent.Command {
 
 			ctx := i.Context()
 
-			output, _ := preview.Preview(ctx, preview.Input{}, dfs)
+			logger := slog.New(slog.DiscardHandler)
+			if lvl != "" {
+				var logLevel slog.Level
+				err := logLevel.UnmarshalText([]byte(lvl))
+				if err != nil {
+					return fmt.Errorf("invalid log level %q: %w", lvl, err)
+				}
+
+				logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+					Level: logLevel,
+				}))
+			}
+			output, _ := preview.Preview(ctx, preview.Input{
+				Logger: slog.New(slog.DiscardHandler),
+			}, dfs)
 			presets := output.Presets
 			chosenPresetIndex := slices.IndexFunc(presets, func(p types.Preset) bool {
 				return p.Name == preset
@@ -106,6 +134,7 @@ func (r *RootCmd) Root() *serpent.Command {
 				Owner: types.WorkspaceOwner{
 					Groups: groups,
 				},
+				Logger: logger,
 			}
 
 			output, diags := preview.Preview(ctx, input, dfs)
