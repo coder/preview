@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: 1.22.8
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v5.0.0
       - name: Install gotestsum
         shell: bash
         run: go install gotest.tools/gotestsum@latest
