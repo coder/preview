@@ -18,7 +18,7 @@ require (
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.37.0
 	github.com/jedib0t/go-pretty/v6 v6.6.7
 	github.com/quasilyte/go-ruleguard/dsl v0.3.22
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.0
 	github.com/zclconf/go-cty v1.16.3
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da
 )
