@@ -283,7 +283,6 @@ func requiredString(block *terraform.Block, key string) (string, *hcl.Diagnostic
 
 		if tyAttr.IsNotNil() {
 			diag.Subject = &(tyAttr.HCLAttribute().Range)
-			// diag.Context = &(block.HCLBlock().DefRange)
 			diag.Expression = tyAttr.HCLAttribute().Expr
 		}
 
@@ -310,7 +309,6 @@ func requiredString(block *terraform.Block, key string) (string, *hcl.Diagnostic
 
 		if tyAttr.IsNotNil() {
 			diag.Subject = &(tyAttr.HCLAttribute().Range)
-			// diag.Context = &(block.HCLBlock().DefRange)
 			diag.Expression = tyAttr.HCLAttribute().Expr
 		}
 		return "", diag
