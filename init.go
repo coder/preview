@@ -5,6 +5,8 @@ import (
 	"github.com/zclconf/go-cty/cty"
 	"github.com/zclconf/go-cty/cty/function"
 	"golang.org/x/xerrors"
+
+	"github.com/coder/preview/hclext"
 )
 
 // init intends to override some of the default functions afforded by terraform.
@@ -27,7 +29,11 @@ func init() {
 		Impl: func(args []cty.Value, retType cty.Type) (cty.Value, error) {
 			// This code is taken directly from https://github.com/mitchellh/go-homedir/blob/af06845cf3004701891bf4fdb884bfe4920b3727/homedir.go#L58
 			// The only change is that instead of expanding the path, we return an error
-			path := args[0].AsString()
+			path, ok := hclext.AsString(args[0])
+			if !ok {
+				return cty.NilVal, xerrors.Errorf("invalid path argument")
+			}
+
 			if len(path) == 0 {
 				return cty.StringVal(path), nil
 			}

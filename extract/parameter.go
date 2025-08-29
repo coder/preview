@@ -267,6 +267,7 @@ func optionalStringEnum[T ~string](block *terraform.Block, key string, def T, va
 func requiredString(block *terraform.Block, key string) (string, *hcl.Diagnostic) {
 	tyAttr := block.GetAttribute(key)
 	tyVal := tyAttr.Value()
+
 	if tyVal.Type() != cty.String {
 		typeName := "<nil>"
 		if !tyVal.Type().Equals(cty.NilType) {
@@ -297,8 +298,24 @@ func requiredString(block *terraform.Block, key string) (string, *hcl.Diagnostic
 		return "", diag
 	}
 
-	// nolint:gocritic // string type asserted
-	return tyVal.AsString(), nil
+	tyValStr, ok := hclext.AsString(tyVal)
+	if !ok {
+		// Either the val is unknown or null
+		diag := &hcl.Diagnostic{
+			Severity:    hcl.DiagError,
+			Summary:     fmt.Sprintf("Invalid %q attribute for block %s", key, block.Label()),
+			Detail:      "Expected a string, got an unknown or null value",
+			EvalContext: block.Context().Inner(),
+		}
+
+		if tyAttr.IsNotNil() {
+			diag.Subject = &(tyAttr.HCLAttribute().Range)
+			// diag.Context = &(block.HCLBlock().DefRange)
+			diag.Expression = tyAttr.HCLAttribute().Expr
+		}
+		return "", diag
+	}
+	return tyValStr, nil
 }
 
 func optionalBoolean(block *terraform.Block, key string) bool {

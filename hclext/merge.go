@@ -11,12 +11,12 @@ func MergeObjects(a, b cty.Value) cty.Value {
 		output[key] = val
 	}
 	b.ForEachElement(func(key, val cty.Value) (stop bool) {
-		// TODO: Should this error be captured?
-		if key.Type() != cty.String {
-			return true
-		}
 		//nolint:gocritic // string type asserted above
-		k := key.AsString()
+		k, ok := AsString(key)
+		if !ok {
+			// TODO: Should this error be captured?
+			return stop
+		}
 		old := output[k]
 		if old.IsKnown() && isNotEmptyObject(old) && isNotEmptyObject(val) {
 			output[k] = MergeObjects(old, val)

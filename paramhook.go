@@ -39,8 +39,10 @@ func parameterContextsEvalHook(input Input) func(ctx *tfcontext.Context, blocks 
 				continue
 			}
 
-			//nolint:gocritic // string type asserted
-			name := nameVal.AsString()
+			name, ok := hclext.AsString(nameVal)
+			if !ok {
+				continue
+			}
 			var value cty.Value
 			pv, ok := input.RichParameterValue(name)
 			if ok {
