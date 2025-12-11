@@ -68,6 +68,42 @@ func (o Output) MarshalJSON() ([]byte, error) {
 	})
 }
 
+// ValidatePresets will iterate over each preset, validate the inputs as a set,
+// and attach any diagnostics to the preset if there are issues.
+func ValidatePresets(ctx context.Context, input Input, preValid []types.Preset, dir fs.FS) {
+	for i := range preValid {
+		pre := &preValid[i]
+		if pre.Prebuild == nil || pre.Prebuild.Instances <= 0 {
+			// No prebuilds, so presets do not need to be valid without user input
+			continue
+		}
+
+		input.ParameterValues = pre.Parameters
+
+		output, diagnostics := Preview(ctx, input, dir)
+		if diagnostics.HasErrors() {
+			pre.Diagnostics = append(pre.Diagnostics, diagnostics...)
+		}
+
+		if output == nil {
+			continue
+		}
+
+		for _, param := range output.Parameters {
+			if hcl.Diagnostics(param.Diagnostics).HasErrors() {
+				for _, paramDiag := range param.Diagnostics {
+					if paramDiag.Severity != hcl.DiagError {
+						continue // Only care about errors here
+					}
+					orig := paramDiag.Summary
+					paramDiag.Summary = fmt.Sprintf("Parameter %s: %s", param.Name, orig)
+					pre.Diagnostics = append(pre.Diagnostics, paramDiag)
+				}
+			}
+		}
+	}
+}
+
 func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagnostics hcl.Diagnostics) {
 	// The trivy package works with `github.com/zclconf/go-cty`. This package is
 	// similar to `reflect` in its usage. This package can panic if types are
@@ -180,7 +216,9 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 
 	diags := make(hcl.Diagnostics, 0)
 	rp, rpDiags := parameters(modules)
-	presets := presets(modules, rp)
+	// preValidPresets are extracted as written in terraform. Each individual
+	// param value is checked, however the preset as a whole might not valid.
+	preValidPresets := presets(modules, rp)
 	tags, tagDiags := workspaceTags(modules, p.Files())
 	vars := variables(modules)
 
@@ -191,7 +229,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		ModuleOutput:  outputs,
 		Parameters:    rp,
 		WorkspaceTags: tags,
-		Presets:       presets,
+		Presets:       preValidPresets,
 		Files:         p.Files(),
 		Variables:     vars,
 	}, diags.Extend(rpDiags).Extend(tagDiags)

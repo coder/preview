@@ -700,6 +700,55 @@ func Test_Extract(t *testing.T) {
 	}
 }
 
+func TestPresetValidation(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name         string
+		dir          string
+		input        preview.Input
+		presetAssert map[string]assertPreset
+	}{
+		{
+			name:  "preset failure",
+			dir:   "presetfail",
+			input: preview.Input{},
+			presetAssert: map[string]assertPreset{
+				"invalid_parameters": aPreWithDiags().
+					errorDiagnostics("Parameter no_default: Required parameter not provided"),
+				"valid_preset": aPre().
+					value("has_default", "changed").
+					value("no_default", "custom value").
+					noDiagnostics(),
+				"prebuild_instance_zero": aPre(),
+				"not_prebuild":           aPre(),
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			dirFs := os.DirFS(filepath.Join("testdata", tc.dir))
+			output, diags := preview.Preview(context.Background(), tc.input, dirFs)
+			if diags.HasErrors() {
+				t.Logf("diags: %s", diags)
+			}
+			require.False(t, diags.HasErrors())
+			require.Len(t, diags, 0)
+
+			preview.ValidatePresets(context.Background(), tc.input, output.Presets, dirFs)
+			for _, preset := range output.Presets {
+				check, ok := tc.presetAssert[preset.Name]
+				require.True(t, ok, "unknown preset %s", preset.Name)
+				check(t, preset)
+				delete(tc.presetAssert, preset.Name)
+			}
+
+			require.Len(t, tc.presetAssert, 0, "some presets were not found")
+		})
+	}
+}
+
 type assertVariable func(t *testing.T, variable types.Variable)
 
 func av() assertVariable {
@@ -884,6 +933,71 @@ func (a assertVariable) extend(f assertVariable) assertVariable {
 	}
 
 	return func(t *testing.T, v types.Variable) {
+		t.Helper()
+		(a)(t, v)
+		f(t, v)
+	}
+}
+
+type assertPreset func(t *testing.T, preset types.Preset)
+
+func aPre() assertPreset {
+	return func(t *testing.T, parameter types.Preset) {
+		t.Helper()
+		assert.Empty(t, parameter.Diagnostics, "parameter should have no diagnostics")
+	}
+}
+
+func aPreWithDiags() assertPreset {
+	return func(t *testing.T, parameter types.Preset) {}
+}
+
+func (a assertPreset) def(def bool) assertPreset {
+	return a.extend(func(t *testing.T, preset types.Preset) {
+		require.Equal(t, def, preset.Default)
+	})
+}
+
+func (a assertPreset) value(key, value string) assertPreset {
+	return a.extend(func(t *testing.T, preset types.Preset) {
+		v, ok := preset.Parameters[key]
+		require.Truef(t, ok, "preset parameter %q existence check", key)
+		assert.Equalf(t, value, v, "preset parameter %q value equality check", key)
+	})
+}
+
+func (a assertPreset) errorDiagnostics(patterns ...string) assertPreset {
+	return a.diagnostics(hcl.DiagError, patterns...)
+}
+
+func (a assertPreset) warnDiagnostics(patterns ...string) assertPreset {
+	return a.diagnostics(hcl.DiagWarning, patterns...)
+}
+
+func (a assertPreset) diagnostics(sev hcl.DiagnosticSeverity, patterns ...string) assertPreset {
+	shadow := patterns
+	return a.extend(func(t *testing.T, preset types.Preset) {
+		t.Helper()
+
+		assertDiags(t, sev, preset.Diagnostics, shadow...)
+	})
+}
+
+func (a assertPreset) noDiagnostics() assertPreset {
+	return a.extend(func(t *testing.T, preset types.Preset) {
+		t.Helper()
+
+		assert.Empty(t, preset.Diagnostics, "parameter should have no diagnostics")
+	})
+}
+
+//nolint:revive
+func (a assertPreset) extend(f assertPreset) assertPreset {
+	if a == nil {
+		a = func(t *testing.T, v types.Preset) {}
+	}
+
+	return func(t *testing.T, v types.Preset) {
 		t.Helper()
 		(a)(t, v)
 		f(t, v)

@@ -1,12 +1,34 @@
 package extract
 
 import (
+	"fmt"
+
 	"github.com/aquasecurity/trivy/pkg/iac/terraform"
-	"github.com/coder/preview/types"
 	"github.com/hashicorp/hcl/v2"
+
+	"github.com/coder/preview/types"
 )
 
-func PresetFromBlock(block *terraform.Block) types.Preset {
+func PresetFromBlock(block *terraform.Block) (tfPreset types.Preset) {
+	defer func() {
+		// Extra safety mechanism to ensure that if a panic occurs, we do not break
+		// everything else.
+		if r := recover(); r != nil {
+			tfPreset = types.Preset{
+				PresetData: types.PresetData{
+					Name: block.Label(),
+				},
+				Diagnostics: types.Diagnostics{
+					{
+						Severity: hcl.DiagError,
+						Summary:  "Panic occurred in extracting preset. This should not happen, please report this to Coder.",
+						Detail:   fmt.Sprintf("panic in preset extract: %+v", r),
+					},
+				},
+			}
+		}
+	}()
+
 	p := types.Preset{
 		PresetData: types.PresetData{
 			Parameters: make(map[string]string),
@@ -39,6 +61,14 @@ func PresetFromBlock(block *terraform.Block) types.Preset {
 	defaultAttr := block.GetAttribute("default")
 	if defaultAttr != nil {
 		p.Default = defaultAttr.Value().True()
+	}
+
+	prebuildBlock := block.GetBlock("prebuilds")
+	if prebuildBlock != nil {
+		p.Prebuild = &types.PrebuildData{
+			// Invalid values will be set to 0
+			Instances: int(optionalInteger(prebuildBlock, "instances")),
+		}
 	}
 
 	return p

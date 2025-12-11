@@ -11,8 +11,13 @@ type Preset struct {
 	Diagnostics Diagnostics `json:"diagnostics"`
 }
 
+type PrebuildData struct {
+	Instances int `json:"instances"`
+}
+
 type PresetData struct {
 	Name       string            `json:"name"`
 	Parameters map[string]string `json:"parameters"`
 	Default    bool              `json:"default"`
+	Prebuild   *PrebuildData
 }
