@@ -41,12 +41,13 @@ func Test_Extract(t *testing.T) {
 		failPreview bool
 		input       preview.Input
 
-		expTags     map[string]string
-		unknownTags []string
-		params      map[string]assertParam
-		variables   map[string]assertVariable
-		presets     func(t *testing.T, presets []types.Preset)
-		warnings    []*regexp.Regexp
+		expTags      map[string]string
+		unknownTags  []string
+		params       map[string]assertParam
+		variables    map[string]assertVariable
+		presetsFuncs func(t *testing.T, presets []types.Preset)
+		presets      map[string]assertPreset
+		warnings     []*regexp.Regexp
 	}{
 		{
 			name:        "bad param values",
@@ -267,6 +268,27 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
+			name:        "valid prebuild",
+			dir:         "preset",
+			expTags:     map[string]string{},
+			input:       preview.Input{},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"number":      ap(),
+				"has_default": ap(),
+			},
+			presets: map[string]assertPreset{
+				"valid_preset": aPre().
+					value("number", "9").
+					value("has_default", "changed").
+					prebuildCount(3),
+				"prebuild_instance_zero": aPre().
+					prebuildCount(0),
+				"not_prebuild": aPre().
+					prebuildCount(0),
+			},
+		},
+		{
 			name:        "invalid presets",
 			dir:         "invalidpresets",
 			expTags:     map[string]string{},
@@ -276,7 +298,7 @@ func Test_Extract(t *testing.T) {
 				"valid_parameter_name": ap().
 					optVals("valid_option_value"),
 			},
-			presets: func(t *testing.T, presets []types.Preset) {
+			presetsFuncs: func(t *testing.T, presets []types.Preset) {
 				presetMap := map[string]func(t *testing.T, preset types.Preset){
 					"empty_parameters": func(t *testing.T, preset types.Preset) {
 						require.Len(t, preset.Diagnostics, 0)
@@ -688,8 +710,14 @@ func Test_Extract(t *testing.T) {
 			}
 
 			// Assert presets
-			if tc.presets != nil {
-				tc.presets(t, output.Presets)
+			if tc.presetsFuncs != nil {
+				tc.presetsFuncs(t, output.Presets)
+			}
+
+			for _, preset := range output.Presets {
+				check, ok := tc.presets[preset.Name]
+				require.True(t, ok, "unknown preset %s", preset.Name)
+				check(t, preset)
 			}
 
 			// Assert variables
@@ -958,6 +986,16 @@ func aPreWithDiags() assertPreset {
 func (a assertPreset) def(def bool) assertPreset {
 	return a.extend(func(t *testing.T, preset types.Preset) {
 		require.Equal(t, def, preset.Default)
+	})
+}
+
+func (a assertPreset) prebuildCount(exp int) assertPreset {
+	return a.extend(func(t *testing.T, preset types.Preset) {
+		if exp == 0 && preset.Prebuild == nil {
+			return
+		}
+		require.NotNilf(t, preset.Prebuild, "prebuild should not be nil, expected %d instances", exp)
+		require.Equal(t, exp, preset.Prebuild.Instances)
 	})
 }
 
