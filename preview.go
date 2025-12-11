@@ -74,7 +74,7 @@ func (o Output) MarshalJSON() ([]byte, error) {
 //
 // This will only validate presets that have prebuilds configured and have no existing
 // error diagnostics.
-func ValidatePrebuilds(ctx context.Context, input Input, preValid []types.Preset, dir fs.FS) []types.Preset {
+func ValidatePrebuilds(ctx context.Context, input Input, preValid []types.Preset, dir fs.FS) {
 	for i := range preValid {
 		pre := &preValid[i]
 		if pre.Prebuild == nil || pre.Prebuild.Instances <= 0 {
@@ -87,16 +87,21 @@ func ValidatePrebuilds(ctx context.Context, input Input, preValid []types.Preset
 			continue
 		}
 
+		// Diagnostics are added to the existing preset.
 		input.ParameterValues = pre.Parameters
 		output, diagnostics := Preview(ctx, input, dir)
 		if diagnostics.HasErrors() {
 			pre.Diagnostics = append(pre.Diagnostics, diagnostics...)
+			// Do not pile on more diagnostics for individual params, it already failed
+			continue
 		}
 
 		if output == nil {
 			continue
 		}
 
+		// If any parameter is invalid, then the preset is invalid.
+		// A value must be specified for this failing parameter.
 		for _, param := range output.Parameters {
 			if hcl.Diagnostics(param.Diagnostics).HasErrors() {
 				for _, paramDiag := range param.Diagnostics {
@@ -110,7 +115,6 @@ func ValidatePrebuilds(ctx context.Context, input Input, preValid []types.Preset
 			}
 		}
 	}
-	return preValid
 }
 
 func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagnostics hcl.Diagnostics) {

@@ -716,6 +716,10 @@ func Test_Extract(t *testing.T) {
 
 			for _, preset := range output.Presets {
 				check, ok := tc.presets[preset.Name]
+				if !ok && tc.presetsFuncs != nil {
+					// TODO: Convert presetsFunc to presets
+					continue
+				}
 				require.True(t, ok, "unknown preset %s", preset.Name)
 				check(t, preset)
 			}
