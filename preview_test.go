@@ -649,6 +649,9 @@ func Test_Extract(t *testing.T) {
 			}
 			require.False(t, diags.HasErrors())
 
+			// Validate prebuilds too
+			preview.ValidatePrebuilds(context.Background(), tc.input, output.Presets, dirFs)
+
 			if len(tc.warnings) > 0 {
 				for _, w := range tc.warnings {
 					idx := slices.IndexFunc(diags, func(diagnostic *hcl.Diagnostic) bool {
@@ -736,7 +739,7 @@ func TestPresetValidation(t *testing.T) {
 			require.False(t, diags.HasErrors())
 			require.Len(t, diags, 0)
 
-			preview.ValidatePresets(context.Background(), tc.input, output.Presets, dirFs)
+			preview.ValidatePrebuilds(context.Background(), tc.input, output.Presets, dirFs)
 			for _, preset := range output.Presets {
 				check, ok := tc.presetAssert[preset.Name]
 				require.True(t, ok, "unknown preset %s", preset.Name)
