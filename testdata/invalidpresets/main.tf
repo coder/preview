@@ -46,6 +46,14 @@ data "coder_workspace_preset" "valid_preset" {
   }
 }
 
+data "coder_workspace_preset" "another_default_preset" {
+  name = "another_default_preset"
+  parameters = {
+    "valid_parameter_name" = "valid_option_value"
+  }
+  default = true
+}
+
 data "coder_workspace_preset" "default_preset" {
   name = "default_preset"
   parameters = {
@@ -54,10 +62,3 @@ data "coder_workspace_preset" "default_preset" {
   default = true
 }
 
-data "coder_workspace_preset" "another_default_preset" {
-  name = "another_default_preset"
-  parameters = {
-    "valid_parameter_name" = "valid_option_value"
-  }
-  default = true
-}

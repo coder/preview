@@ -298,50 +298,14 @@ func Test_Extract(t *testing.T) {
 				"valid_parameter_name": ap().
 					optVals("valid_option_value"),
 			},
-			presetsFuncs: func(t *testing.T, presets []types.Preset) {
-				presetMap := map[string]func(t *testing.T, preset types.Preset){
-					"empty_parameters": func(t *testing.T, preset types.Preset) {
-						require.Len(t, preset.Diagnostics, 0)
-					},
-					"no_parameters": func(t *testing.T, preset types.Preset) {
-						require.Len(t, preset.Diagnostics, 0)
-					},
-					"invalid_parameter_name": func(t *testing.T, preset types.Preset) {
-						require.Len(t, preset.Diagnostics, 1)
-						require.Equal(t, preset.Diagnostics[0].Summary, "Undefined Parameter")
-						require.Equal(t, preset.Diagnostics[0].Detail, "Preset parameter \"invalid_parameter_name\" is not defined by the template.")
-					},
-					"invalid_parameter_value": func(t *testing.T, preset types.Preset) {
-						require.Len(t, preset.Diagnostics, 1)
-						require.Equal(t, preset.Diagnostics[0].Summary, "Value must be a valid option")
-						require.Equal(t, preset.Diagnostics[0].Detail, "the value \"invalid_value\" must be defined as one of options")
-					},
-					"valid_preset": func(t *testing.T, preset types.Preset) {
-						require.Len(t, preset.Diagnostics, 0)
-						require.Equal(t, preset.Parameters, map[string]string{
-							"valid_parameter_name": "valid_option_value",
-						})
-					},
-				}
-
-				for _, preset := range presets {
-					if fn, ok := presetMap[preset.Name]; ok {
-						fn(t, preset)
-					}
-				}
-
-				var defaultPresetsWithError int
-				for _, preset := range presets {
-					if preset.Name == "default_preset" || preset.Name == "another_default_preset" {
-						for _, diag := range preset.Diagnostics {
-							if diag.Summary == "Multiple default presets" {
-								defaultPresetsWithError++
-								break
-							}
-						}
-					}
-				}
-				require.Equal(t, 1, defaultPresetsWithError, "exactly one default preset should have the multiple defaults error")
+			presets: map[string]assertPreset{
+				"empty_parameters":        aPre(),
+				"no_parameters":           aPre(),
+				"invalid_parameter_name":  aPreWithDiags().errorDiagnostics("Preset parameter \"invalid_parameter_name\" is not defined by the template."),
+				"invalid_parameter_value": aPreWithDiags().errorDiagnostics("the value \"invalid_value\" must be defined as one of options"),
+				"valid_preset":            aPre().value("valid_parameter_name", "valid_option_value"),
+				"another_default_preset":  aPre().def(true),
+				"default_preset":          aPreWithDiags().errorDiagnostics("Only one preset can be marked as default. \"another_default_preset\" is already marked as default"),
 			},
 		},
 		{
@@ -709,17 +673,8 @@ func Test_Extract(t *testing.T) {
 				check(t, param)
 			}
 
-			// Assert presets
-			if tc.presetsFuncs != nil {
-				tc.presetsFuncs(t, output.Presets)
-			}
-
 			for _, preset := range output.Presets {
 				check, ok := tc.presets[preset.Name]
-				if !ok && tc.presetsFuncs != nil {
-					// TODO: Convert presetsFunc to presets
-					continue
-				}
 				require.True(t, ok, "unknown preset %s", preset.Name)
 				check(t, preset)
 			}
