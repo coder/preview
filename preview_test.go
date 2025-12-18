@@ -710,8 +710,8 @@ func TestPresetValidation(t *testing.T) {
 					value("has_default", "changed").
 					value("no_default", "custom value").
 					noDiagnostics(),
-				"prebuild_instance_zero": aPre(),
-				"not_prebuild":           aPre(),
+				"prebuild_instance_zero": aPre().noDiagnostics().prebuildCount(0),
+				"not_prebuild":           aPre().noDiagnostics().prebuildCount(0),
 			},
 		},
 	} {
