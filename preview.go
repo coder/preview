@@ -72,8 +72,10 @@ func (o Output) MarshalJSON() ([]byte, error) {
 // and attach any diagnostics to the preset if there are issues. This must be done
 // because prebuilds have to be valid without user input.
 //
-// This will only validate presets that have prebuilds configured and have no existing
-// error diagnostics.
+// This will only validate presets that have prebuilds configured and have no
+// existing error diagnostics. This should only be used when doing Template
+// Imports as a protection against invalid presets. A template can still be
+// usable if it's presets are invalid. It just cannot be used for prebuilds.
 func ValidatePrebuilds(ctx context.Context, input Input, preValid []types.Preset, dir fs.FS) {
 	for i := range preValid {
 		pre := &preValid[i]
