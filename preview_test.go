@@ -950,11 +950,11 @@ func (a assertPreset) def(def bool) assertPreset {
 
 func (a assertPreset) prebuildCount(exp int) assertPreset {
 	return a.extend(func(t *testing.T, preset types.Preset) {
-		if exp == 0 && preset.Prebuild == nil {
+		if exp == 0 && preset.Prebuilds == nil {
 			return
 		}
-		require.NotNilf(t, preset.Prebuild, "prebuild should not be nil, expected %d instances", exp)
-		require.Equal(t, exp, preset.Prebuild.Instances)
+		require.NotNilf(t, preset.Prebuilds, "prebuild should not be nil, expected %d instances", exp)
+		require.Equal(t, exp, preset.Prebuilds.Instances)
 	})
 }
 

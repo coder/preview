@@ -79,7 +79,7 @@ func (o Output) MarshalJSON() ([]byte, error) {
 func ValidatePrebuilds(ctx context.Context, input Input, preValid []types.Preset, dir fs.FS) {
 	for i := range preValid {
 		pre := &preValid[i]
-		if pre.Prebuild == nil || pre.Prebuild.Instances <= 0 {
+		if pre.Prebuilds == nil || pre.Prebuilds.Instances <= 0 {
 			// No prebuilds, so presets do not need to be valid without user input
 			continue
 		}
@@ -232,7 +232,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 	diags := make(hcl.Diagnostics, 0)
 	rp, rpDiags := parameters(modules)
 	// preValidPresets are extracted as written in terraform. Each individual
-	// param value is checked, however the preset as a whole might not valid.
+	// param value is checked, however, the preset as a whole might not be valid.
 	preValidPresets := presets(modules, rp)
 	tags, tagDiags := workspaceTags(modules, p.Files())
 	vars := variables(modules)

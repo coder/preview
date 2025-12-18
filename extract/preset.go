@@ -65,7 +65,7 @@ func PresetFromBlock(block *terraform.Block) (tfPreset types.Preset) {
 
 	prebuildBlock := block.GetBlock("prebuilds")
 	if prebuildBlock != nil {
-		p.Prebuild = &types.PrebuildData{
+		p.Prebuilds = &types.PrebuildData{
 			// Invalid values will be set to 0
 			Instances: int(optionalInteger(prebuildBlock, "instances")),
 		}
