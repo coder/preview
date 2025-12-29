@@ -932,9 +932,9 @@ func (a assertVariable) extend(f assertVariable) assertVariable {
 type assertPreset func(t *testing.T, preset types.Preset)
 
 func aPre() assertPreset {
-	return func(t *testing.T, parameter types.Preset) {
+	return func(t *testing.T, preset types.Preset) {
 		t.Helper()
-		assert.Empty(t, parameter.Diagnostics, "parameter should have no diagnostics")
+		assert.Empty(t, parameter.Diagnostics, "preset should have no diagnostics")
 	}
 }
 
