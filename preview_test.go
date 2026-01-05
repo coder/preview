@@ -934,7 +934,7 @@ type assertPreset func(t *testing.T, preset types.Preset)
 func aPre() assertPreset {
 	return func(t *testing.T, preset types.Preset) {
 		t.Helper()
-		assert.Empty(t, parameter.Diagnostics, "preset should have no diagnostics")
+		assert.Empty(t, preset.Diagnostics, "preset should have no diagnostics")
 	}
 }
 
