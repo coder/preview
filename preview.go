@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log/slog"
+	"slices"
 
 	"github.com/aquasecurity/trivy/pkg/iac/scanners/terraform/parser"
 	"github.com/hashicorp/hcl/v2"
@@ -104,6 +105,21 @@ func ValidatePrebuilds(ctx context.Context, input Input, preValid []types.Preset
 
 		if output == nil {
 			continue
+		}
+
+		// Check all parameters in the preset are defined by the template.
+		for paramName, _ := range pre.Parameters {
+			templateParamIndex := slices.IndexFunc(output.Parameters, func(p types.Parameter) bool {
+				return p.Name == paramName
+			})
+			if templateParamIndex == -1 {
+				pre.Diagnostics = append(pre.Diagnostics, &hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary:  "Undefined Parameter",
+					Detail:   fmt.Sprintf("Preset parameter %q is not defined by the template.", paramName),
+				})
+				continue
+			}
 		}
 
 		// If any parameter is invalid, then the preset is invalid.

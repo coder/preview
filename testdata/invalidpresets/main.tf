@@ -18,17 +18,26 @@ data "coder_parameter" "valid_parameter" {
 
 data "coder_workspace_preset" "no_parameters" {
   name = "no_parameters"
+  prebuilds {
+    instances = 1
+  }
 }
 
 data "coder_workspace_preset" "empty_parameters" {
   name = "empty_parameters"
   parameters = {}
+  prebuilds {
+    instances = 1
+  }
 }
 
 data "coder_workspace_preset" "invalid_parameter_name" {
   name = "invalid_parameter_name"
   parameters = {
     "invalid_parameter_name" = "irrelevant_value"
+  }
+  prebuilds {
+    instances = 1
   }
 }
 
@@ -37,6 +46,9 @@ data "coder_workspace_preset" "invalid_parameter_value" {
   parameters = {
     "valid_parameter_name" = "invalid_value"
   }
+  prebuilds {
+    instances = 1
+  }
 }
 
 data "coder_workspace_preset" "valid_preset" {
@@ -44,6 +56,10 @@ data "coder_workspace_preset" "valid_preset" {
   parameters = {
     "valid_parameter_name" = "valid_option_value"
   }
+  prebuilds {
+    instances = 1
+  }
+
 }
 
 data "coder_workspace_preset" "another_default_preset" {
@@ -52,6 +68,9 @@ data "coder_workspace_preset" "another_default_preset" {
     "valid_parameter_name" = "valid_option_value"
   }
   default = true
+  prebuilds {
+    instances = 1
+  }
 }
 
 data "coder_workspace_preset" "default_preset" {
@@ -60,5 +79,8 @@ data "coder_workspace_preset" "default_preset" {
     "valid_parameter_name" = "valid_option_value"
   }
   default = true
+  prebuilds {
+    instances = 1
+  }
 }
 
