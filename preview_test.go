@@ -714,6 +714,17 @@ func TestPresetValidation(t *testing.T) {
 				"not_prebuild":           aPre().noDiagnostics().prebuildCount(0),
 			},
 		},
+		{
+			name:  "preset ok",
+			dir:   "presetok",
+			input: preview.Input{},
+			presetAssert: map[string]assertPreset{
+				"valid_preset": aPre().
+					value("use_custom_image", "true").
+					value("custom_image_url", "docker.io/codercom/test:latest").
+					noDiagnostics(),
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()

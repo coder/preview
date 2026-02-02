@@ -2,7 +2,6 @@ package preview
 
 import (
 	"fmt"
-	"slices"
 
 	"github.com/aquasecurity/trivy/pkg/iac/terraform"
 	"github.com/hashicorp/hcl/v2"
@@ -30,24 +29,6 @@ func presets(modules terraform.Modules, parameters []types.Parameter) []types.Pr
 				})
 			case defaultPreset == nil && preset.Default:
 				defaultPreset = &preset
-			}
-
-			for paramName, paramValue := range preset.Parameters {
-				templateParamIndex := slices.IndexFunc(parameters, func(p types.Parameter) bool {
-					return p.Name == paramName
-				})
-				if templateParamIndex == -1 {
-					preset.Diagnostics = append(preset.Diagnostics, &hcl.Diagnostic{
-						Severity: hcl.DiagError,
-						Summary:  "Undefined Parameter",
-						Detail:   fmt.Sprintf("Preset parameter %q is not defined by the template.", paramName),
-					})
-					continue
-				}
-				templateParam := parameters[templateParamIndex]
-				for _, diag := range templateParam.Valid(types.StringLiteral(paramValue)) {
-					preset.Diagnostics = append(preset.Diagnostics, diag)
-				}
 			}
 
 			foundPresets = append(foundPresets, preset)
