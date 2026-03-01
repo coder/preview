@@ -608,6 +608,23 @@ func Test_Extract(t *testing.T) {
 				"unknown": av().def(cty.NilVal),
 			},
 		},
+		{
+			name: "override",
+			dir:  "override",
+			params: map[string]assertParam{
+				"region": ap().value("ap").def("ap").optVals("ap"),
+				"size":   ap().value("100").def("100").optVals("10", "50", "100"),
+			},
+			presets: map[string]assertPreset{
+				"dev-override": aPre().value("region", "ap"),
+			},
+			expTags: map[string]string{
+				"env": "production",
+			},
+			variables: map[string]assertVariable{
+				"string_to_number": av().def(cty.NumberIntVal(40)).typeEq(cty.Number),
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()

@@ -1,0 +1,94 @@
+package preview
+
+import (
+	"bytes"
+	"io/fs"
+	"path"
+	"time"
+)
+
+// overrideFS wraps a base fs.FS, serving modified content for merged files
+// and hiding consumed override files.
+type overrideFS struct {
+	base     fs.FS
+	replaced map[string][]byte // path -> merged content
+	hidden   map[string]bool   // paths to exclude
+}
+
+func (o *overrideFS) Open(name string) (fs.File, error) {
+	if o.hidden[name] {
+		return nil, &fs.PathError{Op: "open", Path: name, Err: fs.ErrNotExist}
+	}
+
+	if content, ok := o.replaced[name]; ok {
+		return &memFile{
+			name:    path.Base(name), // Stat().Name() returns base name
+			content: bytes.NewReader(content),
+			size:    int64(len(content)),
+		}, nil
+	}
+
+	f, err := o.base.Open(name)
+	if err != nil {
+		return nil, err
+	}
+
+	// If this is a directory, wrap it to filter hidden entries.
+	if info, err := f.Stat(); err == nil && info.IsDir() {
+		if rdf, ok := f.(fs.ReadDirFile); ok {
+			return &filteredDir{ReadDirFile: rdf, hidden: o.hidden, dirPath: name}, nil
+		}
+	}
+
+	return f, nil
+}
+
+// memFile is an in-memory file that implements fs.File.
+type memFile struct {
+	name    string
+	content *bytes.Reader
+	size    int64
+}
+
+func (f *memFile) Stat() (fs.FileInfo, error) {
+	return &memFileInfo{name: f.name, size: f.size}, nil
+}
+func (f *memFile) Read(b []byte) (int, error) { return f.content.Read(b) }
+func (f *memFile) Close() error               { return nil }
+
+// memFileInfo implements fs.FileInfo for in-memory files.
+type memFileInfo struct {
+	name string
+	size int64
+}
+
+func (fi *memFileInfo) Name() string       { return fi.name }
+func (fi *memFileInfo) Size() int64        { return fi.size }
+func (fi *memFileInfo) Mode() fs.FileMode  { return 0o444 }
+func (fi *memFileInfo) ModTime() time.Time { return time.Time{} }
+func (fi *memFileInfo) IsDir() bool        { return false }
+func (fi *memFileInfo) Sys() any           { return nil }
+
+// filteredDir wraps a ReadDirFile to filter out hidden entries.
+type filteredDir struct {
+	fs.ReadDirFile
+	hidden  map[string]bool
+	dirPath string
+}
+
+func (d *filteredDir) ReadDir(n int) ([]fs.DirEntry, error) {
+	entries, err := d.ReadDirFile.ReadDir(n)
+	if err != nil {
+		return nil, err
+	}
+
+	filtered := make([]fs.DirEntry, 0, len(entries))
+	for _, entry := range entries {
+		fullPath := path.Join(d.dirPath, entry.Name())
+		if !d.hidden[fullPath] {
+			filtered = append(filtered, entry)
+		}
+	}
+
+	return filtered, nil
+}

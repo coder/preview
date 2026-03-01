@@ -210,6 +210,22 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		variableValues[k] = v
 	}
 
+	// Merge override files into primary files before parsing, so Trivy
+	// sees pre-merged content with no duplicate blocks. This replicates
+	// Terraform's override file semantics.
+	//
+	// TODO: I'd be nice if Trivy did it for us.
+	dir, err = mergeOverrideFiles(dir)
+	if err != nil {
+		return nil, hcl.Diagnostics{
+			{
+				Severity: hcl.DiagError,
+				Summary:  "Process terraform override files",
+				Detail:   err.Error(),
+			},
+		}
+	}
+
 	// moduleSource is "" for a local module
 	p := parser.New(dir, "",
 		parser.OptionWithLogger(logger),
