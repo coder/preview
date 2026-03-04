@@ -612,8 +612,10 @@ func Test_Extract(t *testing.T) {
 			name: "override",
 			dir:  "override",
 			params: map[string]assertParam{
-				"region": ap().value("ap").def("ap").optVals("ap"),
-				"size":   ap().value("100").def("100").optVals("10", "50", "100"),
+				"region":            ap().value("ap").def("ap").optVals("ap"),
+				"size":              ap().value("100").def("100").optVals("10", "50", "100"),
+				"static_to_dynamic": ap().value("a").def("a").optVals("a", "b", "c"),
+				"dynamic_to_static": ap().value("x").def("x").optVals("x", "y"),
 			},
 			presets: map[string]assertPreset{
 				"dev-override": aPre().value("region", "ap"),
@@ -623,6 +625,7 @@ func Test_Extract(t *testing.T) {
 			},
 			variables: map[string]assertVariable{
 				"string_to_number": av().def(cty.NumberIntVal(40)).typeEq(cty.Number),
+				"zones":            av().def(cty.SetVal([]cty.Value{cty.StringVal("a"), cty.StringVal("b"), cty.StringVal("c")})).typeEq(cty.Set(cty.String)),
 			},
 		},
 	} {

@@ -39,6 +39,29 @@ data "coder_workspace_tags" "tags" {
   }
 }
 
+# Override static options with dynamic.
+data "coder_parameter" "static_to_dynamic" {
+  dynamic "option" {
+    for_each = var.zones
+    content {
+      name  = option.value
+      value = option.value
+    }
+  }
+}
+
+# Override dynamic options with static.
+data "coder_parameter" "dynamic_to_static" {
+  option {
+    name  = "X"
+    value = "x"
+  }
+  option {
+    name  = "Y"
+    value = "y"
+  }
+}
+
 # Override variable.
 variable "string_to_number" {
   type = number

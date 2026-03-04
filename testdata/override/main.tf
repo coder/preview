@@ -51,6 +51,42 @@ data "coder_workspace_tags" "tags" {
   }
 }
 
+variable "zones" {
+  type    = set(string)
+  default = ["a", "b", "c"]
+}
+
+# Static options, will be overridden by dynamic "option" in a_override.
+data "coder_parameter" "static_to_dynamic" {
+  name    = "static_to_dynamic"
+  type    = "string"
+  default = "a"
+
+  option {
+    name  = "A"
+    value = "a"
+  }
+  option {
+    name  = "B"
+    value = "b"
+  }
+}
+
+# Dynamic options, will be overridden by static option blocks in a_override.
+data "coder_parameter" "dynamic_to_static" {
+  name    = "dynamic_to_static"
+  type    = "string"
+  default = "x"
+
+  dynamic "option" {
+    for_each = var.zones
+    content {
+      name  = option.value
+      value = option.value
+    }
+  }
+}
+
 variable "string_to_number" {
   type    = string
   default = "foo"

@@ -185,6 +185,89 @@ func TestMergeBlock(t *testing.T) {
 		assert.Empty(t, blocks[0].Labels())
 	})
 
+	t.Run("MixedStaticDynamicSuppression", func(t *testing.T) {
+		t.Parallel()
+		primary := parseBlock(t, `resource "a" "b" {
+  option {
+    name = "static"
+  }
+  dynamic "option" {
+    for_each = var.list
+    content {
+      name = option.value
+    }
+  }
+}`)
+		override := parseBlock(t, `resource "a" "b" {
+  option {
+    name = "replaced"
+  }
+}`)
+		mergeBlock(primary, override)
+
+		blocks := primary.Body().Blocks()
+		require.Len(t, blocks, 1)
+		assert.Equal(t, "option", blocks[0].Type())
+		assert.Empty(t, blocks[0].Labels())
+	})
+
+	t.Run("MixedStaticDynamicSuppressionByDynamic", func(t *testing.T) {
+		t.Parallel()
+		primary := parseBlock(t, `resource "a" "b" {
+  option {
+    name = "static"
+  }
+  dynamic "option" {
+    for_each = var.list
+    content {
+      name = option.value
+    }
+  }
+}`)
+		override := parseBlock(t, `resource "a" "b" {
+  dynamic "option" {
+    for_each = var.other
+    content {
+      name = option.value
+    }
+  }
+}`)
+		mergeBlock(primary, override)
+
+		blocks := primary.Body().Blocks()
+		require.Len(t, blocks, 1)
+		assert.Equal(t, "dynamic", blocks[0].Type())
+		require.Len(t, blocks[0].Labels(), 1)
+		assert.Equal(t, "option", blocks[0].Labels()[0])
+	})
+
+	t.Run("StaticSuppressionByMixedOverride", func(t *testing.T) {
+		t.Parallel()
+		primary := parseBlock(t, `resource "a" "b" {
+  option {
+    name = "old"
+  }
+}`)
+		override := parseBlock(t, `resource "a" "b" {
+  option {
+    name = "static"
+  }
+  dynamic "option" {
+    for_each = var.list
+    content {
+      name = option.value
+    }
+  }
+}`)
+		mergeBlock(primary, override)
+
+		blocks := primary.Body().Blocks()
+		require.Len(t, blocks, 2)
+		assert.Equal(t, "option", blocks[0].Type())
+		assert.Equal(t, "dynamic", blocks[1].Type())
+		assert.Equal(t, "option", blocks[1].Labels()[0])
+	})
+
 	t.Run("NoNestedBlocksInOverride", func(t *testing.T) {
 		t.Parallel()
 		primary := parseBlock(t, `resource "a" "b" {
