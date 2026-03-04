@@ -135,6 +135,8 @@ func mergeOverrideFiles(original fs.FS) (fs.FS, error) {
 					}
 				}
 				if !matched {
+					// Terraform requires every override block to have a corresponding
+					// primary block — override files can only modify, not create.
 					return nil, fmt.Errorf("override block %s in %s has no matching block in a primary configuration file", key, path)
 				}
 			}

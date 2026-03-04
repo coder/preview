@@ -211,10 +211,10 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 	}
 
 	// Merge override files into primary files before parsing, so Trivy
-	// sees pre-merged content with no duplicate blocks. This replicates
+	// sees post-merge content with no duplicate blocks. This replicates
 	// Terraform's override file semantics.
 	//
-	// TODO: I'd be nice if Trivy did it for us.
+	// TODO: It'd be nice if Trivy did this for us.
 	dir, err = mergeOverrideFiles(dir)
 	if err != nil {
 		return nil, hcl.Diagnostics{
