@@ -288,6 +288,24 @@ func TestMergeBlock(t *testing.T) {
 		// Attribute should still be overridden.
 		assert.Equal(t, "99", attrValue(t, primary.Body().Attributes(), "x"))
 	})
+
+	t.Run("EmptyOverride", func(t *testing.T) {
+		t.Parallel()
+		primary := parseBlock(t, `resource "a" "b" {
+  x = 1
+  nested {
+    y = 2
+  }
+}`)
+		override := parseBlock(t, `resource "a" "b" {}`)
+		mergeBlock(primary, override)
+
+		// Nothing should change — attributes and blocks preserved.
+		assert.Equal(t, "1", attrValue(t, primary.Body().Attributes(), "x"))
+		blocks := primary.Body().Blocks()
+		require.Len(t, blocks, 1)
+		assert.Equal(t, "nested", blocks[0].Type())
+	})
 }
 
 // readFile reads a file from an fs.FS using Open+Read (since overrideFS
