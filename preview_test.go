@@ -171,6 +171,17 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
+			name: "dynamic block with nested locals",
+			skip: "requires trivy fork fix: expandDynamic must use IsWhollyKnown() instead of IsKnown()",
+			dir:  "dynamicblock-nested-locals",
+			params: map[string]assertParam{
+				"ide_picker": ap().
+					optNames("VSCode").
+					optVals("vscode").
+					formType(provider.ParameterFormTypeMultiSelect),
+			},
+		},
+		{
 			name: "external docker resource without plan data",
 			dir:  "dockerdata",
 			expTags: map[string]string{
