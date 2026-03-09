@@ -10,13 +10,17 @@ import (
 	"github.com/hashicorp/hcl/v2/hclwrite"
 )
 
-// mergeOverrideFiles scans the filesystem for Terraform override files and
-// returns a new FS where override content has been merged into primary files
-// using Terraform's override semantics. If no override files exist, the
-// original FS is returned unchanged.
+// mergeOverrides scans the filesystem for .tf Terraform override files
+// and returns a new FS where override content has been merged into primary
+// files using Terraform's override semantics.
+// If no override files are found, the original FS is returned unchanged.
+// If an error is encountered while processing HCL, diagnostics are returned in
+// addition to a non-nil error.
 //
 // Override files are identified by Terraform's naming convention:
-// "override.tf", "*_override.tf", and their .tf.json variants.
+// "override.tf", "*_override.tf", and their .tf.json variants. We only support
+// .tf files; .tf.json files get a diagnostic warning and are excluded from
+// override merging.
 //
 // https://developer.hashicorp.com/terraform/language/files/override
 //
@@ -25,7 +29,7 @@ import (
 // override would supply it. We merge first, so this edge case passes
 // validation. This is immaterial in practice: Coder runs terraform plan
 // during template import, which would catch it before the template is saved.
-func mergeOverrideFiles(original fs.FS) (fs.FS, error) {
+func mergeOverrides(original fs.FS) (fs.FS, hcl.Diagnostics, error) {
 	// Group files by directory, separating primary from override files.
 	// Walk the entire tree, not just the root directory, because Trivy's
 	// EvaluateAll processes all modules, so we need to pre-merge overrides at
@@ -36,6 +40,8 @@ func mergeOverrideFiles(original fs.FS) (fs.FS, error) {
 	}
 	dirs := make(map[string]*dirFiles)
 
+	var warnings hcl.Diagnostics
+
 	err := fs.WalkDir(original, ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -44,7 +50,23 @@ func mergeOverrideFiles(original fs.FS) (fs.FS, error) {
 		if d.IsDir() {
 			return nil
 		}
-		if tfFileExt(d.Name()) == "" {
+
+		ext := tfFileExt(d.Name())
+		if ext == "" {
+			return nil
+		}
+
+		// Only .tf files are supported for override merging. Skip .tf.json
+		// files entirely — they remain in the FS for Trivy to parse directly
+		// but never participate in override merging.
+		if ext == ".tf.json" {
+			if isOverrideFile(d.Name()) {
+				warnings = warnings.Append(&hcl.Diagnostic{
+					Severity: hcl.DiagWarning,
+					Summary:  "Unmerged .tf.json override file",
+					Detail:   fmt.Sprintf("Not merging override file %q that uses JSON format", p),
+				})
+			}
 			return nil
 		}
 
@@ -61,7 +83,7 @@ func mergeOverrideFiles(original fs.FS) (fs.FS, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("walk filesystem: %w", err)
+		return nil, nil, fmt.Errorf("walk filesystem: %w", err)
 	}
 
 	// We are a no-op if there are no override files at all.
@@ -73,7 +95,7 @@ func mergeOverrideFiles(original fs.FS) (fs.FS, error) {
 		}
 	}
 	if !hasOverrides {
-		return original, nil
+		return original, warnings, nil
 	}
 
 	replaced := make(map[string][]byte)
@@ -95,11 +117,11 @@ func mergeOverrideFiles(original fs.FS) (fs.FS, error) {
 		for _, path := range dir.primary {
 			content, err := fs.ReadFile(original, path)
 			if err != nil {
-				return nil, fmt.Errorf("read file %s: %w", path, err)
+				return nil, nil, fmt.Errorf("read file %s: %w", path, err)
 			}
 			f, diags := hclwrite.ParseConfig(content, path, hcl.Pos{Line: 1, Column: 1})
 			if diags.HasErrors() {
-				return nil, fmt.Errorf("parse file %s: %s", path, diags.Error())
+				return nil, diags, fmt.Errorf("parse file %s", path)
 			}
 			primaries = append(primaries, &primaryState{path: path, file: f})
 		}
@@ -110,12 +132,12 @@ func mergeOverrideFiles(original fs.FS) (fs.FS, error) {
 		for _, path := range dir.override {
 			content, err := fs.ReadFile(original, path)
 			if err != nil {
-				return nil, fmt.Errorf("read file %s: %w", path, err)
+				return nil, nil, fmt.Errorf("read file %s: %w", path, err)
 			}
 
 			f, diags := hclwrite.ParseConfig(content, path, hcl.Pos{Line: 1, Column: 1})
 			if diags.HasErrors() {
-				return nil, fmt.Errorf("parse file %s: %s", path, diags.Error())
+				return nil, diags, fmt.Errorf("parse file %s", path)
 			}
 
 			for _, oblock := range f.Body().Blocks() {
@@ -137,7 +159,7 @@ func mergeOverrideFiles(original fs.FS) (fs.FS, error) {
 				if !matched {
 					// Terraform requires every override block to have a corresponding
 					// primary block — override files can only modify, not create.
-					return nil, fmt.Errorf("override block %s in %s has no matching block in a primary configuration file", key, path)
+					return nil, nil, fmt.Errorf("override block %s in %s has no matching block in a primary configuration file", key, path)
 				}
 			}
 
@@ -156,7 +178,7 @@ func mergeOverrideFiles(original fs.FS) (fs.FS, error) {
 		base:     original,
 		replaced: replaced,
 		hidden:   hidden,
-	}, nil
+	}, warnings, nil
 }
 
 // mergeBlock applies override attributes and child blocks to a primary block
