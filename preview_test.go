@@ -619,6 +619,44 @@ func Test_Extract(t *testing.T) {
 				"unknown": av().def(cty.NilVal),
 			},
 		},
+		{
+			name:        "presetok",
+			dir:         "presetok",
+			expTags:     map[string]string{},
+			input:       preview.Input{},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"use_custom_image": ap().value("false"),
+			},
+			presets: map[string]assertPreset{
+				"valid_preset": aPre().
+					value("use_custom_image", "true").
+					value("custom_image_url", "docker.io/codercom/test:latest").
+					prebuildCount(1),
+			},
+		},
+		{
+			name:    "presetok-true-input",
+			dir:     "presetok",
+			expTags: map[string]string{},
+			input: preview.Input{
+				ParameterValues: map[string]string{
+					"use_custom_image": "true",
+					"custom_image_url": "hello world",
+				},
+			},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"use_custom_image": ap().value("true"),
+				"custom_image_url": ap().value("hello world"),
+			},
+			presets: map[string]assertPreset{
+				"valid_preset": aPre().
+					value("use_custom_image", "true").
+					value("custom_image_url", "docker.io/codercom/test:latest").
+					prebuildCount(1),
+			},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
