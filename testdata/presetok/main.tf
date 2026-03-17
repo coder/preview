@@ -14,7 +14,7 @@ data "coder_parameter" "use_custom_image" {
 }
 
 data "coder_parameter" "custom_image_url" {
-  count   = data.coder_parameter.use_custom_image.value == "true" ? 1 : 0
+  count   = data.coder_parameter.use_custom_image.value ? 1 : 0
   name    = "custom_image_url"
   type    = "string"
   # No default - required when shown

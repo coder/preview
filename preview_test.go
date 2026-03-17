@@ -171,6 +171,17 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
+			name: "dynamic block with nested locals",
+			skip: "requires trivy fork fix: expandDynamic must use IsWhollyKnown() instead of IsKnown()",
+			dir:  "dynamicblock-nested-locals",
+			params: map[string]assertParam{
+				"ide_picker": ap().
+					optNames("VSCode").
+					optVals("vscode").
+					formType(provider.ParameterFormTypeMultiSelect),
+			},
+		},
+		{
 			name: "external docker resource without plan data",
 			dir:  "dockerdata",
 			expTags: map[string]string{
@@ -606,6 +617,44 @@ func Test_Extract(t *testing.T) {
 			},
 			variables: map[string]assertVariable{
 				"unknown": av().def(cty.NilVal),
+			},
+		},
+		{
+			name:        "presetok",
+			dir:         "presetok",
+			expTags:     map[string]string{},
+			input:       preview.Input{},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"use_custom_image": ap().value("false"),
+			},
+			presets: map[string]assertPreset{
+				"valid_preset": aPre().
+					value("use_custom_image", "true").
+					value("custom_image_url", "docker.io/codercom/test:latest").
+					prebuildCount(1),
+			},
+		},
+		{
+			name:    "presetok-true-input",
+			dir:     "presetok",
+			expTags: map[string]string{},
+			input: preview.Input{
+				ParameterValues: map[string]string{
+					"use_custom_image": "true",
+					"custom_image_url": "hello world",
+				},
+			},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"use_custom_image": ap().value("true"),
+				"custom_image_url": ap().value("hello world"),
+			},
+			presets: map[string]assertPreset{
+				"valid_preset": aPre().
+					value("use_custom_image", "true").
+					value("custom_image_url", "docker.io/codercom/test:latest").
+					prebuildCount(1),
 			},
 		},
 		{
