@@ -83,7 +83,7 @@ func mergeOverrides(original fs.FS) (fs.FS, hcl.Diagnostics, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, nil, fmt.Errorf("walk filesystem: %w", err)
+		return nil, warnings, fmt.Errorf("walk filesystem: %w", err)
 	}
 
 	// We are a no-op if there are no override files at all.
@@ -117,11 +117,11 @@ func mergeOverrides(original fs.FS) (fs.FS, hcl.Diagnostics, error) {
 		for _, path := range dir.primary {
 			content, err := fs.ReadFile(original, path)
 			if err != nil {
-				return nil, nil, fmt.Errorf("read file %s: %w", path, err)
+				return nil, warnings, fmt.Errorf("read file %s: %w", path, err)
 			}
 			f, diags := hclwrite.ParseConfig(content, path, hcl.Pos{Line: 1, Column: 1})
 			if diags.HasErrors() {
-				return nil, diags, fmt.Errorf("parse file %s", path)
+				return nil, warnings.Extend(diags), fmt.Errorf("parse file %s", path)
 			}
 			primaries = append(primaries, &primaryState{path: path, file: f})
 		}
@@ -132,12 +132,12 @@ func mergeOverrides(original fs.FS) (fs.FS, hcl.Diagnostics, error) {
 		for _, path := range dir.override {
 			content, err := fs.ReadFile(original, path)
 			if err != nil {
-				return nil, nil, fmt.Errorf("read file %s: %w", path, err)
+				return nil, warnings, fmt.Errorf("read file %s: %w", path, err)
 			}
 
 			f, diags := hclwrite.ParseConfig(content, path, hcl.Pos{Line: 1, Column: 1})
 			if diags.HasErrors() {
-				return nil, diags, fmt.Errorf("parse file %s", path)
+				return nil, warnings.Extend(diags), fmt.Errorf("parse file %s", path)
 			}
 
 			for _, oblock := range f.Body().Blocks() {
@@ -159,7 +159,7 @@ func mergeOverrides(original fs.FS) (fs.FS, hcl.Diagnostics, error) {
 				if !matched {
 					// Terraform requires every override block to have a corresponding
 					// primary block — override files can only modify, not create.
-					return nil, nil, fmt.Errorf("override block %s in %s has no matching block in a primary configuration file", key, path)
+					return nil, warnings, fmt.Errorf("override block %s in %s has no matching block in a primary configuration file", key, path)
 				}
 			}
 
