@@ -29,7 +29,7 @@ import (
 // override would supply it. We merge first, so this edge case passes
 // validation. This is immaterial in practice: Coder runs terraform plan
 // during template import, which would catch it before the template is saved.
-func mergeOverrides(original fs.FS) (fs.FS, hcl.Diagnostics, error) {
+func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 	// Group files by directory, separating primary from override files.
 	// Walk the entire tree, not just the root directory, because Trivy's
 	// EvaluateAll processes all modules, so we need to pre-merge overrides at
@@ -42,7 +42,7 @@ func mergeOverrides(original fs.FS) (fs.FS, hcl.Diagnostics, error) {
 
 	var warnings hcl.Diagnostics
 
-	err := fs.WalkDir(original, ".", func(p string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(origFS, ".", func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -86,7 +86,6 @@ func mergeOverrides(original fs.FS) (fs.FS, hcl.Diagnostics, error) {
 		return nil, warnings, fmt.Errorf("walk filesystem: %w", err)
 	}
 
-	// We are a no-op if there are no override files at all.
 	hasOverrides := false
 	for _, dir := range dirs {
 		if len(dir.override) > 0 {
@@ -95,7 +94,10 @@ func mergeOverrides(original fs.FS) (fs.FS, hcl.Diagnostics, error) {
 		}
 	}
 	if !hasOverrides {
-		return original, warnings, nil
+		// We are a no-op if there are no supported override files at
+		// all. Include warnings so callers know about ignored
+		// .tf.json files.
+		return origFS, warnings, nil
 	}
 
 	replaced := make(map[string][]byte)
@@ -115,7 +117,7 @@ func mergeOverrides(original fs.FS) (fs.FS, hcl.Diagnostics, error) {
 		}
 		primaries := make([]*primaryState, 0, len(dir.primary))
 		for _, path := range dir.primary {
-			content, err := fs.ReadFile(original, path)
+			content, err := fs.ReadFile(origFS, path)
 			if err != nil {
 				return nil, warnings, fmt.Errorf("read file %s: %w", path, err)
 			}
@@ -130,7 +132,7 @@ func mergeOverrides(original fs.FS) (fs.FS, hcl.Diagnostics, error) {
 		// define the same block, each merges into the already-merged primary,
 		// matching Terraform's behavior.
 		for _, path := range dir.override {
-			content, err := fs.ReadFile(original, path)
+			content, err := fs.ReadFile(origFS, path)
 			if err != nil {
 				return nil, warnings, fmt.Errorf("read file %s: %w", path, err)
 			}
@@ -175,7 +177,7 @@ func mergeOverrides(original fs.FS) (fs.FS, hcl.Diagnostics, error) {
 	}
 
 	return &overrideFS{
-		base:     original,
+		base:     origFS,
 		replaced: replaced,
 		hidden:   hidden,
 	}, warnings, nil
