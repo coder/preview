@@ -7,6 +7,10 @@ terraform {
   }
 }
 
+terraform {
+  required_version = ">= 1.0"
+}
+
 data "coder_parameter" "region" {
   name    = "region"
   type    = "string"
@@ -22,11 +26,21 @@ data "coder_parameter" "region" {
   }
 }
 
+locals {
+  # Just so that we have >1 locals blocks.
+  foo = "bar"
+}
+
+locals {
+  # Will be overridden in a_override.tf
+  default_size = 70
+}
+
 data "coder_parameter" "size" {
   name    = "size"
   type    = "number"
-  # Invalid value should become valid once the options are overridden.
-  default = 100
+  # Invalid value should become valid once the options and locals are overridden.
+  default = local.default_size
 
   option {
     name  = "10GB"
@@ -47,7 +61,7 @@ data "coder_workspace_preset" "dev" {
 
 data "coder_workspace_tags" "tags" {
   tags = {
-    "env" = "staging"
+    "env"  = "staging"
   }
 }
 
@@ -76,6 +90,7 @@ data "coder_parameter" "static_to_dynamic" {
 data "coder_parameter" "dynamic_to_static" {
   name    = "dynamic_to_static"
   type    = "string"
+  # Invalid value should become valid once the options are overridden.
   default = "x"
 
   dynamic "option" {

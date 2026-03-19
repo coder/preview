@@ -1,3 +1,8 @@
+terraform {
+  # An override.
+  required_version = ">= 1.1"
+}
+
 # Override region's default (will be overridden again by b_override).
 data "coder_parameter" "region" {
   default = "eu"
@@ -15,8 +20,13 @@ data "coder_parameter" "size" {
   }
 }
 
-# Override size again in the same file — adds 100GB option that makes the
-# default valid.
+locals {
+  # Override the local value in main.tf.
+  default_size = 50
+}
+
+# Override size again in the same file — adds 50GB option that makes the
+# overridden default valid.
 data "coder_parameter" "size" {
   option {
     name  = "10GB"
@@ -35,7 +45,8 @@ data "coder_parameter" "size" {
 # Override tags.
 data "coder_workspace_tags" "tags" {
   tags = {
-    "env" = "production"
+    "env"  = "production"
+    "team" = "mango"
   }
 }
 
