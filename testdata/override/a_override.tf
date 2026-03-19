@@ -15,8 +15,8 @@ data "coder_parameter" "size" {
     value = 10
   }
   option {
-    name  = "50GB"
-    value = 50
+    name  = "40GB"
+    value = 40
   }
 }
 

@@ -183,7 +183,7 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 				if !matched {
 					// Terraform requires every override block to have a corresponding
 					// primary block — override files can only modify, not create.
-					return nil, warnings, fmt.Errorf("override block %s in %s has no matching block in a primary configuration file", key, path)
+					return nil, warnings, fmt.Errorf("override block %s in %s has no matching block in a primary file", key, path)
 				}
 			}
 
@@ -297,7 +297,7 @@ func mergeLocalsBlock(primaries []*primaryState, override *hclwrite.Block, overr
 			diags = diags.Append(&hcl.Diagnostic{
 				Severity: hcl.DiagError,
 				Summary:  "Missing base local value definition to override",
-				Detail:   fmt.Sprintf("There is no local value named %q. An override file can only override a local value that was already defined in a primary configuration file. (%s)", name, overridePath),
+				Detail:   fmt.Sprintf("No local %q found in primary files; defined in %s.", name, overridePath),
 			})
 		}
 	}
@@ -362,7 +362,7 @@ func checkDuplicatePrimaryBlocks(primaries []*primaryState) hcl.Diagnostics {
 				diags = diags.Append(&hcl.Diagnostic{
 					Severity: hcl.DiagError,
 					Summary:  "Duplicate block in primary",
-					Detail:   fmt.Sprintf("Block %s is defined multiple times (first in %s, also in %s). Terraform does not allow duplicate block definitions; override merging may produce unexpected results.", key, firstFile, primary.path),
+					Detail:   fmt.Sprintf("Block %s defined in both %s and %s; Terraform rejects duplicates.", key, firstFile, primary.path),
 				})
 			} else {
 				seen[key] = primary.path
