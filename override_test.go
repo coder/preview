@@ -539,4 +539,102 @@ func TestMergeOverrideFiles(t *testing.T) {
 		content := readFile(t, result, "main.tf")
 		assert.Contains(t, string(content), "99")
 	})
+
+	t.Run("LocalsAttributeLevelMerge", func(t *testing.T) {
+		t.Parallel()
+		fsys := fstest.MapFS{
+			"main.tf": &fstest.MapFile{Data: []byte(`locals {
+  foo = "original"
+  bar = "keep"
+}`)},
+			"override.tf": &fstest.MapFile{Data: []byte(`locals {
+  foo = "overridden"
+}`)},
+		}
+		result, diags, err := mergeOverrides(fsys)
+		require.NoError(t, err)
+		assert.Empty(t, diags)
+
+		content := string(readFile(t, result, "main.tf"))
+		assert.Contains(t, content, `"overridden"`)
+		assert.Contains(t, content, `"keep"`)
+		assert.NotContains(t, content, `"original"`)
+	})
+
+	t.Run("LocalsAcrossMultipleFiles", func(t *testing.T) {
+		t.Parallel()
+		fsys := fstest.MapFS{
+			"a.tf": &fstest.MapFile{Data: []byte(`locals {
+  from_a = "aaa"
+}`)},
+			"b.tf": &fstest.MapFile{Data: []byte(`locals {
+  from_b = "bbb"
+}`)},
+			"override.tf": &fstest.MapFile{Data: []byte(`locals {
+  from_a = "overridden_a"
+  from_b = "overridden_b"
+}`)},
+		}
+		result, diags, err := mergeOverrides(fsys)
+		require.NoError(t, err)
+		assert.Empty(t, diags)
+
+		contentA := string(readFile(t, result, "a.tf"))
+		assert.Contains(t, contentA, `"overridden_a"`)
+
+		contentB := string(readFile(t, result, "b.tf"))
+		assert.Contains(t, contentB, `"overridden_b"`)
+	})
+
+	t.Run("LocalsMultiplePrimaryAndOverrideBlocks", func(t *testing.T) {
+		t.Parallel()
+		fsys := fstest.MapFS{
+			"main.tf": &fstest.MapFile{Data: []byte(`
+locals {
+  x = "x_orig"
+}
+
+locals {
+  y = "y_orig"
+}`)},
+			"other.tf": &fstest.MapFile{Data: []byte(`locals {
+  z = "z_orig"
+}`)},
+			"a_override.tf": &fstest.MapFile{Data: []byte(`locals {
+  x = "x_from_a"
+  z = "z_from_a"
+}`)},
+			"b_override.tf": &fstest.MapFile{Data: []byte(`locals {
+  y = "y_from_b"
+}`)},
+		}
+		result, diags, err := mergeOverrides(fsys)
+		require.NoError(t, err)
+		assert.Empty(t, diags)
+
+		mainContent := string(readFile(t, result, "main.tf"))
+		assert.Contains(t, mainContent, `"x_from_a"`)
+		assert.Contains(t, mainContent, `"y_from_b"`)
+
+		otherContent := string(readFile(t, result, "other.tf"))
+		assert.Contains(t, otherContent, `"z_from_a"`)
+	})
+
+	t.Run("LocalsNewAttributeErrors", func(t *testing.T) {
+		t.Parallel()
+		fsys := fstest.MapFS{
+			"main.tf": &fstest.MapFile{Data: []byte(`locals {
+  existing = "yes"
+}`)},
+			"override.tf": &fstest.MapFile{Data: []byte(`locals {
+  nonexistent = "nope"
+}`)},
+		}
+		result, diags, err := mergeOverrides(fsys)
+		require.Error(t, err)
+		assert.Nil(t, result)
+		require.Len(t, diags, 1)
+		assert.Equal(t, hcl.DiagError, diags[0].Severity)
+		assert.Contains(t, diags[0].Summary, "Missing base local value definition")
+	})
 }

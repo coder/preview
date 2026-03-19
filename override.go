@@ -10,6 +10,14 @@ import (
 	"github.com/hashicorp/hcl/v2/hclwrite"
 )
 
+// primaryState tracks a parsed primary .tf file during override
+// merging.
+type primaryState struct {
+	path     string
+	file     *hclwrite.File
+	modified bool
+}
+
 // mergeOverrides scans the filesystem for .tf Terraform override files
 // and returns a new FS where override content has been merged into primary
 // files using Terraform's override semantics.
@@ -110,11 +118,6 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 
 		// Parse all primary files upfront so override files can be applied
 		// sequentially, each merging into the already-merged result.
-		type primaryState struct {
-			path     string
-			file     *hclwrite.File
-			modified bool
-		}
 		primaries := make([]*primaryState, 0, len(dir.primary))
 		for _, path := range dir.primary {
 			content, err := fs.ReadFile(origFS, path)
@@ -143,6 +146,17 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 			}
 
 			for _, oblock := range f.Body().Blocks() {
+				// `locals` blocks are label-less and Terraform merges
+				// them at the individual attribute level, not at the
+				// block level.
+				if oblock.Type() == "locals" {
+					diags := mergeLocalsBlock(primaries, oblock, path)
+					if diags.HasErrors() {
+						return nil, warnings.Extend(diags), fmt.Errorf("merge locals block")
+					}
+					continue
+				}
+
 				key := blockKey(oblock.Type(), oblock.Labels())
 				matched := false
 				for _, primary := range primaries {
@@ -205,7 +219,8 @@ func mergeBlock(primary, override *hclwrite.Block) {
 		primary.Body().SetAttributeRaw(name, attr.Expr().BuildTokens(nil))
 	}
 
-	// Determine which child (nested) block types are overridden.
+	// Merge blocks: determine which child (nested) block types are
+	// overridden.
 	overriddenBlockTypes := make(map[string]bool)
 	for _, child := range override.Body().Blocks() {
 		if child.Type() == "dynamic" && len(child.Labels()) > 0 {
@@ -241,6 +256,44 @@ func mergeBlock(primary, override *hclwrite.Block) {
 	for _, child := range override.Body().Blocks() {
 		primary.Body().AppendBlock(child)
 	}
+}
+
+// mergeLocalsBlock merges an override locals block into the primaries
+// at the individual attribute level. Each override attribute replaces
+// the matching attribute in whichever primary locals block defines
+// it. Attributes not found in any primary block produce an error,
+// matching Terraform's "Missing base local value definition to
+// override" behavior.
+// Ref: https://github.com/hashicorp/terraform/blob/7960f60d2147d43f5cf675a898438f6a6693da1b/internal/configs/module.go#L772-L784
+func mergeLocalsBlock(primaries []*primaryState, override *hclwrite.Block, overridePath string) hcl.Diagnostics {
+	var diags hcl.Diagnostics
+	for name, attr := range override.Body().Attributes() {
+		found := false
+		for _, primary := range primaries {
+			for _, pblock := range primary.file.Body().Blocks() {
+				if pblock.Type() != "locals" {
+					continue
+				}
+				if _, exists := pblock.Body().Attributes()[name]; exists {
+					pblock.Body().SetAttributeRaw(name, attr.Expr().BuildTokens(nil))
+					primary.modified = true
+					found = true
+					break
+				}
+			}
+			if found {
+				break
+			}
+		}
+		if !found {
+			diags = diags.Append(&hcl.Diagnostic{
+				Severity: hcl.DiagError,
+				Summary:  "Missing base local value definition to override",
+				Detail:   fmt.Sprintf("There is no local value named %q. An override file can only override a local value that was already defined in a primary configuration file. (%s)", name, overridePath),
+			})
+		}
+	}
+	return diags
 }
 
 // isOverrideFile returns true if the filename matches Terraform's override
