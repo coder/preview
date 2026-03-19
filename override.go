@@ -222,6 +222,15 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 // merge.  We rely on Trivy's evaluator to do that during evaluation of the
 // merged HCL.
 func mergeBlock(primary, override *hclwrite.Block) {
+	// hclwrite preserves the formatting of the original block. If the
+	// primary body is empty and inline (e.g. `variable "x" {}`),
+	// inserting attributes places them on the same line as the
+	// opening brace, which HCL rejects. A newline defensively forces
+	// multi-line formatting.
+	if len(primary.Body().Attributes()) == 0 && len(primary.Body().Blocks()) == 0 {
+		primary.Body().AppendNewline()
+	}
+
 	// Merge attributes: override clobbers base.
 	for name, attr := range override.Body().Attributes() {
 		primary.Body().SetAttributeRaw(name, attr.Expr().BuildTokens(nil))

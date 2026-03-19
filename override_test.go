@@ -306,6 +306,23 @@ func TestMergeBlock(t *testing.T) {
 		require.Len(t, blocks, 1)
 		assert.Equal(t, "nested", blocks[0].Type())
 	})
+
+	t.Run("EmptyInlineBlock", func(t *testing.T) {
+		t.Parallel()
+		primary := parseBlock(t, `variable "sizes" {}`)
+		override := parseBlock(t, `variable "sizes" {
+  type    = set(string)
+  default = ["a", "b"]
+}`)
+		mergeBlock(primary, override)
+
+		attrs := primary.Body().Attributes()
+		require.Contains(t, attrs, "type")
+		require.Contains(t, attrs, "default")
+		// Verify the output is valid HCL by re-parsing it.
+		_, diags := hclwrite.ParseConfig(primary.BuildTokens(nil).Bytes(), "test.tf", hcl.Pos{Line: 1, Column: 1})
+		require.False(t, diags.HasErrors(), diags.Error())
+	})
 }
 
 // readFile reads a file from an fs.FS using Open+Read (since overrideFS
