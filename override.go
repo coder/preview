@@ -291,6 +291,11 @@ func mergeLocalsBlock(primaries []*primaryState, override *hclwrite.Block, overr
 				if pblock.Type() != "locals" {
 					continue
 				}
+				// NOTE: We don't insert new attrs into an empty body.
+				// If that ever changes, empty inline blocks (e.g.
+				// `locals {}`) would need the same AppendNewline fix
+				// as mergeBlock to avoid same line usage that breaks
+				// HCL.
 				if _, exists := pblock.Body().Attributes()[name]; exists {
 					pblock.Body().SetAttributeRaw(name, attr.Expr().BuildTokens(nil))
 					primary.modified = true
