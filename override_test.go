@@ -637,4 +637,45 @@ locals {
 		assert.Equal(t, hcl.DiagError, diags[0].Severity)
 		assert.Contains(t, diags[0].Summary, "Missing base local value definition")
 	})
+
+	t.Run("DuplicatePrimaryBlockErrors", func(t *testing.T) {
+		t.Parallel()
+		fsys := fstest.MapFS{
+			"main.tf": &fstest.MapFile{Data: []byte(`data "coder_parameter" "foo" {
+  name = "foo"
+}
+
+data "coder_parameter" "foo" {
+  name = "foo"
+}`)},
+			"override.tf": &fstest.MapFile{Data: []byte(`data "coder_parameter" "foo" {
+  name = "bar"
+}`)},
+		}
+		result, diags, err := mergeOverrides(fsys)
+		require.Error(t, err)
+		assert.Nil(t, result, "FS should be nil so caller keeps original")
+		require.Len(t, diags, 1)
+		assert.Equal(t, hcl.DiagError, diags[0].Severity)
+		assert.Contains(t, diags[0].Summary, "Duplicate block in primary")
+	})
+
+	t.Run("DuplicatePrimaryLocalsNoError", func(t *testing.T) {
+		t.Parallel()
+		fsys := fstest.MapFS{
+			"main.tf": &fstest.MapFile{Data: []byte(`locals {
+  a = 1
+}
+
+locals {
+  b = 2
+}`)},
+			"override.tf": &fstest.MapFile{Data: []byte(`locals {
+  a = 99
+}`)},
+		}
+		_, diags, err := mergeOverrides(fsys)
+		require.NoError(t, err)
+		assert.Empty(t, diags)
+	})
 }

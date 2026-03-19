@@ -1,6 +1,7 @@
 package preview
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"path"
@@ -131,6 +132,13 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 			primaries = append(primaries, &primaryState{path: path, file: f})
 		}
 
+		// Check for duplicate primary blocks before merging - Terraform
+		// rejects them.
+		diags := checkDuplicatePrimaryBlocks(primaries)
+		if diags.HasErrors() {
+			return nil, warnings.Extend(diags), errors.New("check duplicate primary blocks")
+		}
+
 		// Process each override file sequentially. If multiple override files
 		// define the same block, each merges into the already-merged primary,
 		// matching Terraform's behavior.
@@ -146,7 +154,7 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 			}
 
 			for _, oblock := range f.Body().Blocks() {
-				// `locals` blocks are label-less and Terraform merges
+				// "locals" blocks are label-less and Terraform merges
 				// them at the individual attribute level, not at the
 				// block level.
 				if oblock.Type() == "locals" {
@@ -330,4 +338,34 @@ func blockKey(blockType string, labels []string) string {
 		return blockType
 	}
 	return blockType + "." + strings.Join(labels, ".")
+}
+
+// checkDuplicatePrimaryBlocks detects primary blocks that share the
+// same block key. Terraform validates uniqueness before override
+// merging, so duplicates are always invalid.
+//
+// Ref: https://github.com/hashicorp/terraform/blob/7960f60d2147d43f5cf675a898438f6a6693da1b/internal/configs/module.go#L309-L437
+func checkDuplicatePrimaryBlocks(primaries []*primaryState) hcl.Diagnostics {
+	var diags hcl.Diagnostics
+	seen := make(map[string]string) // blockKey -> first file path
+	for _, primary := range primaries {
+		for _, block := range primary.file.Body().Blocks() {
+			// Multiple locals blocks are valid in Terraform; they are
+			// containers for individual local value attributes.
+			if block.Type() == "locals" {
+				continue
+			}
+			key := blockKey(block.Type(), block.Labels())
+			if firstFile, exists := seen[key]; exists {
+				diags = diags.Append(&hcl.Diagnostic{
+					Severity: hcl.DiagError,
+					Summary:  "Duplicate block in primary",
+					Detail:   fmt.Sprintf("Block %s is defined multiple times (first in %s, also in %s). Terraform does not allow duplicate block definitions; override merging may produce unexpected results.", key, firstFile, primary.path),
+				})
+			} else {
+				seen[key] = primary.path
+			}
+		}
+	}
+	return diags
 }
