@@ -65,7 +65,7 @@ func TestMergeBlock(t *testing.T) {
 		t.Helper()
 		a, ok := attrs[name]
 		require.True(t, ok, "attribute %q not found", name)
-		// trim because BuilTokens preserves the leading whitespace.
+		// trim because BuildTokens preserves the leading whitespace.
 		return strings.TrimSpace(string(a.Expr().BuildTokens(nil).Bytes()))
 	}
 
@@ -323,6 +323,26 @@ func TestMergeBlock(t *testing.T) {
 		_, diags := hclwrite.ParseConfig(primary.BuildTokens(nil).Bytes(), "test.tf", hcl.Pos{Line: 1, Column: 1})
 		require.False(t, diags.HasErrors(), diags.Error())
 	})
+
+	t.Run("NewNestedBlockType", func(t *testing.T) {
+		t.Parallel()
+		primary := parseBlock(t, `data "coder_parameter" "foo" {
+  name = "foo"
+  type = "number"
+}`)
+		override := parseBlock(t, `data "coder_parameter" "foo" {
+  validation {
+    monotonic = "increasing"
+  }
+}`)
+		mergeBlock(primary, override)
+
+		attrs := primary.Body().Attributes()
+		assert.Equal(t, `"foo"`, attrValue(t, attrs, "name"))
+		blocks := primary.Body().Blocks()
+		require.Len(t, blocks, 1)
+		assert.Equal(t, "validation", blocks[0].Type())
+	})
 }
 
 // readFile reads a file from an fs.FS using Open+Read (since overrideFS
@@ -342,6 +362,20 @@ func readFile(t *testing.T, fsys fs.FS, name string) []byte {
 
 func TestMergeOverrideFiles(t *testing.T) {
 	t.Parallel()
+
+	t.Run("EmptyOverrideFile", func(t *testing.T) {
+		t.Parallel()
+		fsys := fstest.MapFS{
+			"main.tf":     &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 1 }`)},
+			"override.tf": &fstest.MapFile{Data: []byte(``)},
+		}
+		result, diags, err := mergeOverrides(fsys)
+		require.NoError(t, err)
+		assert.Empty(t, diags)
+
+		content := string(readFile(t, result, "main.tf"))
+		assert.Contains(t, content, "x = 1")
+	})
 
 	t.Run("NoOverrideFiles", func(t *testing.T) {
 		t.Parallel()
