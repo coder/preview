@@ -674,8 +674,37 @@ locals {
   a = 99
 }`)},
 		}
-		_, diags, err := mergeOverrides(fsys)
+		result, diags, err := mergeOverrides(fsys)
 		require.NoError(t, err)
 		assert.Empty(t, diags)
+
+		content := string(readFile(t, result, "main.tf"))
+		assert.Contains(t, content, "a = 99")
+	})
+
+	t.Run("DuplicatePrimaryTerraformNoError", func(t *testing.T) {
+		t.Parallel()
+		fsys := fstest.MapFS{
+			"main.tf": &fstest.MapFile{Data: []byte(`terraform {
+  required_version = ">= 1.0"
+}
+
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}
+
+resource "a" "b" { x = 1 }`)},
+			"override.tf": &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 2 }`)},
+		}
+		result, diags, err := mergeOverrides(fsys)
+		require.NoError(t, err)
+		assert.Empty(t, diags)
+
+		content := string(readFile(t, result, "main.tf"))
+		assert.Contains(t, content, "x = 2")
 	})
 }

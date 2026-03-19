@@ -350,9 +350,11 @@ func checkDuplicatePrimaryBlocks(primaries []*primaryState) hcl.Diagnostics {
 	seen := make(map[string]string) // blockKey -> first file path
 	for _, primary := range primaries {
 		for _, block := range primary.file.Body().Blocks() {
-			// Multiple locals blocks are valid in Terraform; they are
-			// containers for individual local value attributes.
-			if block.Type() == "locals" {
+			// Multiple locals and terraform blocks are valid in
+			// Terraform — locals are containers for individual
+			// attributes, and terraform blocks accumulate their
+			// sub-components (required_providers, backend, etc.).
+			if block.Type() == "locals" || block.Type() == "terraform" {
 				continue
 			}
 			key := blockKey(block.Type(), block.Labels())
