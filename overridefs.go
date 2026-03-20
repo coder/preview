@@ -8,6 +8,13 @@ import (
 	"time"
 )
 
+var (
+	_ fs.FS          = (*overrideFS)(nil)
+	_ fs.File        = (*memFile)(nil)
+	_ fs.FileInfo    = (*memFileInfo)(nil)
+	_ fs.ReadDirFile = (*filteredDir)(nil)
+)
+
 // overrideFS wraps a base fs.FS, serving modified content for merged files
 // and hiding consumed override files.
 type overrideFS struct {
@@ -38,7 +45,7 @@ func (o *overrideFS) Open(name string) (fs.File, error) {
 	info, err := f.Stat()
 	if err != nil {
 		f.Close()
-		return nil, fmt.Errorf("stat %s: %w", name, err)
+		return nil, &fs.PathError{Op: "open", Path: name, Err: fmt.Errorf("stat: %w", err)}
 	}
 	if info.IsDir() {
 		if rdf, ok := f.(fs.ReadDirFile); ok {

@@ -361,6 +361,21 @@ func readFile(t *testing.T, fsys fs.FS, name string) []byte {
 	return buf
 }
 
+// testMergeOverrides wraps mergeOverrides and asserts the contract:
+// error-severity diagnostics are always accompanied by a non-nil error.
+func testMergeOverrides(t *testing.T, fsys fs.FS) (fs.FS, hcl.Diagnostics, error) {
+	t.Helper()
+	result, diags, err := mergeOverrides(fsys)
+	if err == nil {
+		for _, d := range diags {
+			if d.Severity == hcl.DiagError {
+				t.Fatal("mergeOverrides returned error diagnostic without non-nil error")
+			}
+		}
+	}
+	return result, diags, err
+}
+
 func TestMergeOverrideFiles(t *testing.T) {
 	t.Parallel()
 
@@ -370,7 +385,7 @@ func TestMergeOverrideFiles(t *testing.T) {
 			"main.tf":     &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 1 }`)},
 			"override.tf": &fstest.MapFile{Data: []byte(``)},
 		}
-		result, diags, err := mergeOverrides(fsys)
+		result, diags, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 		assert.Empty(t, diags)
 
@@ -383,7 +398,7 @@ func TestMergeOverrideFiles(t *testing.T) {
 		original := fstest.MapFS{
 			"main.tf": &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 1 }`)},
 		}
-		result, diags, err := mergeOverrides(original)
+		result, diags, err := testMergeOverrides(t, original)
 		require.NoError(t, err)
 		assert.Empty(t, diags)
 		// Should return the exact same FS when there are no overrides.
@@ -398,7 +413,7 @@ func TestMergeOverrideFiles(t *testing.T) {
   y = 2
 }`)},
 		}
-		_, _, err := mergeOverrides(fsys)
+		_, _, err := testMergeOverrides(t, fsys)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "no matching block")
 	})
@@ -414,7 +429,7 @@ func TestMergeOverrideFiles(t *testing.T) {
   y = 99
 }`)},
 		}
-		result, _, err := mergeOverrides(fsys)
+		result, _, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 
 		// Read the merged primary file.
@@ -428,7 +443,7 @@ func TestMergeOverrideFiles(t *testing.T) {
 			"main.tf":     &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 1 }`)},
 			"override.tf": &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 2 }`)},
 		}
-		result, _, err := mergeOverrides(fsys)
+		result, _, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 
 		_, err = result.Open("override.tf")
@@ -443,7 +458,7 @@ func TestMergeOverrideFiles(t *testing.T) {
 			"foo_override.tf": &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 2 }`)},
 			"other.txt":       &fstest.MapFile{Data: []byte("hello")},
 		}
-		result, _, err := mergeOverrides(fsys)
+		result, _, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 
 		f, err := result.Open(".")
@@ -481,7 +496,7 @@ func TestMergeOverrideFiles(t *testing.T) {
   from_b = "bbb"
 }`)},
 		}
-		result, _, err := mergeOverrides(fsys)
+		result, _, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 
 		content := readFile(t, result, "main.tf")
@@ -502,7 +517,7 @@ func TestMergeOverrideFiles(t *testing.T) {
   y = 42
 }`)},
 		}
-		result, _, err := mergeOverrides(fsys)
+		result, _, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 
 		// Root file should be unchanged (no overrides in root).
@@ -525,7 +540,7 @@ func TestMergeOverrideFiles(t *testing.T) {
 			"main.tf":          &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 1 }`)},
 			"override.tf.json": &fstest.MapFile{Data: []byte(`{}`)},
 		}
-		result, diags, err := mergeOverrides(fsys)
+		result, diags, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 
 		// Should warn about the .tf.json override file.
@@ -543,10 +558,10 @@ func TestMergeOverrideFiles(t *testing.T) {
 			"main.tf":       &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 1 }`)},
 			"other.tf.json": &fstest.MapFile{Data: []byte(`{}`)},
 		}
-		result, diags, err := mergeOverrides(fsys)
+		result, diags, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 
-		// No warnings for primary .tf.json files.
+		// No warnings for primary .tf.json files because there are no overrides.
 		assert.Empty(t, diags)
 
 		// Original FS returned since no overrides exist.
@@ -561,9 +576,11 @@ func TestMergeOverrideFiles(t *testing.T) {
 			"extra.tf.json": &fstest.MapFile{Data: jsonContent},
 			"override.tf":   &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 2 }`)},
 		}
-		result, diags, err := mergeOverrides(fsys)
+		result, diags, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
-		assert.Empty(t, diags)
+
+		require.Len(t, diags, 1)
+		assert.Contains(t, diags[0].Summary, "Primary file uses .tf.json format")
 
 		// .tf.json file should still be accessible in the result FS.
 		content := readFile(t, result, "extra.tf.json")
@@ -579,7 +596,7 @@ func TestMergeOverrideFiles(t *testing.T) {
 			"a_override.tf":      &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 99 }`)},
 			"b_override.tf.json": &fstest.MapFile{Data: []byte(`{}`)},
 		}
-		result, diags, err := mergeOverrides(fsys)
+		result, diags, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 
 		// Warning for the .tf.json override only.
@@ -603,7 +620,7 @@ func TestMergeOverrideFiles(t *testing.T) {
   foo = "overridden"
 }`)},
 		}
-		result, diags, err := mergeOverrides(fsys)
+		result, diags, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 		assert.Empty(t, diags)
 
@@ -627,7 +644,7 @@ func TestMergeOverrideFiles(t *testing.T) {
   from_b = "overridden_b"
 }`)},
 		}
-		result, diags, err := mergeOverrides(fsys)
+		result, diags, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 		assert.Empty(t, diags)
 
@@ -660,7 +677,7 @@ locals {
   y = "y_from_b"
 }`)},
 		}
-		result, diags, err := mergeOverrides(fsys)
+		result, diags, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 		assert.Empty(t, diags)
 
@@ -682,12 +699,12 @@ locals {
   nonexistent = "nope"
 }`)},
 		}
-		result, diags, err := mergeOverrides(fsys)
+		result, diags, err := testMergeOverrides(t, fsys)
 		require.Error(t, err)
 		assert.Nil(t, result)
 		require.Len(t, diags, 1)
 		assert.Equal(t, hcl.DiagError, diags[0].Severity)
-		assert.Contains(t, diags[0].Summary, "Missing base local value definition")
+		assert.Contains(t, diags[0].Summary, "Missing base local")
 	})
 
 	t.Run("DuplicatePrimaryBlockErrors", func(t *testing.T) {
@@ -704,12 +721,12 @@ data "coder_parameter" "foo" {
   name = "bar"
 }`)},
 		}
-		result, diags, err := mergeOverrides(fsys)
+		result, diags, err := testMergeOverrides(t, fsys)
 		require.Error(t, err)
 		assert.Nil(t, result, "FS should be nil so caller keeps original")
 		require.Len(t, diags, 1)
 		assert.Equal(t, hcl.DiagError, diags[0].Severity)
-		assert.Contains(t, diags[0].Summary, "Duplicate block in primary")
+		assert.Contains(t, diags[0].Summary, "Duplicate block")
 	})
 
 	t.Run("DuplicatePrimaryLocalsNoError", func(t *testing.T) {
@@ -726,7 +743,7 @@ locals {
   a = 99
 }`)},
 		}
-		result, diags, err := mergeOverrides(fsys)
+		result, diags, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 		assert.Empty(t, diags)
 
@@ -752,7 +769,7 @@ terraform {
 resource "a" "b" { x = 1 }`)},
 			"override.tf": &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 2 }`)},
 		}
-		result, diags, err := mergeOverrides(fsys)
+		result, diags, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
 		assert.Empty(t, diags)
 
@@ -773,7 +790,7 @@ func TestFilteredReadDir(t *testing.T) {
 		"other.tf":      &fstest.MapFile{Data: []byte(`resource "c" "d" { y = 1 }`)},
 		"b_override.tf": &fstest.MapFile{Data: []byte(`resource "c" "d" { y = 2 }`)},
 	}
-	result, _, err := mergeOverrides(fsys)
+	result, _, err := testMergeOverrides(t, fsys)
 	require.NoError(t, err)
 
 	f, err := result.Open(".")

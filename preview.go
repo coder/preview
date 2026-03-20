@@ -172,7 +172,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 	if err != nil {
 		overrideDiags = overrideDiags.Append(&hcl.Diagnostic{
 			Severity: hcl.DiagWarning,
-			Summary:  "Terraform override files not processed due to error",
+			Summary:  "Override file merging disabled due to an error",
 			Detail:   err.Error(),
 		})
 	} else {

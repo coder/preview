@@ -23,21 +23,24 @@ type primaryState struct {
 // and returns a new FS where override content has been merged into primary
 // files using Terraform's override semantics.
 // If no override files are found, the original FS is returned unchanged.
-// If an error is encountered while processing HCL, diagnostics are returned in
-// addition to a non-nil error.
+// If an error is encountered, diagnostics are returned in addition to a
+// non-nil error.
+// Warning diagnostics may also be returned on success (e.g. for skipped
+// .tf.json files).
 //
 // Override files are identified by Terraform's naming convention:
 // "override.tf", "*_override.tf", and their .tf.json variants. We only support
 // .tf files; .tf.json files get a diagnostic warning and are excluded from
 // override merging.
 //
-// https://developer.hashicorp.com/terraform/language/files/override
+// Ref: https://developer.hashicorp.com/terraform/language/files/override
 //
-// Note: Terraform validates primary blocks before merging overrides, so it
+// NOTE: Terraform validates primary blocks before merging overrides, so it
 // rejects a primary block that is missing a required attribute even if the
 // override would supply it. We merge first, so this edge case passes
 // validation. This is immaterial in practice: Coder runs terraform plan
-// during template import, which would catch it before the template is saved.
+// during template import, which would catch it before the template is
+// published.
 func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 	// Group files by directory, separating primary from override files.
 	// Walk the entire tree, not just the root directory, because Trivy's
@@ -46,6 +49,8 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 	type dirFiles struct {
 		primaries []string
 		overrides []string
+		// Used to generate warnings at merge stage.
+		jsonPrimaries []string
 	}
 	dirs := make(map[string]*dirFiles)
 
@@ -65,23 +70,27 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 			return nil
 		}
 
-		// Only .tf files are supported for override merging. Skip .tf.json
-		// files entirely — they remain in the FS for Trivy to parse directly
-		// but never participate in override merging.
+		dir := path.Dir(p)
+		if dirs[dir] == nil {
+			dirs[dir] = &dirFiles{}
+		}
+
+		// We don't support parsing .tf.json files. They remain in the
+		// FS for Trivy to parse directly but never participate in
+		// override merging.
 		if ext == ".tf.json" {
 			if isOverrideFile(d.Name()) {
 				warnings = warnings.Append(&hcl.Diagnostic{
 					Severity: hcl.DiagWarning,
-					Summary:  "Unmerged .tf.json override file",
-					Detail:   fmt.Sprintf("Not merging override file %q that uses JSON format", p),
+					Summary:  "Override file uses unsupported .tf.json format",
+					Detail:   fmt.Sprintf("%s skipped for override merging", p),
 				})
+			} else {
+				// Save the name of the .tf.json primary so we issue a
+				// warning only if we do merging for the dir (less noise).
+				dirs[dir].jsonPrimaries = append(dirs[dir].jsonPrimaries, p)
 			}
 			return nil
-		}
-
-		dir := path.Dir(p)
-		if dirs[dir] == nil {
-			dirs[dir] = &dirFiles{}
 		}
 
 		if isOverrideFile(d.Name()) {
@@ -92,7 +101,7 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 		return nil
 	})
 	if err != nil {
-		return nil, warnings, fmt.Errorf("walk filesystem: %w", err)
+		return nil, warnings, fmt.Errorf("error reading template files: %w", err)
 	}
 
 	hasOverrides := false
@@ -117,17 +126,25 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 			continue
 		}
 
+		for _, jp := range dir.jsonPrimaries {
+			warnings = warnings.Append(&hcl.Diagnostic{
+				Severity: hcl.DiagWarning,
+				Summary:  "Primary file uses .tf.json format",
+				Detail:   fmt.Sprintf("%s skipped for override merging", jp),
+			})
+		}
+
 		// Parse all primary files upfront so override files can be applied
 		// sequentially, each merging into the already-merged result.
 		primaries := make([]*primaryState, 0, len(dir.primaries))
 		for _, path := range dir.primaries {
 			content, err := fs.ReadFile(origFS, path)
 			if err != nil {
-				return nil, warnings, fmt.Errorf("read file %s: %w", path, err)
+				return nil, warnings, fmt.Errorf("error reading file %s: %w", path, err)
 			}
 			f, diags := hclwrite.ParseConfig(content, path, hcl.Pos{Line: 1, Column: 1})
 			if diags.HasErrors() {
-				return nil, warnings.Extend(diags), fmt.Errorf("parse file %s", path)
+				return nil, warnings.Extend(diags), errors.New("error parsing file")
 			}
 			primaries = append(primaries, &primaryState{path: path, file: f})
 		}
@@ -136,7 +153,7 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 		// rejects them.
 		diags := checkDuplicatePrimaryBlocks(primaries)
 		if diags.HasErrors() {
-			return nil, warnings.Extend(diags), errors.New("check duplicate primary blocks")
+			return nil, warnings.Extend(diags), errors.New("error checking duplicate primary blocks")
 		}
 
 		// Process each override file sequentially. If multiple override files
@@ -145,12 +162,12 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 		for _, path := range dir.overrides {
 			content, err := fs.ReadFile(origFS, path)
 			if err != nil {
-				return nil, warnings, fmt.Errorf("read file %s: %w", path, err)
+				return nil, warnings, fmt.Errorf("error reading file %s: %w", path, err)
 			}
 
 			f, diags := hclwrite.ParseConfig(content, path, hcl.Pos{Line: 1, Column: 1})
 			if diags.HasErrors() {
-				return nil, warnings.Extend(diags), fmt.Errorf("parse file %s", path)
+				return nil, warnings.Extend(diags), errors.New("error parsing file")
 			}
 
 			for _, oblock := range f.Body().Blocks() {
@@ -160,7 +177,7 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 				if oblock.Type() == "locals" {
 					diags := mergeLocalsBlock(primaries, oblock, path)
 					if diags.HasErrors() {
-						return nil, warnings.Extend(diags), fmt.Errorf("merge locals block")
+						return nil, warnings.Extend(diags), errors.New("error merging locals block")
 					}
 					continue
 				}
@@ -312,7 +329,7 @@ func mergeLocalsBlock(primaries []*primaryState, override *hclwrite.Block, overr
 			diags = diags.Append(&hcl.Diagnostic{
 				Severity: hcl.DiagError,
 				Summary:  "Missing base local value definition to override",
-				Detail:   fmt.Sprintf("No local %q found in primary files; defined in %s.", name, overridePath),
+				Detail:   fmt.Sprintf("Local %q in %s has no base definition to override", name, overridePath),
 			})
 		}
 	}
@@ -376,8 +393,8 @@ func checkDuplicatePrimaryBlocks(primaries []*primaryState) hcl.Diagnostics {
 			if firstFile, exists := seen[key]; exists {
 				diags = diags.Append(&hcl.Diagnostic{
 					Severity: hcl.DiagError,
-					Summary:  "Duplicate block in primary",
-					Detail:   fmt.Sprintf("Block %s defined in both %s and %s; Terraform rejects duplicates.", key, firstFile, primary.path),
+					Summary:  fmt.Sprintf("Duplicate block %q", key),
+					Detail:   fmt.Sprintf("Block %q defined in both %s and %s", key, firstFile, primary.path),
 				})
 			} else {
 				seen[key] = primary.path
