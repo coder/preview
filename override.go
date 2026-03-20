@@ -240,6 +240,7 @@ func mergeBlock(primary, override *hclwrite.Block) {
 	// overridden.
 	overriddenBlockTypes := make(map[string]bool)
 	for _, child := range override.Body().Blocks() {
+		// E.g. `dynamic "option" {...}`
 		if child.Type() == "dynamic" && len(child.Labels()) > 0 {
 			overriddenBlockTypes[child.Labels()[0]] = true
 		} else {

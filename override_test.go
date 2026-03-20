@@ -1,6 +1,7 @@
 package preview
 
 import (
+	"io"
 	"io/fs"
 	"strings"
 	"testing"
@@ -758,4 +759,47 @@ resource "a" "b" { x = 1 }`)},
 		content := string(readFile(t, result, "main.tf"))
 		assert.Contains(t, content, "x = 2")
 	})
+}
+
+// TestFilteredReadDir verifies that filteredDir.ReadDir(n) with n > 0
+// never returns an empty slice with nil error, which would violate
+// the fs.ReadDirFile contract.
+func TestFilteredReadDir(t *testing.T) {
+	t.Parallel()
+	// Create an FS where every other file is hidden (override files).
+	fsys := fstest.MapFS{
+		"main.tf":       &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 1 }`)},
+		"a_override.tf": &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 2 }`)},
+		"other.tf":      &fstest.MapFile{Data: []byte(`resource "c" "d" { y = 1 }`)},
+		"b_override.tf": &fstest.MapFile{Data: []byte(`resource "c" "d" { y = 2 }`)},
+	}
+	result, _, err := mergeOverrides(fsys)
+	require.NoError(t, err)
+
+	f, err := result.Open(".")
+	require.NoError(t, err)
+	defer f.Close()
+
+	rdf, ok := f.(fs.ReadDirFile)
+	require.True(t, ok)
+
+	// Read one entry at a time - should never get empty slice with
+	// nil error.
+	var names []string
+	for {
+		entries, err := rdf.ReadDir(1)
+		for _, e := range entries {
+			names = append(names, e.Name())
+		}
+		if err == io.EOF {
+			break
+		}
+		require.NoError(t, err)
+		assert.NotEmpty(t, entries, "ReadDir(1) returned empty slice with nil error")
+	}
+
+	assert.Contains(t, names, "main.tf")
+	assert.Contains(t, names, "other.tf")
+	assert.NotContains(t, names, "a_override.tf")
+	assert.NotContains(t, names, "b_override.tf")
 }

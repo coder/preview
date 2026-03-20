@@ -3,7 +3,7 @@ terraform {
   required_version = ">= 1.1"
 }
 
-# Override region's default (will be overridden again by b_override).
+# Override region's default (will be overridden again by override.tf).
 data "coder_parameter" "region" {
   default = "eu"
 }

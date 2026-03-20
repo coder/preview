@@ -2,6 +2,7 @@ package preview
 
 import (
 	"bytes"
+	"fmt"
 	"io/fs"
 	"path"
 	"time"
@@ -34,7 +35,12 @@ func (o *overrideFS) Open(name string) (fs.File, error) {
 	}
 
 	// If this is a directory, wrap it to filter hidden entries.
-	if info, err := f.Stat(); err == nil && info.IsDir() {
+	info, err := f.Stat()
+	if err != nil {
+		f.Close()
+		return nil, fmt.Errorf("stat %s: %w", name, err)
+	}
+	if info.IsDir() {
 		if rdf, ok := f.(fs.ReadDirFile); ok {
 			return &filteredDir{ReadDirFile: rdf, hidden: o.hidden, dirPath: name}, nil
 		}
@@ -78,17 +84,25 @@ type filteredDir struct {
 
 func (d *filteredDir) ReadDir(n int) ([]fs.DirEntry, error) {
 	entries, err := d.ReadDirFile.ReadDir(n)
-	if err != nil {
-		return nil, err
+	filtered := d.filter(entries)
+
+	// If n > 0, an empty slice must have a non-nil error per the
+	// fs.ReadDirFile contract. Keep reading until we have results
+	// or the underlying reader signals EOF/error.
+	for n > 0 && len(filtered) == 0 && err == nil {
+		entries, err = d.ReadDirFile.ReadDir(n)
+		filtered = d.filter(entries)
 	}
 
+	return filtered, err
+}
+
+func (d *filteredDir) filter(entries []fs.DirEntry) []fs.DirEntry {
 	filtered := make([]fs.DirEntry, 0, len(entries))
 	for _, entry := range entries {
-		fullPath := path.Join(d.dirPath, entry.Name())
-		if !d.hidden[fullPath] {
+		if !d.hidden[path.Join(d.dirPath, entry.Name())] {
 			filtered = append(filtered, entry)
 		}
 	}
-
-	return filtered, nil
+	return filtered
 }
