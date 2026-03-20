@@ -44,8 +44,8 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 	// EvaluateAll processes all modules, so we need to pre-merge overrides at
 	// every level before Trivy sees the FS.
 	type dirFiles struct {
-		primary  []string
-		override []string
+		primaries []string
+		overrides []string
 	}
 	dirs := make(map[string]*dirFiles)
 
@@ -85,9 +85,9 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 		}
 
 		if isOverrideFile(d.Name()) {
-			dirs[dir].override = append(dirs[dir].override, p)
+			dirs[dir].overrides = append(dirs[dir].overrides, p)
 		} else {
-			dirs[dir].primary = append(dirs[dir].primary, p)
+			dirs[dir].primaries = append(dirs[dir].primaries, p)
 		}
 		return nil
 	})
@@ -97,7 +97,7 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 
 	hasOverrides := false
 	for _, dir := range dirs {
-		if len(dir.override) > 0 {
+		if len(dir.overrides) > 0 {
 			hasOverrides = true
 			break
 		}
@@ -113,14 +113,14 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 	hidden := make(map[string]bool)
 
 	for _, dir := range dirs {
-		if len(dir.override) == 0 {
+		if len(dir.overrides) == 0 {
 			continue
 		}
 
 		// Parse all primary files upfront so override files can be applied
 		// sequentially, each merging into the already-merged result.
-		primaries := make([]*primaryState, 0, len(dir.primary))
-		for _, path := range dir.primary {
+		primaries := make([]*primaryState, 0, len(dir.primaries))
+		for _, path := range dir.primaries {
 			content, err := fs.ReadFile(origFS, path)
 			if err != nil {
 				return nil, warnings, fmt.Errorf("read file %s: %w", path, err)
@@ -142,7 +142,7 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 		// Process each override file sequentially. If multiple override files
 		// define the same block, each merges into the already-merged primary,
 		// matching Terraform's behavior.
-		for _, path := range dir.override {
+		for _, path := range dir.overrides {
 			content, err := fs.ReadFile(origFS, path)
 			if err != nil {
 				return nil, warnings, fmt.Errorf("read file %s: %w", path, err)
