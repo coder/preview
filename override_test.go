@@ -707,75 +707,36 @@ locals {
 		assert.Contains(t, diags[0].Summary, "Missing base local")
 	})
 
-	t.Run("DuplicatePrimaryBlockErrors", func(t *testing.T) {
-		t.Parallel()
-		fsys := fstest.MapFS{
-			"main.tf": &fstest.MapFile{Data: []byte(`data "coder_parameter" "foo" {
-  name = "foo"
-}
-
-data "coder_parameter" "foo" {
-  name = "foo"
-}`)},
-			"override.tf": &fstest.MapFile{Data: []byte(`data "coder_parameter" "foo" {
-  name = "bar"
-}`)},
-		}
-		result, diags, err := testMergeOverrides(t, fsys)
-		require.Error(t, err)
-		assert.Nil(t, result, "FS should be nil so caller keeps original")
-		require.Len(t, diags, 1)
-		assert.Equal(t, hcl.DiagError, diags[0].Severity)
-		assert.Contains(t, diags[0].Summary, "Duplicate block")
-	})
-
-	t.Run("DuplicatePrimaryLocalsNoError", func(t *testing.T) {
-		t.Parallel()
-		fsys := fstest.MapFS{
-			"main.tf": &fstest.MapFile{Data: []byte(`locals {
-  a = 1
-}
-
-locals {
-  b = 2
-}`)},
-			"override.tf": &fstest.MapFile{Data: []byte(`locals {
-  a = 99
-}`)},
-		}
-		result, diags, err := testMergeOverrides(t, fsys)
-		require.NoError(t, err)
-		assert.Empty(t, diags)
-
-		content := string(readFile(t, result, "main.tf"))
-		assert.Contains(t, content, "a = 99")
-	})
-
-	t.Run("DuplicatePrimaryTerraformNoError", func(t *testing.T) {
+	t.Run("TerraformBlockSkipped", func(t *testing.T) {
 		t.Parallel()
 		fsys := fstest.MapFS{
 			"main.tf": &fstest.MapFile{Data: []byte(`terraform {
   required_version = ">= 1.0"
 }
 
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-    }
-  }
+resource "a" "b" { x = 1 }`)},
+			"override.tf": &fstest.MapFile{Data: []byte(`terraform {
+  required_version = ">= 2.0"
 }
 
-resource "a" "b" { x = 1 }`)},
-			"override.tf": &fstest.MapFile{Data: []byte(`resource "a" "b" { x = 2 }`)},
+resource "a" "b" { x = 2 }`)},
 		}
 		result, diags, err := testMergeOverrides(t, fsys)
 		require.NoError(t, err)
-		assert.Empty(t, diags)
 
+		// Warning about skipped terraform block.
+		require.Len(t, diags, 1)
+		assert.Equal(t, hcl.DiagWarning, diags[0].Severity)
+		assert.Contains(t, diags[0].Summary, "unsupported 'terraform' block")
+
+		// Resource override still applied.
 		content := string(readFile(t, result, "main.tf"))
 		assert.Contains(t, content, "x = 2")
+		// Terraform block unchanged.
+		assert.Contains(t, content, ">= 1.0")
+		assert.NotContains(t, content, ">= 2.0")
 	})
+
 }
 
 // TestFilteredReadDir verifies that filteredDir.ReadDir(n) with n > 0

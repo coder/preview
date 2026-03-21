@@ -96,7 +96,9 @@ func (d *filteredDir) ReadDir(n int) ([]fs.DirEntry, error) {
 	// If n > 0, an empty slice must have a non-nil error per the
 	// fs.ReadDirFile contract. Keep reading until we have results
 	// or the underlying reader signals EOF/error.
-	for n > 0 && len(filtered) == 0 && err == nil {
+	// (len(entries) > 0 is defensive programming against underlying
+	// FSs that break the contract.)
+	for n > 0 && len(filtered) == 0 && err == nil && len(entries) > 0 {
 		entries, err = d.ReadDirFile.ReadDir(n)
 		filtered = d.filter(entries)
 	}

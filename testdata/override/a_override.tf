@@ -1,5 +1,5 @@
 terraform {
-  # An override.
+  # An override (will be skipped).
   required_version = ">= 1.1"
 }
 

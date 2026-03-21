@@ -34,13 +34,6 @@ type primaryState struct {
 // override merging.
 //
 // Ref: https://developer.hashicorp.com/terraform/language/files/override
-//
-// NOTE: Terraform validates primary blocks before merging overrides, so it
-// rejects a primary block that is missing a required attribute even if the
-// override would supply it. We merge first, so this edge case passes
-// validation. This is immaterial in practice: Coder runs terraform plan
-// during template import, which would catch it before the template is
-// published.
 func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 	// Group files by directory, separating primary from override files.
 	// Walk the entire tree, not just the root directory, because Trivy's
@@ -149,13 +142,6 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 			primaries = append(primaries, &primaryState{path: path, file: f})
 		}
 
-		// Check for duplicate primary blocks before merging - Terraform
-		// rejects them.
-		diags := checkDuplicatePrimaryBlocks(primaries)
-		if diags.HasErrors() {
-			return nil, warnings.Extend(diags), errors.New("error checking duplicate primary blocks")
-		}
-
 		// Process each override file sequentially. If multiple override files
 		// define the same block, each merges into the already-merged primary,
 		// matching Terraform's behavior.
@@ -179,6 +165,17 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 					if diags.HasErrors() {
 						return nil, warnings.Extend(diags), errors.New("error merging locals block")
 					}
+					continue
+				}
+				// 'terraform' block override semantics are too nuanced
+				// to implement right now. Hopefully they are rare in
+				// practice.
+				if oblock.Type() == "terraform" {
+					warnings = warnings.Append(&hcl.Diagnostic{
+						Severity: hcl.DiagWarning,
+						Summary:  "Override file has unsupported 'terraform' block",
+						Detail:   fmt.Sprintf("'terraform' block in %s skipped for override merging", path),
+					})
 					continue
 				}
 
@@ -234,10 +231,6 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 //     introducing entirely new block types not present in the primary.
 //
 // Ref: https://github.com/hashicorp/terraform/blob/7960f60d2147d43f5cf675a898438f6a6693da1b/internal/configs/module_merge_body.go#L76-L121
-//
-// Note: Terraform re-validates type/default compatibility after variable block
-// merge.  We rely on Trivy's evaluator to do that during evaluation of the
-// merged HCL.
 func mergeBlock(primary, override *hclwrite.Block) {
 	// hclwrite preserves the formatting of the original block. If the
 	// primary body is empty and inline (e.g. `variable "x" {}`),
@@ -370,36 +363,4 @@ func blockKey(blockType string, labels []string) string {
 		return blockType
 	}
 	return blockType + "." + strings.Join(labels, ".")
-}
-
-// checkDuplicatePrimaryBlocks detects primary blocks that share the
-// same block key. Terraform validates uniqueness before override
-// merging, so duplicates are always invalid.
-//
-// Ref: https://github.com/hashicorp/terraform/blob/7960f60d2147d43f5cf675a898438f6a6693da1b/internal/configs/module.go#L309-L437
-func checkDuplicatePrimaryBlocks(primaries []*primaryState) hcl.Diagnostics {
-	var diags hcl.Diagnostics
-	seen := make(map[string]string) // blockKey -> first file path
-	for _, primary := range primaries {
-		for _, block := range primary.file.Body().Blocks() {
-			// Multiple locals and terraform blocks are valid in
-			// Terraform — locals are containers for individual
-			// attributes, and terraform blocks accumulate their
-			// sub-components (required_providers, backend, etc.).
-			if block.Type() == "locals" || block.Type() == "terraform" {
-				continue
-			}
-			key := blockKey(block.Type(), block.Labels())
-			if firstFile, exists := seen[key]; exists {
-				diags = diags.Append(&hcl.Diagnostic{
-					Severity: hcl.DiagError,
-					Summary:  fmt.Sprintf("Duplicate block %q", key),
-					Detail:   fmt.Sprintf("Block %q defined in both %s and %s", key, firstFile, primary.path),
-				})
-			} else {
-				seen[key] = primary.path
-			}
-		}
-	}
-	return diags
 }
