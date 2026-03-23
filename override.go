@@ -163,7 +163,7 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 				if oblock.Type() == "locals" {
 					diags := mergeLocalsBlock(primaries, oblock, path)
 					if diags.HasErrors() {
-						return nil, warnings.Extend(diags), errors.New("error merging locals block")
+						return nil, warnings.Extend(diags), errors.New("error merging 'locals' block")
 					}
 					continue
 				}
@@ -197,7 +197,7 @@ func mergeOverrides(origFS fs.FS) (fs.FS, hcl.Diagnostics, error) {
 				if !matched {
 					// Terraform requires every override block to have a corresponding
 					// primary block — override files can only modify, not create.
-					return nil, warnings, fmt.Errorf("override block %s in %s has no matching block in a primary file", key, path)
+					return nil, warnings, fmt.Errorf("override block %q in %s has no matching block in a primary file", key, path)
 				}
 			}
 
