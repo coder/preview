@@ -9,6 +9,7 @@ import (
 	"slices"
 	"strings"
 	"testing"
+	"testing/fstest"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/stretchr/testify/assert"
@@ -48,6 +49,7 @@ func Test_Extract(t *testing.T) {
 		presetsFuncs func(t *testing.T, presets []types.Preset)
 		presets      map[string]assertPreset
 		warnings     []*regexp.Regexp
+		secretRequirements []types.SecretRequirement
 	}{
 		{
 			name:        "bad param values",
@@ -658,6 +660,38 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
+			name: "secrets basic",
+			dir:  "secretsbasic",
+			secretRequirements: []types.SecretRequirement{
+				{Env: "GITHUB_TOKEN", HelpMessage: "Add a GitHub PAT"},
+				{File: "~/.aws/credentials", HelpMessage: "Add AWS creds"},
+			},
+		},
+		{
+			name: "secrets conditional off",
+			dir:  "secretsconditional",
+			input: preview.Input{
+				ParameterValues: map[string]string{"use_github": "false"},
+			},
+			params: map[string]assertParam{
+				"use_github": ap().value("false"),
+			},
+			secretRequirements: nil,
+		},
+		{
+			name: "secrets conditional on",
+			dir:  "secretsconditional",
+			input: preview.Input{
+				ParameterValues: map[string]string{"use_github": "true"},
+			},
+			params: map[string]assertParam{
+				"use_github": ap().value("true"),
+			},
+			secretRequirements: []types.SecretRequirement{
+				{Env: "GITHUB_TOKEN", HelpMessage: "Add a GitHub PAT"},
+			},
+		},
+		{
 			name: "override",
 			dir:  "override",
 			params: map[string]assertParam{
@@ -756,6 +790,10 @@ func Test_Extract(t *testing.T) {
 				require.True(t, ok, "unknown variable %s", variable.Name)
 				check(t, variable)
 			}
+
+			// Assert secret requirements
+			require.ElementsMatch(t, tc.secretRequirements, output.SecretRequirements,
+				"secret requirements do not match expected")
 		})
 	}
 }
@@ -1104,4 +1142,80 @@ DiagLoop:
 	}
 
 	assert.Equal(t, []string{}, checks, "missing expected diagnostic errors")
+}
+
+func Test_SecretRequirementErrors(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		tf       string
+		wantDiag string // substring match on summary+" "+detail
+	}{
+		{
+			name: "missing help_message",
+			tf: `
+data "coder_secret" "x" {
+  env = "X"
+}
+`,
+			wantDiag: `help_message`,
+		},
+		{
+			name: "help_message null",
+			tf: `
+data "coder_secret" "x" {
+  env          = "X"
+  help_message = null
+}
+`,
+			wantDiag: `help_message`,
+		},
+		{
+			name: "help_message wrong type (number)",
+			tf: `
+data "coder_secret" "x" {
+  env          = "X"
+  help_message = 42
+}
+`,
+			wantDiag: `Expected a string`,
+		},
+		{
+			name: "neither env nor file",
+			tf: `
+data "coder_secret" "x" {
+  help_message = "need one"
+}
+`,
+			wantDiag: `Exactly one of "env" or "file" must be set`,
+		},
+		{
+			name: "both env and file",
+			tf: `
+data "coder_secret" "x" {
+  env          = "X"
+  file         = "~/y"
+  help_message = "ok"
+}
+`,
+			wantDiag: `Exactly one of "env" or "file" must be set`,
+		},
+	}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			fsys := fstest.MapFS{"main.tf": &fstest.MapFile{Data: []byte(tc.tf)}}
+			_, diags := preview.Preview(context.Background(), preview.Input{}, fsys)
+			require.True(t, diags.HasErrors(), "expected errors; got %v", diags)
+			var found bool
+			for _, d := range diags {
+				if strings.Contains(d.Summary+" "+d.Detail, tc.wantDiag) {
+					found = true
+					break
+				}
+			}
+			require.True(t, found,
+				"no diag matching %q; got: %v", tc.wantDiag, diags)
+		})
+	}
 }
