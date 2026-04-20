@@ -1,6 +1,8 @@
 package extract
 
 import (
+	"fmt"
+
 	"github.com/aquasecurity/trivy/pkg/iac/terraform"
 	"github.com/hashicorp/hcl/v2"
 
@@ -10,10 +12,24 @@ import (
 // SecretFromBlock decodes a `data "coder_secret" {}` Terraform block into a
 // SecretRequirement. Exactly one of `env` or `file` must be set, and
 // `help_message` is required. Returns (nil, diags) on validation failure.
-func SecretFromBlock(block *terraform.Block) (*types.SecretRequirement, hcl.Diagnostics) {
+func SecretFromBlock(block *terraform.Block) (req *types.SecretRequirement, diags hcl.Diagnostics) {
+	defer func() {
+		// Extra safety mechanism to ensure that if a panic occurs, we do not break
+		// everything else.
+		if r := recover(); r != nil {
+			req = nil
+			diags = hcl.Diagnostics{
+				{
+					Severity: hcl.DiagError,
+					Summary:  "Panic occurred in extracting secret requirement. This should not happen, please report this to Coder.",
+					Detail:   fmt.Sprintf("panic in secret extract: %+v", r),
+				},
+			}
+		}
+	}()
+
 	// help_message is required AND must be a string; requiredString
 	// handles both checks and emits a proper type diagnostic.
-	var diags hcl.Diagnostics
 	help, helpDiag := requiredString(block, "help_message")
 	if helpDiag != nil {
 		diags = diags.Append(helpDiag)
