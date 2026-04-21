@@ -12,9 +12,9 @@ const BlockTypeSecret = "coder_secret"
 // template. Exactly one of Env or File will be non-empty; validation of that
 // invariant happens during extraction.
 type SecretRequirement struct {
-	Env         string `json:"env"`
-	File        string `json:"file"`
-	HelpMessage string `json:"help_message"`
+	Env         string `json:"env,omitempty"`
+	File        string `json:"file,omitempty"`
+	HelpMessage string `json:"help_message,omitempty"`
 }
 
 // SortSecretRequirements orders requirements first by Env then by File so

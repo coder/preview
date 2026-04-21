@@ -35,21 +35,43 @@ func SecretFromBlock(block *terraform.Block) (req *types.SecretRequirement, diag
 		diags = diags.Append(helpDiag)
 	}
 
-	env := optionalString(block, "env")
-	file := optionalString(block, "file")
+	// Check presence separately from value so we can distinguish "attribute
+	// absent" from "attribute present but wrong type"; the latter must produce
+	// a type diagnostic instead of being silently treated as unset.
+	envAttr := block.GetAttribute("env")
+	fileAttr := block.GetAttribute("file")
+	envSet := envAttr != nil && !envAttr.IsNil()
+	fileSet := fileAttr != nil && !fileAttr.IsNil()
 
-	// Mutual exclusivity: exactly one of env/file must be set.
+	var env, file string
+	if envSet {
+		v, d := requiredString(block, "env")
+		if d != nil {
+			diags = diags.Append(d)
+		}
+		env = v
+	}
+	if fileSet {
+		v, d := requiredString(block, "file")
+		if d != nil {
+			diags = diags.Append(d)
+		}
+		file = v
+	}
+
+	// Mutual exclusivity is based on presence, not parsed value, so a
+	// wrong-type attribute still counts as "set" here.
 	switch {
-	case env == "" && file == "":
-		r := block.HCLBlock().Body.MissingItemRange()
+	case !envSet && !fileSet:
+		r := block.HCLBlock().DefRange
 		diags = diags.Append(&hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  `Invalid "coder_secret" block`,
 			Detail:   `Exactly one of "env" or "file" must be set, neither were set`,
 			Subject:  &r,
 		})
-	case env != "" && file != "":
-		r := block.HCLBlock().Body.MissingItemRange()
+	case envSet && fileSet:
+		r := block.HCLBlock().DefRange
 		diags = diags.Append(&hcl.Diagnostic{
 			Severity: hcl.DiagError,
 			Summary:  `Invalid "coder_secret" block`,

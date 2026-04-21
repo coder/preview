@@ -42,13 +42,13 @@ func Test_Extract(t *testing.T) {
 		failPreview bool
 		input       preview.Input
 
-		expTags      map[string]string
-		unknownTags  []string
-		params       map[string]assertParam
-		variables    map[string]assertVariable
-		presetsFuncs func(t *testing.T, presets []types.Preset)
-		presets      map[string]assertPreset
-		warnings     []*regexp.Regexp
+		expTags            map[string]string
+		unknownTags        []string
+		params             map[string]assertParam
+		variables          map[string]assertVariable
+		presetsFuncs       func(t *testing.T, presets []types.Preset)
+		presets            map[string]assertPreset
+		warnings           []*regexp.Regexp
 		secretRequirements []types.SecretRequirement
 	}{
 		{
@@ -1200,6 +1200,60 @@ data "coder_secret" "x" {
 `,
 			wantDiag: `Exactly one of "env" or "file" must be set`,
 		},
+		{
+			name: "env wrong type (number)",
+			tf: `
+data "coder_secret" "x" {
+  env          = 42
+  help_message = "ok"
+}
+`,
+			wantDiag: `Expected a string`,
+		},
+		{
+			name: "file wrong type (bool)",
+			tf: `
+data "coder_secret" "x" {
+  file         = true
+  help_message = "ok"
+}
+`,
+			wantDiag: `Expected a string`,
+		},
+		{
+			name: "env null",
+			tf: `
+data "coder_secret" "x" {
+  env          = null
+  help_message = "ok"
+}
+`,
+			wantDiag: `Expected a string`,
+		},
+		{
+			name: "file null",
+			tf: `
+data "coder_secret" "x" {
+  file         = null
+  help_message = "ok"
+}
+`,
+			wantDiag: `Expected a string`,
+		},
+		{
+			name: "duplicate block labels",
+			tf: `
+data "coder_secret" "x" {
+  env          = "A"
+  help_message = "first"
+}
+data "coder_secret" "x" {
+  env          = "B"
+  help_message = "second"
+}
+`,
+			wantDiag: `duplicate coder_secret blocks with name "x"`,
+		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
@@ -1218,4 +1272,43 @@ data "coder_secret" "x" {
 				"no diag matching %q; got: %v", tc.wantDiag, diags)
 		})
 	}
+}
+
+// Test_SecretRequirement_DuplicateDetectionRequiresExtractionSuccess pins the
+// current behavior: duplicate-label detection only fires for blocks that
+// successfully extract. When one of two same-labeled blocks has an extraction
+// error (e.g. wrong attribute type), the dedup bookkeeping skips it, so the
+// "duplicate coder_secret blocks" diagnostic does not appear — only the
+// per-block extraction error does. This matches parameter.go's precedent.
+// If this behavior is ever changed to "track duplicates regardless of
+// extraction success," update this test.
+func Test_SecretRequirement_DuplicateDetectionRequiresExtractionSuccess(t *testing.T) {
+	t.Parallel()
+	tf := `
+data "coder_secret" "x" {
+  env          = 42
+  help_message = "first"
+}
+data "coder_secret" "x" {
+  env          = "B"
+  help_message = "second"
+}
+`
+	fsys := fstest.MapFS{"main.tf": &fstest.MapFile{Data: []byte(tf)}}
+	_, diags := preview.Preview(context.Background(), preview.Input{}, fsys)
+	require.True(t, diags.HasErrors(), "expected errors; got %v", diags)
+
+	var hasTypeErr, hasDupeErr bool
+	for _, d := range diags {
+		msg := d.Summary + " " + d.Detail
+		if strings.Contains(msg, "Expected a string") {
+			hasTypeErr = true
+		}
+		if strings.Contains(msg, "duplicate coder_secret blocks") {
+			hasDupeErr = true
+		}
+	}
+	require.True(t, hasTypeErr, "expected type error for env=42; got: %v", diags)
+	require.False(t, hasDupeErr,
+		"duplicate diagnostic unexpectedly fired; dedup should only track successful extractions. diags: %v", diags)
 }
