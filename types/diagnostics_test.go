@@ -40,7 +40,7 @@ func TestDiagnosticExtra(t *testing.T) {
 // The `parent` wrapped is lost here, so calling `SetDiagnosticExtra` is
 // lossy. In practice, we only call this once, so it's ok.
 // TODO: Fix SetDiagnosticExtra to maintain the parents
-//  if the DiagnosticExtra already exists in the chain.
+// if the DiagnosticExtra already exists in the chain.
 func TestDiagnosticExtraExisting(t *testing.T) {
 	diag := &hcl.Diagnostic{
 		Severity: hcl.DiagWarning,

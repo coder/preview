@@ -6,3 +6,7 @@ gen:
 .PHONY: clean-testdata
 clean-testdata:
 	git clean -xfd testdata
+
+.PHONY: fmt
+fmt:
+	gofmt -w .

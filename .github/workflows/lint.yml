@@ -36,3 +36,16 @@ jobs:
           key: golangci-lint-${{ runner.os }}-${{ hashFiles('**/*.go') }}
           restore-keys: |
             golangci-lint-${{ runner.os }}-
+
+  fmt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5.0.0
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.22.8
+      - name: make fmt
+        run: make fmt
+      - name: Check for unstaged files
+        run: ./scripts/check_unstaged.sh
