@@ -40,11 +40,10 @@ type Output struct {
 	// JSON marshalling is handled in the custom methods.
 	ModuleOutput cty.Value `json:"-"`
 
-	Parameters         []types.Parameter         `json:"parameters"`
-	WorkspaceTags      types.TagBlocks           `json:"workspace_tags"`
-	Presets            []types.Preset            `json:"presets"`
-	Variables          []types.Variable          `json:"variables"`
-	SecretRequirements []types.SecretRequirement `json:"secret_requirements"`
+	Parameters    []types.Parameter `json:"parameters"`
+	WorkspaceTags types.TagBlocks   `json:"workspace_tags"`
+	Presets       []types.Preset    `json:"presets"`
+	Variables     []types.Variable  `json:"variables"`
 	// Files is included for printing diagnostics.
 	// They can be marshalled, but not unmarshalled. This is a limitation
 	// of the HCL library.
@@ -280,20 +279,18 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 	preValidPresets := presets(modules, rp)
 	tags, tagDiags := workspaceTags(modules, p.Files())
 	vars := variables(modules)
-	secretReqs, secretDiags := secrets(modules)
 
 	// Add warnings
 	diags = diags.Extend(warnings(modules))
 
 	return &Output{
-		ModuleOutput:       outputs,
-		Parameters:         rp,
-		WorkspaceTags:      tags,
-		Presets:            preValidPresets,
-		Files:              p.Files(),
-		Variables:          vars,
-		SecretRequirements: secretReqs,
-	}, diags.Extend(overrideDiags).Extend(rpDiags).Extend(tagDiags).Extend(secretDiags)
+		ModuleOutput:  outputs,
+		Parameters:    rp,
+		WorkspaceTags: tags,
+		Presets:       preValidPresets,
+		Files:         p.Files(),
+		Variables:     vars,
+	}, diags.Extend(overrideDiags).Extend(rpDiags).Extend(tagDiags)
 }
 
 func (i Input) RichParameterValue(key string) (string, bool) {
