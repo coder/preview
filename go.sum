@@ -38,6 +38,10 @@ github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERo
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/ProtonMail/go-crypto v1.4.1 h1:9RfcZHqEQUvP8RzecWEUafnZVtEvrBVL9BiF67IQOfM=
 github.com/ProtonMail/go-crypto v1.4.1/go.mod h1:e1OaTyu5SYVrO9gKOEhTc+5UcXtTUa+P3uLudwcgPqo=
+github.com/PushTheLimit/trivy v0.0.0-20260825211335-fa2a87959259 h1:vba8EkcoWWGRr6nTNFspGAESDHswMwBLAz+y0XqxtfU=
+github.com/PushTheLimit/trivy v0.0.0-20260825211335-fa2a87959259/go.mod h1:+zF17ZBOdhFWwD3+GkLxZ/vkmKLudoOtt+hgnc1TQpA=
+github.com/PushTheLimit/trivy v0.0.0-20260825213047-3916002b18a9 h1:9cCoooPV3k63sQdDY0E0eFutFgy+avEMdWaWm6jc7qc=
+github.com/PushTheLimit/trivy v0.0.0-20260825213047-3916002b18a9/go.mod h1:+zF17ZBOdhFWwD3+GkLxZ/vkmKLudoOtt+hgnc1TQpA=
 github.com/agext/levenshtein v1.2.3 h1:YB2fHEn0UJagG8T1rrWknE3ZQzWM06O8AMAatNn7lmo=
 github.com/agext/levenshtein v1.2.3/go.mod h1:JEDfjyjHDjOF/1e4FlBE/PkbqA9OfWu2ki2W0IB5558=
 github.com/alecthomas/chroma v0.10.0 h1:7XDcGkCQopCNKjZHfYrNLraA+M7e0fMiJ/Mfikbfjek=
