@@ -126,6 +126,25 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
+			// Each "*_format" dropdown drives the sibling parameter's form_type,
+			// so this exercises form_type resolved from another parameter's value
+			// alongside static defaults. like_it defaults false, so the
+			// count-guarded "satisfaction" parameter is absent.
+			name: "form types",
+			dir:  "formtypes",
+			params: map[string]assertParam{
+				"single_select":  ap().value("radio").def("radio").formType(provider.ParameterFormTypeDropdown),
+				"single":         ap().value("alpha-value").def("alpha-value").formType(provider.ParameterFormTypeRadio),
+				"number_format":  ap().value("input").def("input").formType(provider.ParameterFormTypeDropdown),
+				"number":         ap().value("7").def("7").formType(provider.ParameterFormTypeInput),
+				"boolean_format": ap().value("radio").def("radio").formType(provider.ParameterFormTypeDropdown),
+				"boolean":        ap().value("true").def("true").formType(provider.ParameterFormTypeRadio),
+				"list_format":    ap().value("multi-select").def("multi-select").formType(provider.ParameterFormTypeDropdown),
+				"list":           ap().value(`["blue","green"]`).def(`["blue","green"]`).formType(provider.ParameterFormTypeMultiSelect),
+				"like_it":        ap().value("false").def("false").formType(provider.ParameterFormTypeCheckbox),
+			},
+		},
+		{
 			name: "sometags",
 			dir:  "sometags",
 			expTags: map[string]string{
