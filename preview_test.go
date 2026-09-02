@@ -55,19 +55,28 @@ func Test_Extract(t *testing.T) {
 			failPreview: true,
 		},
 		{
-			// Parameters and tags whose values flow from resource blocks must be
-			// unchanged when unreferenced resources are pruned by the target
-			// closure. Covers direct, local-indirected, and count-indexed
-			// references; an orphan resource is pruned without effect.
+			// Parameters, presets, and tags whose values flow from resource
+			// blocks must be unchanged when unreferenced resources are pruned by
+			// the target closure. Each target type (param/preset/tag) is proven
+			// to independently keep a resource, across direct, local, count-index,
+			// for_each-index, and transitive resource->resource references. An
+			// orphan resource is pruned without effect.
 			name: "resource closure",
 			dir:  "resourceclosure",
 			expTags: map[string]string{
-				"flavor": "large",
+				"flavor": "large",     // tag reads a param-shared resource
+				"tagged": "tag-large", // tag independently keeps its own resource
 			},
 			params: map[string]assertParam{
-				"flavor":  ap().value("large").def("large"),
-				"direct":  ap().value("large").def("large"),
-				"indexed": ap().value("poolimg").def("poolimg"),
+				"flavor":  ap().value("large").def("large"),             // via local
+				"direct":  ap().value("large").def("large"),             // direct
+				"indexed": ap().value("poolimg").def("poolimg"),         // count index
+				"byeach":  ap().value("fe-large").def("fe-large"),       // for_each index
+				"chained": ap().value("chain-large").def("chain-large"), // transitive resource->resource
+			},
+			presets: map[string]assertPreset{
+				// The preset independently keeps a resource nothing else references.
+				"big": aPre().value("flavor", "preset-large"),
 			},
 		},
 		{
