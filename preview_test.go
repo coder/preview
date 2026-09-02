@@ -80,6 +80,52 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
+			// A count-guarded parameter and a tag both driven by a submodule
+			// output.
+			name: "count-guarded param from submodule output",
+			dir:  "countsub",
+			expTags: map[string]string{
+				"test": "true",
+			},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"Region": ap().value("STATIC").def("STATIC"),
+			},
+		},
+		{
+			// A tag whose value comes from an http data source that cannot be
+			// resolved without plan data, so it is unknown.
+			name:        "tag from unknown http data source",
+			dir:         "http",
+			expTags:     map[string]string{},
+			unknownTags: []string{"tfversion"},
+		},
+		{
+			// Non-string tag keys and values.
+			name: "non-string tag values",
+			dir:  "notstringtag",
+			expTags: map[string]string{
+				"zone": "5",
+				"10":   "hello",
+			},
+			unknownTags: []string{},
+		},
+		{
+			// No guesses entered, so every parameter's value and default is the
+			// empty string.
+			name: "wordle empty defaults",
+			dir:  "wordle",
+			params: map[string]assertParam{
+				"letter_bank": ap().value("").def(""),
+				"one":         ap().value("").def(""),
+				"two":         ap().value("").def(""),
+				"three":       ap().value("").def(""),
+				"four":        ap().value("").def(""),
+				"five":        ap().value("").def(""),
+				"six":         ap().value("").def(""),
+			},
+		},
+		{
 			name: "sometags",
 			dir:  "sometags",
 			expTags: map[string]string{
