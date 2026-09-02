@@ -159,4 +159,4 @@ require (
 
 // Trivy has some issues that we're floating patches for, and will hopefully
 // be upstreamed eventually.
-replace github.com/aquasecurity/trivy => github.com/PushTheLimit/trivy v0.0.0-20260825213047-3916002b18a9
+replace github.com/aquasecurity/trivy => github.com/PushTheLimit/trivy v0.0.0-20260902202626-5f70611adf65
