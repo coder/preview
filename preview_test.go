@@ -55,6 +55,22 @@ func Test_Extract(t *testing.T) {
 			failPreview: true,
 		},
 		{
+			// Parameters and tags whose values flow from resource blocks must be
+			// unchanged when unreferenced resources are pruned by the target
+			// closure. Covers direct, local-indirected, and count-indexed
+			// references; an orphan resource is pruned without effect.
+			name: "resource closure",
+			dir:  "resourceclosure",
+			expTags: map[string]string{
+				"flavor": "large",
+			},
+			params: map[string]assertParam{
+				"flavor":  ap().value("large").def("large"),
+				"direct":  ap().value("large").def("large"),
+				"indexed": ap().value("poolimg").def("poolimg"),
+			},
+		},
+		{
 			name: "sometags",
 			dir:  "sometags",
 			expTags: map[string]string{
