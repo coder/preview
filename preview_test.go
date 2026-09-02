@@ -55,6 +55,96 @@ func Test_Extract(t *testing.T) {
 			failPreview: true,
 		},
 		{
+			// Parameters, presets, and tags whose values flow from resource
+			// blocks must be unchanged when unreferenced resources are pruned by
+			// the target closure. Each target type (param/preset/tag) is proven
+			// to independently keep a resource, across direct, local, count-index,
+			// for_each-index, and transitive resource->resource references. An
+			// orphan resource is pruned without effect.
+			name: "resource closure",
+			dir:  "resourceclosure",
+			expTags: map[string]string{
+				"flavor": "large",     // tag reads a param-shared resource
+				"tagged": "tag-large", // tag independently keeps its own resource
+			},
+			params: map[string]assertParam{
+				"flavor":  ap().value("large").def("large"),             // via local
+				"direct":  ap().value("large").def("large"),             // direct
+				"indexed": ap().value("poolimg").def("poolimg"),         // count index
+				"byeach":  ap().value("fe-large").def("fe-large"),       // for_each index
+				"chained": ap().value("chain-large").def("chain-large"), // transitive resource->resource
+			},
+			presets: map[string]assertPreset{
+				// The preset independently keeps a resource nothing else references.
+				"big": aPre().value("flavor", "preset-large"),
+			},
+		},
+		{
+			// A count-guarded parameter and a tag both driven by a submodule
+			// output.
+			name: "count-guarded param from submodule output",
+			dir:  "countsub",
+			expTags: map[string]string{
+				"test": "true",
+			},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"Region": ap().value("STATIC").def("STATIC"),
+			},
+		},
+		{
+			// A tag whose value comes from an http data source that cannot be
+			// resolved without plan data, so it is unknown.
+			name:        "tag from unknown http data source",
+			dir:         "http",
+			expTags:     map[string]string{},
+			unknownTags: []string{"tfversion"},
+		},
+		{
+			// Non-string tag keys and values.
+			name: "non-string tag values",
+			dir:  "notstringtag",
+			expTags: map[string]string{
+				"zone": "5",
+				"10":   "hello",
+			},
+			unknownTags: []string{},
+		},
+		{
+			// No guesses entered, so every parameter's value and default is the
+			// empty string.
+			name: "wordle empty defaults",
+			dir:  "wordle",
+			params: map[string]assertParam{
+				"letter_bank": ap().value("").def(""),
+				"one":         ap().value("").def(""),
+				"two":         ap().value("").def(""),
+				"three":       ap().value("").def(""),
+				"four":        ap().value("").def(""),
+				"five":        ap().value("").def(""),
+				"six":         ap().value("").def(""),
+			},
+		},
+		{
+			// Each "*_format" dropdown drives the sibling parameter's form_type,
+			// so this exercises form_type resolved from another parameter's value
+			// alongside static defaults. like_it defaults false, so the
+			// count-guarded "satisfaction" parameter is absent.
+			name: "form types",
+			dir:  "formtypes",
+			params: map[string]assertParam{
+				"single_select":  ap().value("radio").def("radio").formType(provider.ParameterFormTypeDropdown),
+				"single":         ap().value("alpha-value").def("alpha-value").formType(provider.ParameterFormTypeRadio),
+				"number_format":  ap().value("input").def("input").formType(provider.ParameterFormTypeDropdown),
+				"number":         ap().value("7").def("7").formType(provider.ParameterFormTypeInput),
+				"boolean_format": ap().value("radio").def("radio").formType(provider.ParameterFormTypeDropdown),
+				"boolean":        ap().value("true").def("true").formType(provider.ParameterFormTypeRadio),
+				"list_format":    ap().value("multi-select").def("multi-select").formType(provider.ParameterFormTypeDropdown),
+				"list":           ap().value(`["blue","green"]`).def(`["blue","green"]`).formType(provider.ParameterFormTypeMultiSelect),
+				"like_it":        ap().value("false").def("false").formType(provider.ParameterFormTypeCheckbox),
+			},
+		},
+		{
 			name: "sometags",
 			dir:  "sometags",
 			expTags: map[string]string{
