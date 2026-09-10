@@ -121,6 +121,21 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
+			// file() resolves relative to the template root. A path inside the
+			// template is read; a path that escapes it is unknown, which
+			// invalidates that option but still renders the parameter.
+			name:        "diskaccess",
+			dir:         "diskaccess",
+			expTags:     map[string]string{},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"file": apWithDiags().
+					value("hello world").def("hello world").
+					optVals("hello world", types.UnknownStringValue).
+					errorDiagnostics("Parameter contains 1 invalid options"),
+			},
+		},
+		{
 			name: "sometags",
 			dir:  "sometags",
 			expTags: map[string]string{
