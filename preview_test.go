@@ -55,6 +55,132 @@ func Test_Extract(t *testing.T) {
 			failPreview: true,
 		},
 		{
+			// Parameters, presets, and tags whose values flow from resource
+			// blocks. This pins the baseline so that any evaluation strategy
+			// that skips resources (see coder/trivy#74) must keep every
+			// reference shape here: direct, via local, count and for_each
+			// index, transitive resource->resource, conditional, try(),
+			// nested option and dynamic blocks, meta-arguments, data-source
+			// intermediaries, and module inputs. An orphan resource nothing
+			// references may be dropped without effect.
+			name: "resource closure",
+			dir:  "resourceclosure",
+			expTags: map[string]string{
+				"flavor":  "large",         // tag reads a param-shared resource
+				"tagged":  "tag-large",     // tag independently keeps its own resource
+				"derived": "derived-large", // tag -> resource -> parameter
+			},
+			params: map[string]assertParam{
+				"flavor":  ap().value("large").def("large"),             // via local
+				"direct":  ap().value("large").def("large"),             // direct
+				"indexed": ap().value("poolimg").def("poolimg"),         // count index
+				"byeach":  ap().value("fe-large").def("fe-large"),       // for_each index
+				"chained": ap().value("chain-large").def("chain-large"), // transitive resource->resource
+
+				// Expression shapes the pruner must see through.
+				"picked":     ap().value("alt-large").def("alt-large"), // conditional
+				"tried":      ap().value("alt-large").def("alt-large"), // try()
+				"varindexed": ap().value("poolimg").def("poolimg"),     // index is an expression
+
+				// References inside nested blocks.
+				"staticopt": ap().value("large").def("large").optVals("large"),
+				"dynopts":   ap().value("poolimg").def("poolimg").optVals("poolimg"),
+
+				// Meta-argument on the target reads a resource; the param only
+				// exists if that resource survived.
+				"gated": ap().value("on").def("on"),
+
+				// Non-target data source as the intermediary.
+				"viadata": ap().value("large").def("large"),
+
+				// Module input carries a root resource in; module-owned resource
+				// is never pruned.
+				"viamodule":   ap().value("large").def("large"),
+				"modresource": ap().value("sub-large").def("sub-large"),
+			},
+			presets: map[string]assertPreset{
+				// The preset independently keeps a resource nothing else references.
+				"big": aPre().value("flavor", "preset-large"),
+				// Nested prebuilds block reads a resource.
+				"pre": aPre().value("flavor", "large").prebuildCount(2),
+			},
+			variables: map[string]assertVariable{
+				"pick_alt": av().def(cty.BoolVal(true)).typeEq(cty.Bool),
+				"idx":      av().def(cty.NumberIntVal(1)).typeEq(cty.Number),
+			},
+		},
+		{
+			// JSON syntax templates. A single JSON expression that references two
+			// resources must keep both; the parameter's default is the same as
+			// for the HCL equivalent.
+			name:    "resource closure json",
+			dir:     "resourceclosurejson",
+			expTags: map[string]string{},
+			params: map[string]assertParam{
+				"joined": ap().value("A-B").def("A-B"),
+			},
+		},
+		{
+			// file() resolves relative to the template root. A path inside the
+			// template is read; a path that escapes it is unknown, which
+			// invalidates that option but still renders the parameter.
+			name:        "diskaccess",
+			dir:         "diskaccess",
+			expTags:     map[string]string{},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"file": apWithDiags().
+					value("hello world").def("hello world").
+					optVals("hello world", types.UnknownStringValue).
+					errorDiagnostics("Parameter contains 1 invalid options"),
+			},
+		},
+		{
+			// First hop of the chain: ide_selector is count-gated on git_repo,
+			// which has no value yet, so only git_repo renders.
+			name: "chain-no-inputs",
+			dir:  "chain",
+			input: preview.Input{
+				ParameterValues: map[string]string{},
+			},
+			expTags:     map[string]string{},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"git_repo": apWithDiags().errorDiagnostics("Required"),
+			},
+		},
+		{
+			// Second hop of the chain. cpu_cores is count-gated on
+			// data.coder_parameter.ide_selector[0].value, and ide_selector is
+			// itself count-gated. With ide_selector supplied, local.selected
+			// converges to ["GoLand"] (visible in Output.ModuleOutput), but
+			// cpu_cores' count is evaluated before that input has flowed in
+			// and count expansion is not revisited, so the parameter is
+			// silently dropped. This pins that limitation.
+			//
+			// If chained count gating is fixed, add:
+			//
+			//	"cpu_cores": ap().value("4"),
+			//
+			// (a number-typed parameter) and the parameter count assertion
+			// will require all three.
+			name: "chain-inputs",
+			dir:  "chain",
+			input: preview.Input{
+				ParameterValues: map[string]string{
+					"git_repo":     "coder/coder",
+					"ide_selector": `["GoLand"]`,
+					"cpu_cores":    "4",
+				},
+			},
+			expTags:     map[string]string{},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"git_repo":     ap().value("coder/coder"),
+				"ide_selector": ap().value(`["GoLand"]`),
+			},
+		},
+		{
 			name: "sometags",
 			dir:  "sometags",
 			expTags: map[string]string{

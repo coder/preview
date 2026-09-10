@@ -1,0 +1,26 @@
+{
+  "terraform": {
+    "required_providers": {
+      "coder": { "source": "coder/coder", "version": "2.4.0-pre0" },
+      "docker": { "source": "kreuzwerker/docker", "version": "3.0.2" }
+    }
+  },
+  "resource": {
+    "docker_image": {
+      "first": { "name": "A" },
+      "second": { "name": "B" }
+    }
+  },
+  "locals": {
+    "joined": "${docker_image.first.name}-${docker_image.second.name}"
+  },
+  "data": {
+    "coder_parameter": {
+      "joined": {
+        "name": "joined",
+        "type": "string",
+        "default": "${local.joined}"
+      }
+    }
+  }
+}
