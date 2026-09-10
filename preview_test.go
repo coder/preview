@@ -136,6 +136,51 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
+			// First hop of the chain: ide_selector is count-gated on git_repo,
+			// which has no value yet, so only git_repo renders.
+			name: "chain-no-inputs",
+			dir:  "chain",
+			input: preview.Input{
+				ParameterValues: map[string]string{},
+			},
+			expTags:     map[string]string{},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"git_repo": apWithDiags().errorDiagnostics("Required"),
+			},
+		},
+		{
+			// Second hop of the chain. cpu_cores is count-gated on
+			// data.coder_parameter.ide_selector[0].value, and ide_selector is
+			// itself count-gated. With ide_selector supplied, local.selected
+			// converges to ["GoLand"] (visible in Output.ModuleOutput), but
+			// cpu_cores' count is evaluated before that input has flowed in
+			// and count expansion is not revisited, so the parameter is
+			// silently dropped. This pins that limitation.
+			//
+			// If chained count gating is fixed, add:
+			//
+			//	"cpu_cores": ap().value("4"),
+			//
+			// (a number-typed parameter) and the parameter count assertion
+			// will require all three.
+			name: "chain-inputs",
+			dir:  "chain",
+			input: preview.Input{
+				ParameterValues: map[string]string{
+					"git_repo":     "coder/coder",
+					"ide_selector": `["GoLand"]`,
+					"cpu_cores":    "4",
+				},
+			},
+			expTags:     map[string]string{},
+			unknownTags: []string{},
+			params: map[string]assertParam{
+				"git_repo":     ap().value("coder/coder"),
+				"ide_selector": ap().value(`["GoLand"]`),
+			},
+		},
+		{
 			name: "sometags",
 			dir:  "sometags",
 			expTags: map[string]string{
