@@ -243,6 +243,16 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		parser.OptionWithEvalHook(ownerHook),
 		parser.OptionWithWorkingDirectoryPath("/"),
 		parser.OptionWithEvalHook(parameterContextsEvalHook(input)),
+		// Only the parameter/preset/tag blocks and what they reference need to be
+		// evaluated to render a workspace form. The resources a workspace would
+		// create cannot feed those blocks, so pruning the ones nothing references
+		// avoids evaluating the entire module graph on every request without
+		// changing any parameter, preset or tag. See OptionWithResourceClosure.
+		parser.OptionWithResourceClosure([]string{
+			"coder_parameter",
+			"coder_workspace_preset",
+			"coder_workspace_tags",
+		}),
 		// 'OptionsWithTfVars' cannot be set with 'OptionWithTFVarsPaths'. So load the
 		// tfvars from the files ourselves and merge with the user-supplied tf vars.
 		parser.OptionsWithTfVars(variableValues),
