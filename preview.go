@@ -249,9 +249,15 @@ func Preview(ctx context.Context, input Input, dir fs.FS, opts ...Option) (outpu
 		parser.OptionsWithTfVars(variableValues),
 	}
 	if !settings.fullEvaluation {
-		// Skip root resources that nothing in the parameter/preset/tag closure
-		// references. See resourceClosureTargets and OptionFullEvaluation.
-		parserOpts = append(parserOpts, parser.OptionWithResourceClosure(resourceClosureTargets))
+		// Only the parameter/preset/tag blocks and what they reference need to
+		// be evaluated to render a workspace form. The resources a workspace
+		// would create cannot feed those blocks, so root resources nothing in
+		// this closure references are skipped. See OptionFullEvaluation.
+		parserOpts = append(parserOpts, parser.OptionWithResourceClosure([]string{
+			"coder_parameter",
+			"coder_workspace_preset",
+			"coder_workspace_tags",
+		}))
 	}
 	p := parser.New(dir, "", parserOpts...)
 

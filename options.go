@@ -11,17 +11,6 @@ type options struct {
 	fullEvaluation bool
 }
 
-// resourceClosureTargets are the block types whose values Preview renders.
-// Only the parameter/preset/tag blocks and what they reference need to be
-// evaluated to render a workspace form. The resources a workspace would create
-// cannot feed those blocks, so root resources nothing in this closure
-// references are skipped by default.
-var resourceClosureTargets = []string{
-	"coder_parameter",
-	"coder_workspace_preset",
-	"coder_workspace_tags",
-}
-
 // OptionFullEvaluation evaluates every resource in the root module instead of
 // only those reachable from parameter, preset, and tag blocks. It is the escape
 // hatch for the resource closure optimization: parameters, presets, and tags
