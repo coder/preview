@@ -181,6 +181,68 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 		{
+			// Second batch of resource-reachability vectors; see the fixture
+			// header for the evaluation paths covered. Complements
+			// "resource closure".
+			name: "resource closure 2",
+			dir:  "resourceclosure2",
+			expTags: map[string]string{
+				"pool":   "pool-0,pool-1", // splat directly in a tag
+				"shards": "3",             // resource for_each driven by a parameter
+			},
+			params: map[string]assertParam{
+				"validated": ap().value("large").def("large"),                 // validation block reads a resource
+				"forlist":   ap().value("pool-0,pool-1").def("pool-0,pool-1"), // [for ...] over a count resource
+				"formap":    ap().value("img-b").def("img-b"),                 // {for ...} over a for_each resource
+				"fallback":  ap().value("fallback").def("fallback"),           // count = 0 resource, try() fallback
+				"shards":    ap().value(`["x","y","z"]`),
+				"nested":    ap().value("inner-outer-large").def("inner-outer-large"), // two-level module chain
+				"hops":      ap().value("large").def("large"),                         // multi-hop locals
+				// A computed attribute is unknown whether or not the resource is
+				// evaluated. Pins that it stays unknown and does not become an
+				// error.
+				"computed": ap().unknown(),
+			},
+		},
+		{
+			// Same fixture with an input that fails the validation block. The
+			// error text is built from a resource attribute, so it must still
+			// resolve.
+			name: "resource closure 2 invalid input",
+			dir:  "resourceclosure2",
+			input: preview.Input{
+				ParameterValues: map[string]string{
+					"validated": "small",
+				},
+			},
+			expTags: map[string]string{
+				"pool":   "pool-0,pool-1",
+				"shards": "3",
+			},
+			params: map[string]assertParam{
+				"validated": apWithDiags().value("small").def("large").
+					errorDiagnostics("must be large"),
+				"forlist":  ap().value("pool-0,pool-1"),
+				"formap":   ap().value("img-b"),
+				"fallback": ap().value("fallback"),
+				"shards":   ap().value(`["x","y","z"]`),
+				"nested":   ap().value("inner-outer-large"),
+				"hops":     ap().value("large"),
+				"computed": ap().unknown(),
+			},
+		},
+		{
+			// The only parameter is in a submodule; the root has no parameter,
+			// preset, or tag. A root resource it reads through a module input
+			// must still be evaluated.
+			name:    "resource closure submodule only",
+			dir:     "resourceclosuresubmod",
+			expTags: map[string]string{},
+			params: map[string]assertParam{
+				"flavor": ap().value("large").def("large"),
+			},
+		},
+		{
 			name: "sometags",
 			dir:  "sometags",
 			expTags: map[string]string{
