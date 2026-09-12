@@ -871,6 +871,15 @@ func Test_Extract(t *testing.T) {
 		// optimization, and with OptionFullEvaluation. The expectations are
 		// shared, which pins that the optimization is output-neutral for
 		// parameters, presets, tags, and variables.
+		// Defaults are applied once here rather than inside the subtests, which
+		// run in parallel and share tc.
+		if tc.unknownTags == nil {
+			tc.unknownTags = []string{}
+		}
+		if tc.expTags == nil {
+			tc.expTags = map[string]string{}
+		}
+
 		for _, mode := range []struct {
 			name string
 			opts []preview.Option
@@ -883,13 +892,6 @@ func Test_Extract(t *testing.T) {
 				if tc.skip != "" {
 					t.Skip(tc.skip)
 					return
-				}
-
-				if tc.unknownTags == nil {
-					tc.unknownTags = []string{}
-				}
-				if tc.expTags == nil {
-					tc.expTags = map[string]string{}
 				}
 
 				dirFs := os.DirFS(filepath.Join("testdata", tc.dir))
