@@ -139,7 +139,8 @@ func ValidatePrebuilds(ctx context.Context, input Input, preValid []types.Preset
 	}
 }
 
-func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagnostics hcl.Diagnostics) {
+func Preview(ctx context.Context, input Input, dir fs.FS, opts ...Option) (output *Output, diagnostics hcl.Diagnostics) {
+	settings := applyOptions(opts)
 	// The trivy package works with `github.com/zclconf/go-cty`. This package is
 	// similar to `reflect` in its usage. This package can panic if types are
 	// misused. To protect the caller, a general `recover` is used to catch any
@@ -234,7 +235,7 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 	}
 
 	// moduleSource is "" for a local module
-	p := parser.New(dir, "",
+	parserOpts := []parser.Option{
 		parser.OptionWithLogger(logger),
 		parser.OptionStopOnHCLError(false),
 		parser.OptionWithDownloads(false),
@@ -246,7 +247,19 @@ func Preview(ctx context.Context, input Input, dir fs.FS) (output *Output, diagn
 		// 'OptionsWithTfVars' cannot be set with 'OptionWithTFVarsPaths'. So load the
 		// tfvars from the files ourselves and merge with the user-supplied tf vars.
 		parser.OptionsWithTfVars(variableValues),
-	)
+	}
+	if !settings.fullEvaluation {
+		// Only the parameter/preset/tag blocks and what they reference need to
+		// be evaluated to render a workspace form. The resources a workspace
+		// would create cannot feed those blocks, so root resources nothing in
+		// this closure references are skipped. See OptionFullEvaluation.
+		parserOpts = append(parserOpts, parser.OptionWithResourceClosure([]string{
+			"coder_parameter",
+			"coder_workspace_preset",
+			"coder_workspace_tags",
+		}))
+	}
+	p := parser.New(dir, "", parserOpts...)
 
 	err = p.ParseFS(ctx, ".")
 	if err != nil {

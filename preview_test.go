@@ -867,85 +867,129 @@ func Test_Extract(t *testing.T) {
 			},
 		},
 	} {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			if tc.skip != "" {
-				t.Skip(tc.skip)
-				return
-			}
+		// Every vector runs twice: with the default resource closure
+		// optimization, and with OptionFullEvaluation. The expectations are
+		// shared, which pins that the optimization is output-neutral for
+		// parameters, presets, tags, and variables.
+		// Defaults are applied once here rather than inside the subtests, which
+		// run in parallel and share tc.
+		if tc.unknownTags == nil {
+			tc.unknownTags = []string{}
+		}
+		if tc.expTags == nil {
+			tc.expTags = map[string]string{}
+		}
 
-			if tc.unknownTags == nil {
-				tc.unknownTags = []string{}
-			}
-			if tc.expTags == nil {
-				tc.expTags = map[string]string{}
-			}
-
-			dirFs := os.DirFS(filepath.Join("testdata", tc.dir))
-
-			output, diags := preview.Preview(context.Background(), tc.input, dirFs)
-			if tc.failPreview {
-				require.True(t, diags.HasErrors())
-				return
-			}
-			if diags.HasErrors() {
-				t.Logf("diags: %s", diags)
-			}
-			require.False(t, diags.HasErrors())
-
-			// Validate prebuilds too
-			preview.ValidatePrebuilds(context.Background(), tc.input, output.Presets, dirFs)
-
-			if len(tc.warnings) > 0 {
-				for _, w := range tc.warnings {
-					idx := slices.IndexFunc(diags, func(diagnostic *hcl.Diagnostic) bool {
-						return w.MatchString(diagnostic.Error())
-
-					})
-					require.Greater(t, idx, -1, "expected warning %q to be present in diags", w.String())
+		for _, mode := range []struct {
+			name string
+			opts []preview.Option
+		}{
+			{name: "closure"},
+			{name: "full", opts: []preview.Option{preview.OptionFullEvaluation()}},
+		} {
+			t.Run(tc.name+"/"+mode.name, func(t *testing.T) {
+				t.Parallel()
+				if tc.skip != "" {
+					t.Skip(tc.skip)
+					return
 				}
-			}
 
-			// Assert tags
-			validTags := output.WorkspaceTags.Tags()
+				dirFs := os.DirFS(filepath.Join("testdata", tc.dir))
 
-			for k, expected := range tc.expTags {
-				tag, ok := validTags[k]
-				if !ok {
-					t.Errorf("expected tag %q to be present in output, but it was not", k)
-					continue
+				output, diags := preview.Preview(context.Background(), tc.input, dirFs, mode.opts...)
+				if tc.failPreview {
+					require.True(t, diags.HasErrors())
+					return
 				}
-				if tag != expected {
-					assert.JSONEqf(t, expected, tag, "tag %q does not match expected, nor is it a json equivalent", k)
+				if diags.HasErrors() {
+					t.Logf("diags: %s", diags)
 				}
-			}
-			assert.Equal(t, len(tc.expTags), len(output.WorkspaceTags.Tags()), "unexpected number of tags in output")
+				require.False(t, diags.HasErrors())
 
-			assert.ElementsMatch(t, tc.unknownTags, output.WorkspaceTags.UnusableTags().SafeNames())
+				// Validate prebuilds too
+				preview.ValidatePrebuilds(context.Background(), tc.input, output.Presets, dirFs)
 
-			// Assert params
-			require.Len(t, output.Parameters, len(tc.params), "wrong number of parameters expected")
-			for _, param := range output.Parameters {
-				check, ok := tc.params[param.Name]
-				require.True(t, ok, "unknown parameter %s", param.Name)
-				check(t, param)
-			}
+				if len(tc.warnings) > 0 {
+					for _, w := range tc.warnings {
+						idx := slices.IndexFunc(diags, func(diagnostic *hcl.Diagnostic) bool {
+							return w.MatchString(diagnostic.Error())
 
-			for _, preset := range output.Presets {
-				check, ok := tc.presets[preset.Name]
-				require.True(t, ok, "unknown preset %s", preset.Name)
-				check(t, preset)
-			}
+						})
+						require.Greater(t, idx, -1, "expected warning %q to be present in diags", w.String())
+					}
+				}
 
-			// Assert variables
-			require.Len(t, output.Variables, len(tc.variables), "wrong number of variables expected")
-			for _, variable := range output.Variables {
-				check, ok := tc.variables[variable.Name]
-				require.True(t, ok, "unknown variable %s", variable.Name)
-				check(t, variable)
-			}
-		})
+				// Assert tags
+				validTags := output.WorkspaceTags.Tags()
+
+				for k, expected := range tc.expTags {
+					tag, ok := validTags[k]
+					if !ok {
+						t.Errorf("expected tag %q to be present in output, but it was not", k)
+						continue
+					}
+					if tag != expected {
+						assert.JSONEqf(t, expected, tag, "tag %q does not match expected, nor is it a json equivalent", k)
+					}
+				}
+				assert.Equal(t, len(tc.expTags), len(output.WorkspaceTags.Tags()), "unexpected number of tags in output")
+
+				assert.ElementsMatch(t, tc.unknownTags, output.WorkspaceTags.UnusableTags().SafeNames())
+
+				// Assert params
+				require.Len(t, output.Parameters, len(tc.params), "wrong number of parameters expected")
+				for _, param := range output.Parameters {
+					check, ok := tc.params[param.Name]
+					require.True(t, ok, "unknown parameter %s", param.Name)
+					check(t, param)
+				}
+
+				for _, preset := range output.Presets {
+					check, ok := tc.presets[preset.Name]
+					require.True(t, ok, "unknown preset %s", preset.Name)
+					check(t, preset)
+				}
+
+				// Assert variables
+				require.Len(t, output.Variables, len(tc.variables), "wrong number of variables expected")
+				for _, variable := range output.Variables {
+					check, ok := tc.variables[variable.Name]
+					require.True(t, ok, "unknown variable %s", variable.Name)
+					check(t, variable)
+				}
+			})
+		}
 	}
+}
+
+// Test_OptionFullEvaluation proves the option changes evaluation, not just
+// that both modes agree on parameters. Output.ModuleOutput is the one place a
+// resource outside the closure is observable.
+func Test_OptionFullEvaluation(t *testing.T) {
+	t.Parallel()
+
+	dirFs := os.DirFS(filepath.Join("testdata", "fullevaluation"))
+	outputName := func(t *testing.T, opts ...preview.Option) cty.Value {
+		t.Helper()
+		output, diags := preview.Preview(context.Background(), preview.Input{}, dirFs, opts...)
+		require.False(t, diags.HasErrors(), diags.Error())
+		require.Len(t, output.Parameters, 1)
+		assert.Equal(t, "large", output.Parameters[0].Value.AsString())
+		return output.ModuleOutput.GetAttr("unreferenced_name")
+	}
+
+	t.Run("Closure", func(t *testing.T) {
+		t.Parallel()
+		v := outputName(t)
+		assert.False(t, v.IsKnown(), "resource outside the closure should not be evaluated by default, got %s", v.GoString())
+	})
+
+	t.Run("Full", func(t *testing.T) {
+		t.Parallel()
+		v := outputName(t, preview.OptionFullEvaluation())
+		require.True(t, v.IsKnown(), "OptionFullEvaluation must evaluate every resource")
+		assert.Equal(t, "outside-closure", v.AsString())
+	})
 }
 
 func TestPresetValidation(t *testing.T) {
