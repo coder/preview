@@ -1,0 +1,3 @@
+output "plain" {
+  value = true
+}

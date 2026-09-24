@@ -22,8 +22,8 @@ func warnings(modules terraform.Modules) hcl.Diagnostics {
 // failed to resolve. This is usually because `terraform init` is not run.
 func unresolvedModules(modules terraform.Modules) hcl.Diagnostics {
 	var diags hcl.Diagnostics
-	modulesUsed := make(map[string]bool)
-	modulesByID := make(map[string]*terraform.Block)
+	modulesUsed := make(map[moduleIdentity]bool)
+	modulesByIdentity := make(map[moduleIdentity]*terraform.Block)
 
 	// There is no easy way to know if a `module` failed to resolve. The failure is
 	// only logged in the trivy package. No errors are returned to the caller. So
@@ -34,21 +34,22 @@ func unresolvedModules(modules terraform.Modules) hcl.Diagnostics {
 	blocks := modules.GetBlocks()
 	for _, block := range blocks {
 		if block.InModule() && block.ModuleBlock() != nil {
-			modulesUsed[block.ModuleBlock().ID()] = true
+			modulesUsed[identifyModule(block.ModuleBlock())] = true
 		}
 
 		if block.Type() == "module" {
-			modulesByID[block.ID()] = block
-			_, ok := modulesUsed[block.ID()]
+			identity := identifyModule(block)
+			modulesByIdentity[identity] = block
+			_, ok := modulesUsed[identity]
 			if !ok {
-				modulesUsed[block.ID()] = false
+				modulesUsed[identity] = false
 			}
 		}
 	}
 
-	for id, v := range modulesUsed {
+	for identity, v := range modulesUsed {
 		if !v {
-			block, ok := modulesByID[id]
+			block, ok := modulesByIdentity[identity]
 			if ok {
 				label := block.Type()
 				for _, l := range block.Labels() {
@@ -66,6 +67,40 @@ func unresolvedModules(modules terraform.Modules) hcl.Diagnostics {
 	}
 
 	return diags
+}
+
+// moduleIdentity identifies a `module` block by where it is declared rather
+// than by the block instance.
+//
+// terraform.Block.ID() is a per-instance UUID that Clone() regenerates, and a
+// module block is cloned whenever `count` or `for_each` is expanded. Expansion
+// can happen after the module's own blocks captured their ModuleBlock()
+// pointer, in which case the enumerated block and the captured block are
+// different instances with different IDs, and a module that loaded correctly
+// is reported as not loaded.
+//
+// Both fields survive Clone(): the block reference is built from the original
+// labels before Clone() rewrites them, and copyBlock() shallow copies the
+// hcl.Block, preserving DefRange. Keeping them as separate fields rather than a
+// formatted string means two declarations can never be conflated by the way
+// their parts are joined.
+//
+// Instances of the same expanded module block share an identity, so a module is
+// considered loaded if any of its instances contributed blocks.
+type moduleIdentity struct {
+	// key is the module address terraform uses in modules.json, without an
+	// instance index, for example "workspace.claude_code".
+	key string
+	// declaration is the range of the `module` block in its source file, which
+	// distinguishes declarations that share a key.
+	declaration hcl.Range
+}
+
+func identifyModule(block *terraform.Block) moduleIdentity {
+	return moduleIdentity{
+		key:         block.ModuleKey(),
+		declaration: block.HCLBlock().DefRange,
+	}
 }
 
 // unexpandedCountBlocks is to compensate for a bug in the trivy parser.
