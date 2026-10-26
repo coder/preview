@@ -159,4 +159,4 @@ require (
 
 // Trivy has some issues that we're floating patches for, and will hopefully
 // be upstreamed eventually.
-replace github.com/aquasecurity/trivy => github.com/coder/trivy v0.0.0-20260911135535-15b949537506
+replace github.com/aquasecurity/trivy => github.com/coder/trivy v0.0.0-20261026151418-65abc04915bd
